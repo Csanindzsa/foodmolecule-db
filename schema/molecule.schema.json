@@ -1,24 +1,35 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/Csanindzsa/foodmolecule-db/schema/molecule.schema.json",
-  "title": "Molecule Entry",
+  "$id": "https://nutrii.app/schema/molecule.schema.json",
+  "title": "Molecule",
+  "description": "A chemical molecule or compound in the nutrii database",
   "type": "object",
-  "required": ["name", "molecular_formula", "harm_level", "references"],
+  "required": ["name"],
   "properties": {
-    "pubchem_cid": { "type": "integer" },
-    "name": { "type": "string" },
-    "iupac_name": { "type": "string" },
-    "cas_number": { "type": "string" },
-    "molecular_formula": { "type": "string" },
-    "molecular_weight": { "type": "number" },
-    "harm_level": { "type": "string", "enum": ["none", "negligible", "low", "moderate", "high", "critical"] },
+    "id": { "type": "string", "format": "uuid" },
+    "pubchem_cid": { "type": ["integer", "null"] },
+    "name": { "type": "string", "maxLength": 255 },
+    "iupac_name": { "type": ["string", "null"], "maxLength": 500 },
+    "cas_number": { "type": ["string", "null"], "maxLength": 50 },
+    "molecular_formula": { "type": ["string", "null"], "maxLength": 100 },
+    "molecular_weight": { "type": ["number", "null"] },
+    "harm_level": { "type": "integer", "minimum": 0, "maximum": 5 },
     "harm_mechanisms": { "type": "array", "items": { "type": "string" } },
-    "threshold_concern_mg_per_day": { "type": "number" },
-    "neutralization": {
+    "threshold_concern_mg_per_day": { "type": ["number", "null"] },
+    "is_heat_stable": { "type": "boolean", "default": true },
+    "is_neutralizable": { "type": "boolean", "default": false },
+    "structure_image_url": { "type": ["string", "null"], "format": "uri" },
+    "metadata": {
       "type": "object",
-      "additionalProperties": { "type": "string" }
-    },
-    "foods_high_in_this": { "type": "array", "items": { "type": "string" } },
-    "references": { "type": "array", "items": { "type": "string" } }
-  }
+      "properties": {
+        "source": { "type": "string" },
+        "source_url": { "type": "string", "format": "uri" },
+        "ingested_at": { "type": "string", "format": "date-time" },
+        "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+        "synonyms": { "type": "array", "items": { "type": "string" } },
+        "chembl_id": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "additionalProperties": false
 }

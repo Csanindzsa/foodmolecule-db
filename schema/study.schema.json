@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nutrii.app/schema/study.schema.json",
+  "title": "Study",
+  "description": "A PubMed study ingested and analyzed by the nutrii AI pipeline",
+  "type": "object",
+  "required": ["pmid", "title"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "pmid": { "type": "string", "maxLength": 20 },
+    "title": { "type": "string" },
+    "authors": { "type": "array", "items": { "type": "string" } },
+    "journal": { "type": ["string", "null"], "maxLength": 255 },
+    "publication_year": { "type": ["integer", "null"], "minimum": 1900, "maximum": 2100 },
+    "url": { "type": ["string", "null"], "format": "uri" },
+    "abstract": { "type": ["string", "null"] },
+    "ai_summary": { "type": ["string", "null"] },
+    "ai_safety_impact": { "type": ["integer", "null"], "minimum": -5, "maximum": 5 },
+    "ai_health_impact": { "type": ["integer", "null"], "minimum": -5, "maximum": 5 },
+    "ai_confidence": {
+      "type": ["string", "null"],
+      "enum": ["high", "medium", "low", null]
+    },
+    "ai_model_used": { "type": ["string", "null"], "maxLength": 100 },
+    "analyzed_at": { "type": ["string", "null"], "format": "date-time" },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}
