@@ -1,0 +1,30 @@
+{
+  "pubchem_cid": 971,
+  "name": "Oxalic Acid",
+  "iupac_name": "ethanedioic acid",
+  "cas_number": "144-62-7",
+  "molecular_formula": "C2H2O4",
+  "molecular_weight": 90.03,
+  "harm_level": "moderate",
+  "harm_mechanisms": [
+    "Binds divalent cations (Ca2+, Mg2+, Fe2+, Zn2+) forming insoluble salts — reducing mineral bioavailability",
+    "Can crystallize into calcium oxalate in the kidneys, contributing to nephrolithiasis (kidney stones)",
+    "At very high doses (>2g in a single sitting) can cause acute renal failure — primarily from concentrated industrial sources, not dietary intake"
+  ],
+  "threshold_concern_mg_per_day": 250,
+  "neutralization": {
+    "boiling": "Boiling for 5–10 min in water removes 30–87% depending on the vegetable and water volume. Discard cooking water.",
+    "blanching": "Brief boiling (2–3 min) removes 30–40%.",
+    "soaking": "Soaking in water for 8–12h removes 10–30%. Discard soak water.",
+    "fermentation": "Fermentation reduces oxalate by up to 50% in 24h (e.g., in fermented leafy greens).",
+    "none": "Raw consumption preserves full oxalate content."
+  },
+  "foods_high_in_this": [
+    "spinach", "rhubarb_stalks", "beet_greens", "swiss_chard", "purslane", "almonds", "cashews", "peanuts", "cocoa", "tea"
+  ],
+  "references": [
+    "PubMed PMID:18300710",
+    "PubMed PMID:29580532",
+    "EFSA Journal 2014;12(6):3711"
+  ]
+}

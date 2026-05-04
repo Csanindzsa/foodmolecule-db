@@ -1,0 +1,73 @@
+{
+  "id": "food_001",
+  "name": "Spinach",
+  "aliases": ["Spinacia oleracea"],
+  "category": "Leafy Vegetable",
+  "origin": "Central and Western Asia",
+  "molecules": [
+    {
+      "name": "Oxalic Acid",
+      "pubchem_cid": 971,
+      "amount_per_100g": "600-900 mg",
+      "unit": "mg",
+      "harm_level": "moderate",
+      "harm_type": ["kidney_stone_risk", "mineral_absorption_inhibitor"],
+      "neutralizable": true,
+      "neutralization_methods": ["boiling", "blanching"],
+      "notes": "Boiling spinach for 5 minutes and discarding water removes 30-87% of oxalates. Higher risk for those with kidney stones or low calcium intake."
+    },
+    {
+      "name": "Nitrate",
+      "pubchem_cid": 943,
+      "amount_per_100g": "1000-3000 mg",
+      "unit": "mg",
+      "harm_level": "low",
+      "harm_type": ["nitrate_conversion_risk"],
+      "neutralizable": true,
+      "neutralization_methods": ["boiling", "fermentation"],
+      "notes": "In healthy adults, dietary nitrate from vegetables is largely beneficial (vasodilatory, exercise performance). Risk is primarily for infants under 6 months (methemoglobinemia)."
+    },
+    {
+      "name": "Lutein",
+      "pubchem_cid": 5281243,
+      "amount_per_100g": "12.2 mg",
+      "unit": "mg",
+      "harm_level": "none",
+      "harm_type": [],
+      "beneficial": true,
+      "benefits": ["eye_health", "antioxidant", "macular_degeneration_prevention"]
+    },
+    {
+      "name": "Vitamin K1 (Phylloquinone)",
+      "pubchem_cid": 5284607,
+      "amount_per_100g": "483 mcg",
+      "unit": "mcg",
+      "harm_level": "low",
+      "harm_type": ["drug_interaction"],
+      "neutralizable": false,
+      "notes": "Very high in Vitamin K1. Can interfere with warfarin (blood thinner) therapy — consistency of intake is key for anticoagulated patients.",
+      "beneficial": true,
+      "benefits": ["bone_health", "blood_coagulation"]
+    },
+    {
+      "name": "Iron (non-heme)",
+      "pubchem_cid": null,
+      "amount_per_100g": "2.7 mg",
+      "unit": "mg",
+      "harm_level": "none",
+      "harm_type": [],
+      "beneficial": true,
+      "benefits": ["iron_source"],
+      "notes": "Non-heme iron absorption is inhibited by the same oxalic acid also present in spinach. Pair with vitamin C to improve absorption."
+    }
+  ],
+  "overall_safety": "safe_with_preparation",
+  "ban_listed": false,
+  "preparation_notes": "Boil or blanch and discard water to reduce oxalates. Avoid feeding large amounts to infants. Those with kidney stones or on warfarin should consult a doctor.",
+  "sources": [
+    "USDA FoodData Central ID: 168462",
+    "FooDB FDB000108",
+    "PubMed PMID:18300710",
+    "PubMed PMID:15826055"
+  ]
+}

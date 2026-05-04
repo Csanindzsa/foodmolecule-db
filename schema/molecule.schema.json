@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Csanindzsa/foodmolecule-db/schema/molecule.schema.json",
+  "title": "Molecule Entry",
+  "type": "object",
+  "required": ["name", "molecular_formula", "harm_level", "references"],
+  "properties": {
+    "pubchem_cid": { "type": "integer" },
+    "name": { "type": "string" },
+    "iupac_name": { "type": "string" },
+    "cas_number": { "type": "string" },
+    "molecular_formula": { "type": "string" },
+    "molecular_weight": { "type": "number" },
+    "harm_level": { "type": "string", "enum": ["none", "negligible", "low", "moderate", "high", "critical"] },
+    "harm_mechanisms": { "type": "array", "items": { "type": "string" } },
+    "threshold_concern_mg_per_day": { "type": "number" },
+    "neutralization": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "foods_high_in_this": { "type": "array", "items": { "type": "string" } },
+    "references": { "type": "array", "items": { "type": "string" } }
+  }
+}

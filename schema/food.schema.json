@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Csanindzsa/foodmolecule-db/schema/food.schema.json",
+  "title": "Food Entry",
+  "type": "object",
+  "required": ["id", "name", "category", "molecules", "overall_safety", "ban_listed", "sources"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^food_[0-9]{3,}$" },
+    "name": { "type": "string" },
+    "aliases": { "type": "array", "items": { "type": "string" } },
+    "category": { "type": "string" },
+    "origin": { "type": "string" },
+    "molecules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "harm_level"],
+        "properties": {
+          "name": { "type": "string" },
+          "pubchem_cid": { "type": "integer" },
+          "amount_per_100g": { "type": "string" },
+          "unit": { "type": "string" },
+          "harm_level": { "type": "string", "enum": ["none", "negligible", "low", "moderate", "high", "critical"] },
+          "harm_type": { "type": "array", "items": { "type": "string" } },
+          "neutralizable": { "type": "boolean" },
+          "neutralization_methods": { "type": "array", "items": { "type": "string" } },
+          "beneficial": { "type": "boolean" },
+          "benefits": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "overall_safety": {
+      "type": "string",
+      "enum": ["safe", "safe_with_preparation", "caution", "avoid", "banned"]
+    },
+    "ban_listed": { "type": "boolean" },
+    "sources": { "type": "array", "items": { "type": "string" } }
+  }
+}

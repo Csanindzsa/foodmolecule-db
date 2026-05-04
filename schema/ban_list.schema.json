@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Csanindzsa/foodmolecule-db/schema/ban_list.schema.json",
+  "title": "Ban List Entry",
+  "type": "object",
+  "required": ["id", "food_name", "reason", "harmful_molecules", "is_heat_stable"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^ban_[0-9]{3,}$" },
+    "food_name": { "type": "string" },
+    "reason": { "type": "string" },
+    "harmful_molecules": { "type": "array", "items": { "type": "string" } },
+    "lethal_dose": { "type": "string" },
+    "is_heat_stable": { "type": "boolean" },
+    "is_conditionally_safe": { "type": "boolean" },
+    "safe_condition": { "type": "string" },
+    "regulatory_status": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}
