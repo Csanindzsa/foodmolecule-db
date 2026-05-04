@@ -1,0 +1,152 @@
+"""
+DRF serializers for nutrii API.
+
+Phase 10 deliverable — full serializer implementations.
+Stubs created in Phase 2 to complete the project structure.
+"""
+
+from rest_framework import serializers
+
+from .models import (
+    BanListEntry,
+    Food,
+    FoodCategory,
+    FoodMolecule,
+    FoodStudy,
+    IngredientAIGuide,
+    Molecule,
+    MoleculeNeutralization,
+    ProcessingMethod,
+    SafetyScoreRevision,
+    Study,
+)
+
+
+class FoodCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FoodCategory
+        fields = ["id", "name", "parent", "description"]
+
+
+class MoleculeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Molecule
+        fields = [
+            "id",
+            "pubchem_cid",
+            "name",
+            "iupac_name",
+            "cas_number",
+            "molecular_formula",
+            "molecular_weight",
+            "harm_level",
+            "harm_mechanisms",
+            "is_heat_stable",
+            "is_neutralizable",
+            "structure_image_url",
+        ]
+
+
+class FoodMoleculeSerializer(serializers.ModelSerializer):
+    molecule = MoleculeSerializer(read_only=True)
+
+    class Meta:
+        model = FoodMolecule
+        fields = ["molecule", "amount_per_100g", "unit", "amount_notes", "is_beneficial"]
+
+
+class StudySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Study
+        fields = [
+            "id",
+            "pmid",
+            "title",
+            "authors",
+            "journal",
+            "publication_year",
+            "url",
+            "abstract",
+            "ai_summary",
+            "ai_safety_impact",
+            "ai_health_impact",
+            "ai_confidence",
+            "ai_model_used",
+            "analyzed_at",
+        ]
+
+
+class FoodStudySerializer(serializers.ModelSerializer):
+    study = StudySerializer(read_only=True)
+
+    class Meta:
+        model = FoodStudy
+        fields = ["study", "relevance_score", "linked_by"]
+
+
+class IngredientAIGuideSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IngredientAIGuide
+        fields = ["id", "food", "molecule", "guide_markdown", "version", "generated_by", "generated_at"]
+
+
+class SafetyScoreRevisionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SafetyScoreRevision
+        fields = [
+            "id",
+            "old_safety_score",
+            "new_safety_score",
+            "old_health_index",
+            "new_health_index",
+            "reason",
+            "triggering_study",
+            "ai_model_used",
+            "created_at",
+        ]
+
+
+class BanListEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BanListEntry
+        fields = ["id", "food", "reason", "lethal_dose_mg", "is_conditionally_safe", "safe_condition", "regulatory_status"]
+
+
+class ProcessingMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessingMethod
+        fields = ["id", "name", "description", "mechanism", "typical_temperature_c", "typical_duration_min"]
+
+
+class FoodListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Food
+        fields = ["id", "name", "category", "overall_safety_score", "health_index", "ban_listed", "image_url"]
+
+
+class FoodDetailSerializer(serializers.ModelSerializer):
+    molecules = FoodMoleculeSerializer(source="foodmolecule_set", many=True, read_only=True)
+    score_revisions = SafetyScoreRevisionSerializer(many=True, read_only=True)
+    ai_guides = IngredientAIGuideSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Food
+        fields = [
+            "id",
+            "name",
+            "aliases",
+            "category",
+            "origin",
+            "overall_safety_score",
+            "health_index",
+            "ban_listed",
+            "image_url",
+            "metadata",
+            "ai_guide_version",
+            "last_analyzed_at",
+            "molecules",
+            "score_revisions",
+            "ai_guides",
+            "created_at",
+            "updated_at",
+        ]

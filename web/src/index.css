@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-nutrii-green: #166534;
+  --color-nutrii-bg: #fafaf9;
+  --color-nutrii-text: #171717;
+  --color-safety-excellent: #15803d;
+  --color-safety-good: #22c55e;
+  --color-safety-fair: #84cc16;
+  --color-safety-caution: #eab308;
+  --color-safety-poor: #f97316;
+  --color-safety-avoid: #dc2626;
+}
+
+body {
+  background-color: var(--color-nutrii-bg);
+  color: var(--color-nutrii-text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}

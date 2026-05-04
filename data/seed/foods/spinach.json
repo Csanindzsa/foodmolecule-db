@@ -1,0 +1,31 @@
+{
+  "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+  "name": "spinach",
+  "aliases": ["spinacia oleracea", "english spinach"],
+  "category": "Leafy Vegetable",
+  "origin": "Central Asia",
+  "overall_safety_score": 75,
+  "health_index": 82,
+  "ban_listed": false,
+  "image_url": "",
+  "metadata": {
+    "source": "USDA FoodData Central + manual curation",
+    "confidence": "high"
+  },
+  "molecules": [
+    {
+      "molecule_name": "oxalic acid",
+      "amount_per_100g": 750.0,
+      "unit": "mg",
+      "amount_notes": "600-900 mg depending on cultivar and growing conditions",
+      "is_beneficial": false
+    },
+    {
+      "molecule_name": "iron",
+      "amount_per_100g": 2.7,
+      "unit": "mg",
+      "amount_notes": "Highly bioavailable when cooked with vitamin C",
+      "is_beneficial": true
+    }
+  ]
+}

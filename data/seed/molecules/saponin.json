@@ -1,0 +1,24 @@
+{
+  "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+  "pubchem_cid": null,
+  "name": "saponin",
+  "iupac_name": "",
+  "cas_number": "",
+  "molecular_formula": "",
+  "molecular_weight": null,
+  "harm_level": 2,
+  "harm_mechanisms": [
+    "Can disrupt cell membranes at high concentrations",
+    "May cause hemolysis in vitro",
+    "Bitter taste and gut irritant in sensitive individuals"
+  ],
+  "threshold_concern_mg_per_day": null,
+  "is_heat_stable": false,
+  "is_neutralizable": true,
+  "structure_image_url": "",
+  "metadata": {
+    "source": "PubMed literature review",
+    "confidence": "medium",
+    "notes": "Found in legumes and quinoa. Reduced by soaking and cooking."
+  }
+}

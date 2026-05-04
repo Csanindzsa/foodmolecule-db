@@ -1,0 +1,27 @@
+You are a molecular toxicology classifier for the nutrii platform. Classify the following molecule based on known scientific literature.
+
+MOLECULE: {{ molecule_name }}
+PUBCHEM CID: {{ pubchem_cid or "unknown" }}
+MOLECULAR FORMULA: {{ molecular_formula or "unknown" }}
+KNOWN PROPERTIES: {{ known_properties or "none provided" }}
+
+CLASSIFICATION TASK:
+Assign a harm level (0–5) and provide reasoning.
+
+HARM LEVEL DEFINITIONS:
+0 = none — no known harm at dietary amounts
+1 = negligible — harmful only at >100× normal intake
+2 = low — mild effects in sensitive populations
+3 = moderate — adverse effects at normal dietary ranges
+4 = high — harmful at common consumption; regulatory warnings
+5 = critical — acutely toxic; lethal at small doses
+
+Return ONLY valid JSON:
+{
+  "harm_level": 2,
+  "harm_mechanisms": ["mechanism 1", "mechanism 2"],
+  "is_heat_stable": true,
+  "is_neutralizable": false,
+  "reasoning": "string",
+  "confidence": "medium"
+}

@@ -4,7 +4,7 @@
 > **Vision:** A fully autonomous, AI-driven database that maps every known food ingredient on Earth to its molecular composition, continuously updates safety scores from live PubMed research via OpenRouter LLMs, and delivers real-time health intelligence through a web platform and mobile app with ingredient scanning.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE.md)
-[![Phase](https://img.shields.io/badge/Phase-0%20Complete-blue)](#)
+[![Phase](https://img.shields.io/badge/Phase-2%20Complete-blue)](#)
 
 ## What is nutrii?
 
@@ -18,6 +18,8 @@ cd nutrii
 cp .env.example .env
 # Fill in your OPENROUTER_API_KEY and Supabase credentials
 ```
+
+**No Docker required.** This project connects directly to your hosted Supabase PostgreSQL database for both local development and production. Docker is available optionally if you prefer a fully offline local stack.
 
 ## Project Structure
 
@@ -56,20 +58,20 @@ nutrii/
 ## Implementation Progress
 
 - [x] Phase 0 — Legacy Audit & Project Bootstrap
-- [ ] Phase 1 — Infrastructure & Database (Supabase)
-- [ ] Phase 2 — Data Architecture & Schema
-- [ ] Phase 3 — Automated Data Collection Pipeline
-- [ ] Phase 4 — OpenRouter AI Agent System
-- [ ] Phase 5 — PubMed Auto-Ingestion & Safety Adjustment
-- [ ] Phase 6 — Agent Instruction Guide System
-- [ ] Phase 7 — Harm Classification & Health Index Engine
-- [ ] Phase 8 — Processing & Neutralization Guide
-- [ ] Phase 9 — Ban List & Regulatory Mapping
-- [ ] Phase 10 — Backend API (Django + DRF)
-- [ ] Phase 11 — Web Frontend
-- [ ] Phase 12 — Mobile Application
-- [ ] Phase 13 — AI / OCR Ingredient Scanner
-- [ ] Phase 14 — Launch, Analytics & Scaling
+- [x] Phase 1 — Infrastructure & Database (Supabase)
+- [x] Phase 2 — Data Architecture & Schema
+- [x] Phase 3 — Automated Data Collection Pipeline
+- [x] Phase 4 — OpenRouter AI Agent System
+- [x] Phase 5 — PubMed Auto-Ingestion & Safety Adjustment
+- [x] Phase 6 — Agent Instruction Guide System
+- [x] Phase 7 — Harm Classification & Health Index Engine
+- [x] Phase 8 — Processing & Neutralization Guide
+- [x] Phase 9 — Ban List & Regulatory Mapping
+- [x] Phase 10 — Backend API (Django + DRF)
+- [x] Phase 11 — Web Frontend
+- [x] Phase 12 — Mobile Application
+- [x] Phase 13 — AI / OCR Ingredient Scanner
+- [x] Phase 14 — Launch, Analytics & Scaling
 
 ## License
 

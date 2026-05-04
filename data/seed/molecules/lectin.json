@@ -1,0 +1,24 @@
+{
+  "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+  "pubchem_cid": null,
+  "name": "lectin",
+  "iupac_name": "",
+  "cas_number": "",
+  "molecular_formula": "",
+  "molecular_weight": null,
+  "harm_level": 3,
+  "harm_mechanisms": [
+    "Binds to intestinal epithelium causing nutrient malabsorption",
+    "Can agglutinate red blood cells",
+    "Resistant to digestion, may provoke immune response"
+  ],
+  "threshold_concern_mg_per_day": null,
+  "is_heat_stable": false,
+  "is_neutralizable": true,
+  "structure_image_url": "",
+  "metadata": {
+    "source": "PubMed literature review",
+    "confidence": "high",
+    "notes": "Found in legumes, grains, and nightshades. Destroyed by boiling."
+  }
+}

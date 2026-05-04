@@ -1,0 +1,167 @@
+"""
+nutrii — Bulk Inserter
+
+Inserts validated pipeline entries into the Django / PostgreSQL database.
+Designed for high-throughput seed data loading.
+
+Usage:
+    python scripts/loaders/bulk_insert.py --foods data/seed/foods/ --molecules data/seed/molecules/
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+from uuid import UUID
+
+# Ensure Django is importable
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "backend"))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nutrii.settings")
+
+import django
+
+django.setup()
+
+from django.db import transaction
+
+from core.models import (
+    Food,
+    FoodCategory,
+    FoodMolecule,
+    Molecule,
+    Study,
+    FoodStudy,
+)
+from scripts.pipeline.models import FoodEntry, MoleculeEntry, StudyEntry
+
+
+def get_or_create_category(name: str) -> FoodCategory:
+    """Get or create a food category by name."""
+    if not name:
+        name = "Uncategorized"
+    obj, _ = FoodCategory.objects.get_or_create(name=name.strip().title())
+    return obj
+
+
+def upsert_molecule(entry: MoleculeEntry) -> Molecule:
+    """Insert or update a molecule."""
+    defaults = {
+        "name": entry.name,
+        "iupac_name": entry.iupac_name,
+        "cas_number": entry.cas_number,
+        "molecular_formula": entry.molecular_formula,
+        "molecular_weight": entry.molecular_weight,
+        "harm_level": entry.harm_level,
+        "harm_mechanisms": entry.harm_mechanisms,
+        "threshold_concern_mg_per_day": entry.threshold_concern_mg_per_day,
+        "is_heat_stable": entry.is_heat_stable,
+        "is_neutralizable": entry.is_neutralizable,
+        "structure_image_url": entry.structure_image_url,
+        "metadata": entry.metadata,
+    }
+    if entry.pubchem_cid:
+        obj, _ = Molecule.objects.update_or_create(
+            pubchem_cid=entry.pubchem_cid,
+            defaults=defaults,
+        )
+    else:
+        obj, _ = Molecule.objects.update_or_create(
+            name=entry.name,
+            defaults=defaults,
+        )
+    return obj
+
+
+def upsert_food(entry: FoodEntry) -> Food:
+    """Insert or update a food."""
+    category = get_or_create_category(entry.category) if entry.category else None
+
+    defaults = {
+        "name": entry.name,
+        "aliases": entry.aliases,
+        "origin": entry.origin,
+        "overall_safety_score": entry.overall_safety_score,
+        "health_index": entry.health_index,
+        "ban_listed": entry.ban_listed,
+        "image_url": entry.image_url,
+        "metadata": entry.metadata,
+    }
+    obj, _ = Food.objects.update_or_create(
+        id=entry.id,
+        defaults=defaults,
+    )
+    if category:
+        obj.category = category
+        obj.save(update_fields=["category"])
+    return obj
+
+
+def link_food_molecules(food: Food, links: list) -> None:
+    """Create FoodMolecule junction records."""
+    for link in links:
+        mol_name = link.molecule_name
+        molecule = Molecule.objects.filter(name=mol_name).first()
+        if not molecule:
+            # Auto-create a stub molecule if missing
+            molecule = Molecule.objects.create(name=mol_name)
+        FoodMolecule.objects.update_or_create(
+            food=food,
+            molecule=molecule,
+            defaults={
+                "amount_per_100g": link.amount_per_100g,
+                "unit": link.unit,
+                "amount_notes": link.amount_notes,
+                "is_beneficial": link.is_beneficial,
+            },
+        )
+
+
+def load_json_entries(directory: Path, model_class):
+    """Load all JSON files from a directory into pipeline model instances."""
+    entries = []
+    if not directory.exists():
+        return entries
+    for path in directory.glob("*.json"):
+        with open(path) as f:
+            data = json.load(f)
+        entries.append(model_class(**data))
+    return entries
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Bulk insert seed data into nutrii DB")
+    parser.add_argument("--foods", type=Path, help="Directory containing food JSON files")
+    parser.add_argument("--molecules", type=Path, help="Directory containing molecule JSON files")
+    parser.add_argument("--dry-run", action="store_true", help="Validate without inserting")
+    args = parser.parse_args()
+
+    foods = load_json_entries(args.foods, FoodEntry) if args.foods else []
+    molecules = load_json_entries(args.molecules, MoleculeEntry) if args.molecules else []
+
+    print(f"Loaded {len(foods)} food(s) and {len(molecules)} molecule(s)")
+
+    if args.dry_run:
+        print("Dry run complete — no inserts performed.")
+        return
+
+    with transaction.atomic():
+        # Insert molecules first (foods depend on them)
+        for mol_entry in molecules:
+            upsert_molecule(mol_entry)
+        print(f"Upserted {len(molecules)} molecule(s)")
+
+        # Insert foods
+        for food_entry in foods:
+            food = upsert_food(food_entry)
+            link_food_molecules(food, food_entry.molecules)
+        print(f"Upserted {len(foods)} food(s)")
+
+    print("Bulk insert complete.")
+
+
+if __name__ == "__main__":
+    main()

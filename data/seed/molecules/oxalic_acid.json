@@ -1,0 +1,22 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "pubchem_cid": 971,
+  "name": "oxalic acid",
+  "iupac_name": "ethanedioic acid",
+  "cas_number": "144-62-7",
+  "molecular_formula": "C2H2O4",
+  "molecular_weight": 90.03,
+  "harm_level": 3,
+  "harm_mechanisms": [
+    "Binds calcium, magnesium, and iron — reducing their bioavailability",
+    "Can crystallize into calcium oxalate kidney stones in susceptible individuals"
+  ],
+  "threshold_concern_mg_per_day": 250,
+  "is_heat_stable": true,
+  "is_neutralizable": true,
+  "structure_image_url": "",
+  "metadata": {
+    "source": "PubChem PUG-REST",
+    "confidence": "high"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "f6a7b8c9-d0e1-2345-fabc-456789012345",
+  "name": "kidney bean",
+  "aliases": ["phaseolus vulgaris", "red kidney bean"],
+  "category": "Legume",
+  "origin": "Central America",
+  "overall_safety_score": 45,
+  "health_index": 60,
+  "ban_listed": false,
+  "image_url": "",
+  "metadata": {
+    "source": "USDA FoodData Central + literature review",
+    "confidence": "high",
+    "conditional_warning": "Raw or undercooked kidney beans are toxic. Must be boiled for at least 10 minutes."
+  },
+  "molecules": [
+    {
+      "molecule_name": "lectin",
+      "amount_per_100g": null,
+      "unit": "mg",
+      "amount_notes": "Phytohaemagglutinin — highly concentrated in raw beans",
+      "is_beneficial": false
+    },
+    {
+      "molecule_name": "saponin",
+      "amount_per_100g": null,
+      "unit": "mg",
+      "amount_notes": "Present in seed coat",
+      "is_beneficial": false
+    }
+  ]
+}

@@ -29,7 +29,20 @@
     "ai_guide_version": { "type": ["integer", "null"] },
     "last_analyzed_at": { "type": ["string", "null"], "format": "date-time" },
     "created_at": { "type": "string", "format": "date-time" },
-    "updated_at": { "type": "string", "format": "date-time" }
+    "updated_at": { "type": "string", "format": "date-time" },
+    "molecules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "molecule_name": { "type": "string" },
+          "amount_per_100g": { "type": ["number", "null"] },
+          "unit": { "type": "string" },
+          "amount_notes": { "type": "string" },
+          "is_beneficial": { "type": "boolean" }
+        }
+      }
+    }
   },
-  "additionalProperties": false
+  "additionalProperties": true
 }

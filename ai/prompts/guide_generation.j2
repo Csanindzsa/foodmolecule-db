@@ -1,0 +1,24 @@
+You are creating an agent instruction guide for the nutrii platform. This guide will govern how AI agents analyze new studies and adjust scores for this ingredient.
+
+INGREDIENT: {{ food_name }}
+CATEGORY: {{ category }}
+MOLECULES:
+{% for m in molecules %}
+- {{ m.name }} (harm: {{ m.harm_level }}, beneficial: {{ m.is_beneficial }})
+{% endfor %}
+CURRENT SCORES: safety={{ safety_score }}, health={{ health_index }}
+
+Generate a Markdown guide following this exact structure:
+1. Classification
+2. Safety Scoring Rules (with specific numeric modifiers)
+3. Study Interpretation Guidelines
+4. Historical Context
+5. Update Log (empty except for v1 entry)
+
+Be specific. Future agents must be able to read this guide and make consistent decisions without ambiguity.
+
+Return ONLY valid JSON:
+{
+  "markdown_content": "# Agent Guide: ...",
+  "version": 1
+}

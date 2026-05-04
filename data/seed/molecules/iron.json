@@ -1,0 +1,19 @@
+{
+  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+  "pubchem_cid": 23925,
+  "name": "iron",
+  "iupac_name": "iron",
+  "cas_number": "7439-89-6",
+  "molecular_formula": "Fe",
+  "molecular_weight": 55.845,
+  "harm_level": 0,
+  "harm_mechanisms": [],
+  "threshold_concern_mg_per_day": null,
+  "is_heat_stable": true,
+  "is_neutralizable": false,
+  "structure_image_url": "",
+  "metadata": {
+    "source": "PubChem PUG-REST",
+    "confidence": "high"
+  }
+}

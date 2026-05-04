@@ -1,7 +1,7 @@
 # Supabase Configuration Guide
 
 > **Phase 1 Deliverable**  
-> Step-by-step instructions for provisioning the nutrii Supabase project.
+> This project uses **Supabase** as the single source of truth for both local development and production. No Docker required.
 
 ---
 
@@ -10,82 +10,97 @@
 1. Go to [supabase.com/dashboard](https://supabase.com/dashboard) and create a new project.
 2. **Project name:** `nutrii-db`
 3. **Region:** Choose closest to your primary user base (e.g., `eu-central-1` for Europe).
-4. **Database password:** Generate a strong password and store it in your password manager. You will need it for `.env`.
+4. **Database password:** Generate a strong password and store it. You will need it for the connection string.
 
 ---
 
 ## 2. Database Roles
 
-In the Supabase SQL Editor, verify these roles exist (they are created automatically by Supabase):
+Supabase creates these roles automatically:
 
+| Role | Purpose |
+|------|---------|
+| `anon` | Public read-only access to published tables |
+| `authenticated` | Not used in this project (no auth) |
+| `service_role` | Backend-only full access for data ingestion and AI agents |
+
+Verify:
 ```sql
--- anon: public read-only access to all published tables
--- service_role: backend-only, full access for data ingestion and AI agents
 SELECT rolname FROM pg_roles WHERE rolname IN ('anon', 'service_role');
 ```
-
-Row-Level Security (RLS) policies:
-- All production tables have RLS **enabled**.
-- The `anon` role has `SELECT` privileges on all published tables.
-- The `service_role` bypasses RLS (used only by the Django backend).
 
 ---
 
 ## 3. Connection Pooling (PgBouncer)
 
-In the Supabase dashboard → **Settings → Database → Connection Pooling**:
+In Supabase dashboard → **Settings → Database → Connection Pooling**:
 
-- **Mode:** Transaction (recommended for serverless/Django)
-- **Pool Size:** 15 (free tier) or 25+ (Pro tier)
-- Use the **pooler connection string** (port `6543`) in Django's `DATABASE_URL` for production.
-- Use the **direct connection string** (port `5432`) for Django migrations only.
+- **Mode:** Transaction
+- **Pool Size:** 15 (free tier) or 25+ (Pro)
+
+Use these connection strings in your `.env`:
 
 ```
-# Pooler (for app): postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
-# Direct (for migrations): postgresql://postgres.[ref]:[password]@db.[ref].supabase.co:5432/postgres
+# Pooler (for Django app runtime):
+postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+
+# Direct (for Django migrations only):
+postgresql://postgres.[ref]:[password]@db.[ref].supabase.co:5432/postgres
 ```
 
 ---
 
 ## 4. Storage Buckets
 
-In the Supabase dashboard → **Storage → New Bucket**, create:
+Create these buckets in **Supabase Dashboard → Storage**:
 
-| Bucket Name | Public | Description |
-|-------------|--------|-------------|
-| `food-images` | ✅ Yes | Food ingredient photos, served via CDN |
-| `molecule-structures` | ✅ Yes | SVG/PNG molecular diagrams from PubChem |
-| `study-attachments` | ❌ No | Optional PDFs linked to PubMed entries |
+| Bucket | Public | Purpose |
+|--------|--------|---------|
+| `food-images` | ✅ | Food ingredient photos |
+| `molecule-structures` | ✅ | SVG/PNG molecular diagrams |
+| `study-attachments` | ❌ | Optional PDFs linked to PubMed |
 
-For each public bucket, apply a policy allowing public reads:
+---
 
-```sql
--- Allow anyone to read from food-images
-CREATE POLICY "Public read" ON storage.objects
-  FOR SELECT USING (bucket_id = 'food-images');
+## 5. Zero-Docker Local Development
+
+Since this project has **no other contributors**, the simplest setup is:
+
+1. Create your Supabase project (free tier is fine)
+2. Copy the **pooler connection string** into your `.env` as `DATABASE_URL`
+3. Run Django locally — it connects directly to Supabase
+
+```bash
+cd backend
+python manage.py migrate        # runs migrations on Supabase
+python manage.py runserver      # local dev server, Supabase backend
+```
+
+**That's it.** No Docker, no local PostgreSQL, no Redis, no MinIO.
+
+If you want **caching**, you can add Redis later. If you want **local search**, MeiliSearch is optional — Django's `pg_trgm` fuzzy search works fine for small datasets.
+
+---
+
+## 6. Optional: Docker for Offline Development
+
+If you ever want to work **completely offline** (e.g., on a plane), use the provided `docker-compose.yml`:
+
+```bash
+docker compose up -d
+# This starts local PostgreSQL, Redis, MinIO, and MeiliSearch
+```
+
+Then switch your `.env` `DATABASE_URL` to the local Docker PostgreSQL:
+```
+DATABASE_URL=postgresql://nutrii_user:nutrii_dev_password@localhost:5432/nutrii
 ```
 
 ---
 
-## 5. Audit Logging (pgaudit)
+## 7. Environment Variables
 
-In the Supabase SQL Editor:
-
-```sql
--- Enable pgaudit extension
-CREATE EXTENSION IF NOT EXISTS pgaudit;
-
--- Log all DDL and DML on nutrii tables
-ALTER SYSTEM SET pgaudit.log = 'read, write, ddl';
-```
-
-Note: Full pgaudit configuration requires Supabase Pro tier. On free tier, rely on the Supabase built-in audit logs in the dashboard.
-
----
-
-## 6. Environment Variables
-
-After provisioning, collect these values from the Supabase dashboard and add them to your `.env`:
+After provisioning, fill these into your `.env`:
 
 ```
 SUPABASE_URL=https://[ref].supabase.co
