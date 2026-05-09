@@ -66,19 +66,66 @@ TEMPLATES = [
 WSGI_APPLICATION = "nutrii.wsgi.application"
 
 # ─── Database ───────────────────────────────────────────────────────────────
-# PostgreSQL via python-decouple (local Docker or Supabase pooler)
+import urllib.parse
+
 import dj_database_url
 
-DATABASES = {
-    "default": dj_database_url.parse(
-        config("DATABASE_URL"),
-        conn_max_age=60,
-        conn_health_checks=True,
-    )
-}
+_SUPABASE_URL = config("SUPABASE_URL", default="")
+_DATABASE_URL = config("DATABASE_URL", default="")
 
-# Direct connection for migrations (bypasses PgBouncer)
-DATABASES["default"]["OPTIONS"] = {"options": "-c timezone=UTC"}
+if _DATABASE_URL:
+    # Use explicit DATABASE_URL if provided
+    DATABASES = {
+        "default": dj_database_url.parse(
+            _DATABASE_URL,
+            conn_max_age=60,
+            conn_health_checks=True,
+        )
+    }
+    # Direct connection for migrations — bypasses PgBouncer pooler
+    DATABASES["default"].setdefault("OPTIONS", {})
+    DATABASES["default"]["OPTIONS"]["options"] = "-c timezone=UTC"
+elif _SUPABASE_URL:
+    # Construct DATABASE_URL from SUPABASE_URL + SUPABASE_DB_PASSWORD.
+    # Connects directly via db.<ref>.supabase.co (bypasses PgBouncer pooler).
+    _parsed = urllib.parse.urlparse(_SUPABASE_URL)
+    if not _parsed.hostname:
+        raise ValueError(
+            f"Could not parse SUPABASE_URL (no hostname): {_SUPABASE_URL!r}"
+        )
+    _ref = _parsed.hostname.split(".")[0]
+    if not _ref:
+        raise ValueError(
+            f"Could not extract project ref from SUPABASE_URL: {_SUPABASE_URL!r}"
+        )
+    _db_pw = config("SUPABASE_DB_PASSWORD", default="")
+    if not _db_pw:
+        raise ValueError(
+            "SUPABASE_DB_PASSWORD is required when DATABASE_URL is not set. "
+            "Set SUPABASE_DB_PASSWORD to the database password from your Supabase project."
+        )
+    _encoded_pw = urllib.parse.quote(_db_pw, safe="")
+    _constructed_url = (
+        f"postgresql://postgres.{_ref}:{_encoded_pw}@db.{_ref}.supabase.co:5432/postgres"
+    )
+    DATABASES = {
+        "default": dj_database_url.parse(
+            _constructed_url,
+            conn_max_age=60,
+            conn_health_checks=True,
+        )
+    }
+    # Direct connection for migrations — bypasses PgBouncer pooler
+    DATABASES["default"].setdefault("OPTIONS", {})
+    DATABASES["default"]["OPTIONS"]["options"] = "-c timezone=UTC"
+else:
+    # No database configuration available — will be handled by 4.1 (SQLite fallback)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # ─── Password validation ────────────────────────────────────────────────────
 # Keep minimal validators — only used for Django admin superuser.
@@ -128,15 +175,11 @@ CORS_ALLOWED_ORIGINS = config(
     cast=Csv(),
 )
 
-# ─── Cache ──────────────────────────────────────────────────────────────────
+# ─── Cache (local memory, no Redis needed) ──────────────────────────────────
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": config("REDIS_URL", default="redis://localhost:6379/0"),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-        "KEY_PREFIX": "nutrii",
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "nutrii-cache",
     }
 }
 
