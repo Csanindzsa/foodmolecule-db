@@ -119,7 +119,8 @@ elif _SUPABASE_URL:
     DATABASES["default"].setdefault("OPTIONS", {})
     DATABASES["default"]["OPTIONS"]["options"] = "-c timezone=UTC"
 else:
-    # No database configuration available — will be handled by 4.1 (SQLite fallback)
+    # SQLite fallback for CI/testing — allows pytest to run offline
+    # without Supabase. pytest-django manages test DB isolation.
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
