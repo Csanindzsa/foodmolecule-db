@@ -65,17 +65,17 @@ The database lives on **Supabase (PostgreSQL)**. The backend is **Django REST Fr
                             │
           ┌─────────────────┼─────────────────┐
           ▼                 ▼                 ▼
-┌─────────────────┐ ┌──────────────┐ ┌─────────────────┐
-│   Supabase PG   │ │   OpenRouter │ │   Search Index  │
-│   (Primary DB)  │ │   AI Agents  │ │   (MeiliSearch) │
-└─────────────────┘ └──────────────┘ └─────────────────┘
+┌─────────────────┐ ┌──────────────┐
+│   Supabase PG   │ │   OpenRouter │
+│   (Primary DB)  │ │   AI Agents  │
+└─────────────────┘ └──────────────┘
           │
-    ┌─────┴─────┐
-    ▼           ▼
-┌────────┐ ┌──────────┐
-│Storage │ │  Redis   │
-│(Images)│ │  (Cache) │
-└────────┘ └──────────┘
+    ┌─────┘
+    ▼
+┌────────┐
+│Storage │
+│(Images)│
+└────────┘
 ```
 
 ---
@@ -121,8 +121,6 @@ Provision production-grade infrastructure. No authentication layer — the API i
 ### 1.2 Local Development Environment
 - [ ] Docker Compose file with:
   - PostgreSQL 16 (matching Supabase version)
-  - Redis (caching)
-  - MinIO (S3-compatible local storage)
 - [ ] Environment variable template (`.env.example`) including `OPENROUTER_API_KEY`
 - [ ] Database migration strategy:
   - Django ORM manages schema migrations
@@ -769,14 +767,14 @@ GET  /api/v1/stats                         → platform stats (food count, molec
 
 ### 10.3 No Authentication
 - **No JWT.** No sessions. No user table.
-- Rate limiting only: 100 requests/minute per IP (via Django Ratelimit + Redis)
+- Rate limiting only: 100 requests/minute per IP (configurable via `RATE_LIMIT_REQUESTS_PER_MINUTE`)
 - CORS allow-list for known domains
 
 ### 10.4 Performance
-- Redis caching for:
-  - Food detail pages (TTL: 1 hour)
-  - Health index scores (TTL: 24 hours, invalidated on AI update)
-  - Search autocomplete (TTL: 6 hours)
+- In-memory caching (Django LocMemCache) for:
+  - Food detail pages
+  - Health index scores
+  - Search results
 - Database query optimization:
   - `select_related` + `prefetch_related` on all list endpoints
   - Cursor pagination for large lists
@@ -800,7 +798,7 @@ Build the public-facing website: fast, beautiful, scientifically authoritative, 
 - **UI Components:** shadcn/ui
 - **State Management:** TanStack Query + Zustand
 - **Data Visualization:** Recharts + custom SVG radar charts
-- **Search:** MeiliSearch
+- **Search:** PostgreSQL full-text (pg_trgm)
 - **Hosting:** Vercel
 
 ### 11.2 Pages & Features
@@ -962,7 +960,7 @@ Measure, iterate, and scale.
 | Milestone | Users | Infrastructure Change |
 |-----------|-------|----------------------|
 | 0–10k | — | Supabase free tier + Vercel hobby |
-| 10k–100k | — | Supabase Pro + Vercel Pro + MeiliSearch Cloud |
+| 10k–100k | — | Supabase Pro + Vercel Pro |
 | 100k–1M | — | Supabase Enterprise + CDN + read replicas |
 | 1M+ | — | Self-managed PG + dedicated OCR cluster |
 
@@ -988,8 +986,8 @@ Measure, iterate, and scale.
 |-------|------|--------|
 | **Database** | Supabase PostgreSQL | Managed, scalable, no auth required |
 | **Backend** | Django 5 + DRF | Rapid API dev, mature ORM |
-| **Cache** | Redis | Caching, rate limiting |
-| **Search** | MeiliSearch | Typo-tolerant, fast |
+| **Cache** | Django LocMemCache | In-memory, no Redis needed (MVP) |
+| **Search** | PostgreSQL pg_trgm | Full-text search via GIN indexes |
 | **Web Frontend** | React 19 + Vite + Tailwind v4 | Fast DX, modern CSS |
 | **Mobile** | Expo (React Native) | Single TS codebase, OTA updates |
 | **OCR** | Google Vision API + ML Kit | Hybrid accuracy/speed |

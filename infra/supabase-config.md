@@ -62,7 +62,7 @@ Create these buckets in **Supabase Dashboard → Storage**:
 
 ---
 
-## 5. Zero-Docker Local Development
+## 5. Local Development (No Docker Required)
 
 Since this project has **no other contributors**, the simplest setup is:
 
@@ -78,27 +78,9 @@ python manage.py runserver      # local dev server, Supabase backend
 
 **That's it.** No Docker, no local PostgreSQL, no Redis, no MinIO.
 
-If you want **caching**, you can add Redis later. If you want **local search**, MeiliSearch is optional — Django's `pg_trgm` fuzzy search works fine for small datasets.
-
 ---
 
-## 6. Optional: Docker for Offline Development
-
-If you ever want to work **completely offline** (e.g., on a plane), use the provided `docker-compose.yml`:
-
-```bash
-docker compose up -d
-# This starts local PostgreSQL, Redis, MinIO, and MeiliSearch
-```
-
-Then switch your `.env` `DATABASE_URL` to the local Docker PostgreSQL:
-```
-DATABASE_URL=postgresql://nutrii_user:nutrii_dev_password@localhost:5432/nutrii
-```
-
----
-
-## 7. Environment Variables
+## 6. Environment Variables
 
 After provisioning, fill these into your `.env`:
 
@@ -106,9 +88,10 @@ After provisioning, fill these into your `.env`:
 SUPABASE_URL=https://[ref].supabase.co
 SUPABASE_ANON_KEY=[anon public key]
 SUPABASE_SERVICE_ROLE_KEY=[service role key — NEVER expose client-side]
-DATABASE_URL=postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
-DATABASE_URL_DIRECT=postgresql://postgres.[ref]:[password]@db.[ref].supabase.co:5432/postgres
+SUPABASE_DB_PASSWORD=[database password set during project creation]
 ```
+
+`DATABASE_URL` is optional — if not set, Django auto-constructs it from `SUPABASE_URL` and `SUPABASE_DB_PASSWORD`, connecting directly via `db.[ref].supabase.co:5432`.
 
 ---
 

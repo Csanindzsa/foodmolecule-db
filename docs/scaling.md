@@ -13,13 +13,13 @@
 ## Scaling Triggers
 
 1. **Database >400 MB** → Upgrade to Supabase Pro ($25/mo) or migrate to self-hosted Postgres
-2. **API latency >500 ms p95** → Add read replicas, cache heavy queries in Redis
+2. **API latency >500 ms p95** → Add read replicas, add caching layer (e.g., Redis if needed)
 3. **OpenRouter costs >$50/mo** → Batch PubMed analyses, use cheaper models for low-confidence tasks
-4. **Search volume >100K/mo** → Add MeiliSearch self-hosted or Algolia free tier
+4. **Search volume >100K/mo** → Add dedicated search index (PostgreSQL full-text with GIN indexes)
 
 ## Caching Strategy
 
-- Redis: API response cache for `FoodDetailView` and `FoodHealthIndexView` (TTL 1 hour)
+- Django LocMemCache: In-memory cache for API responses (sufficient for MVP)
 - CDN: Static assets, food images (if added later)
 - Local: Mobile app caches last 50 searches in SQLite
 

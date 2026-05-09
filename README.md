@@ -48,8 +48,8 @@ nutrii/
 |-------|------|
 | Database | Supabase PostgreSQL |
 | Backend | Django 5 + DRF |
-| Cache | Redis |
-| Search | MeiliSearch |
+| Cache | Django LocMemCache (no Redis needed) |
+| Search | PostgreSQL full-text (pg_trgm) |
 | Web Frontend | React 19 + Vite + Tailwind v4 |
 | Mobile | Expo (React Native) |
 | AI Inference | OpenRouter API |
