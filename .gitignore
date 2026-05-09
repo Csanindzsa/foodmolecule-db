@@ -85,3 +85,8 @@ data/exports/
 .ruff_cache/
 
 Nutri/
+/obsidian/.obsidian
+/.swarm
+/ai
+/.obsidian
+/.opencode
