@@ -106,7 +106,17 @@ class SafetyScoreRevisionSerializer(serializers.ModelSerializer):
         ]
 
 
+class BanListFoodSerializer(serializers.ModelSerializer):
+    category = serializers.CharField(source="category.name", allow_null=True, read_only=True)
+
+    class Meta:
+        model = Food
+        fields = ["id", "name", "category", "health_index"]
+
+
 class BanListEntrySerializer(serializers.ModelSerializer):
+    food = BanListFoodSerializer(read_only=True)
+
     class Meta:
         model = BanListEntry
         fields = ["id", "food", "reason", "lethal_dose_mg", "is_conditionally_safe", "safe_condition", "regulatory_status"]
@@ -116,6 +126,55 @@ class ProcessingMethodSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProcessingMethod
         fields = ["id", "name", "description", "mechanism", "typical_temperature_c", "typical_duration_min"]
+
+
+class MoleculeNeutralizationSerializer(serializers.ModelSerializer):
+    method = ProcessingMethodSerializer(read_only=True)
+
+    class Meta:
+        model = MoleculeNeutralization
+        fields = ["method", "reduction_percent_min", "reduction_percent_max", "time_required", "notes", "evidence_refs", "confidence"]
+
+
+class MoleculeFoodSerializer(serializers.ModelSerializer):
+    """Lightweight food reference for molecule detail page."""
+    id = serializers.UUIDField(source="food.id", read_only=True)
+    name = serializers.CharField(source="food.name", read_only=True)
+    category = serializers.CharField(source="food.category.name", read_only=True, allow_null=True)
+
+    class Meta:
+        model = FoodMolecule
+        fields = ["id", "name", "category", "amount_per_100g", "unit", "amount_notes", "is_beneficial"]
+
+
+class MoleculeDetailSerializer(serializers.ModelSerializer):
+    """Full detail serializer for molecule detail page.
+    Does NOT modify the shared MoleculeSerializer used by list/search views."""
+    neutralization_methods = MoleculeNeutralizationSerializer(
+        source="moleculeneutralization_set", many=True, read_only=True
+    )
+    foods = MoleculeFoodSerializer(source="foodmolecule_set", many=True, read_only=True)
+
+    class Meta:
+        model = Molecule
+        fields = [
+            "id",
+            "pubchem_cid",
+            "name",
+            "iupac_name",
+            "cas_number",
+            "molecular_formula",
+            "molecular_weight",
+            "harm_level",
+            "harm_mechanisms",
+            "threshold_concern_mg_per_day",
+            "is_heat_stable",
+            "is_neutralizable",
+            "structure_image_url",
+            "metadata",
+            "neutralization_methods",
+            "foods",
+        ]
 
 
 class FoodListSerializer(serializers.ModelSerializer):

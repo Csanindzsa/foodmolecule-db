@@ -17,9 +17,18 @@ export const api = {
   molecules: () => fetcher<{ results: Molecule[] }>("/molecules/"),
   molecule: (id: string) => fetcher<Molecule>(`/molecules/${id}/`),
   stats: () => fetcher<Record<string, number>>("/stats/"),
+  banList: () => fetcher<{ results: BanListEntry[] }>("/ban-list/"),
+  compare: (ids: string[]) => {
+    if (ids.length === 0) throw new Error("compare requires at least one food ID");
+    return fetcher<FoodCompareResult>("/foods/compare/?ids=" + ids.join(","));
+  },
+  guide: (id: string) => fetcher<{ food_id: string; guide: string | null; version: number; generated_by: string; generated_at: string }>(`/foods/${id}/guide/`),
 };
 
 export type Food = import("../types").Food;
 export type Molecule = import("../types").Molecule;
 export type Study = import("../types").Study;
 export type HealthIndexBreakdown = import("../types").HealthIndexBreakdown;
+export type FoodListItem = import("../types").FoodListItem;
+export type BanListEntry = import("../types").BanListEntry;
+export type FoodCompareResult = import("../types").FoodCompareResult;

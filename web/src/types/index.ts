@@ -59,3 +59,40 @@ export interface HealthIndexBreakdown {
   bioavailability_score: number;
   label: string;
 }
+
+export interface FoodListItem {
+  id: string;
+  name: string;
+  category: string | null;
+  overall_safety_score: number | null;
+  health_index: number | null;
+  ban_listed: boolean;
+  image_url: string;
+}
+
+export interface BanListEntry {
+  id: string;
+  food: {
+    id: string;
+    name: string;
+    category: string | null;
+    health_index: number | null;
+  } | null;
+  reason: string;
+  lethal_dose_mg: number | null;
+  is_conditionally_safe: boolean;
+  safe_condition: string;
+  regulatory_status: Record<string, unknown>;
+}
+
+export interface FoodCompareResult {
+  foods: Array<{
+    id: string;
+    name: string;
+    health_index: number;
+    safety_score: number;
+    molecules: Record<string, number>;
+  }>;
+  shared_molecules: string[];
+  total_unique_molecules: number;
+}

@@ -163,10 +163,10 @@ class MoleculeListView(generics.ListAPIView):
 
 class MoleculeDetailView(generics.RetrieveAPIView):
     queryset = Molecule.objects.prefetch_related(
-        "foodmolecule_set__food",
+        "foodmolecule_set__food__category",
         "moleculeneutralization_set__method",
     )
-    serializer_class = serializers.MoleculeSerializer
+    serializer_class = serializers.MoleculeDetailSerializer
 
 
 class MoleculeSearchView(APIView):
