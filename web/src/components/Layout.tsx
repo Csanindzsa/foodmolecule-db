@@ -11,6 +11,7 @@ export default function Layout() {
           <nav className="flex gap-4 text-sm">
             <Link to="/" className="hover:underline">Home</Link>
             <Link to="/search" className="hover:underline">Search</Link>
+            <Link to="/ban-list" className="hover:underline">Ban List</Link>
           </nav>
         </div>
       </header>

@@ -1,8 +1,11 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
+import BanList from "./pages/BanList";
 import FoodDetail from "./pages/FoodDetail";
 import Home from "./pages/Home";
 import Search from "./pages/Search";
+import MoleculeDetail from "./pages/MoleculeDetail";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -11,6 +14,9 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<Search />} />
         <Route path="/foods/:id" element={<FoodDetail />} />
+        <Route path="/molecules/:id" element={<MoleculeDetail />} />
+        <Route path="/ban-list" element={<BanList />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );
