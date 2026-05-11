@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-nutrii-green: #166534;
   --color-nutrii-bg: #fafaf9;
@@ -16,4 +18,9 @@ body {
   background-color: var(--color-nutrii-bg);
   color: var(--color-nutrii-text);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.dark {
+  --color-nutrii-bg: #0f172a;
+  --color-nutrii-text: #e2e8f0;
 }
