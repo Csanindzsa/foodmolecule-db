@@ -1,18 +1,9 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../lib/api";
-import type { Food } from "../lib/api";
+import { useHomeData } from "../hooks/useApi";
 
 export default function Home() {
-  const [stats, setStats] = useState<Record<string, number> | null>(null);
-  const [foods, setFoods] = useState<Food[]>([]);
-
-  useEffect(() => {
-    api.stats().then(setStats).catch(console.error);
-    api.foods()
-      .then((data: any) => setFoods(data.results?.slice(0, 6) || []))
-      .catch(console.error);
-  }, []);
+  const { data, isLoading, error } = useHomeData();
+  const foods = data?.foods?.slice(0, 6) || [];
 
   return (
     <div className="space-y-10">
@@ -25,42 +16,57 @@ export default function Home() {
           continuously updates safety scores from live PubMed research,
           and delivers real-time health intelligence.
         </p>
-        {stats && (
+        {data?.stats && (
           <div className="flex justify-center gap-8 text-sm text-gray-500 pt-4">
-            <span><strong className="text-nutrii-text">{stats.foods}</strong> foods</span>
-            <span><strong className="text-nutrii-text">{stats.molecules}</strong> molecules</span>
-            <span><strong className="text-nutrii-text">{stats.studies_analyzed}</strong> studies analyzed</span>
+            <span><strong className="text-nutrii-text">{data.stats.foods}</strong> foods</span>
+            <span><strong className="text-nutrii-text">{data.stats.molecules}</strong> molecules</span>
+            <span><strong className="text-nutrii-text">{data.stats.studies_analyzed}</strong> studies analyzed</span>
           </div>
         )}
       </section>
 
+      {error && (
+        <div className="text-center py-8 text-red-600">
+          <p>Failed to load data</p>
+          <p className="text-sm text-gray-500 mt-1">Please refresh the page to try again.</p>
+        </div>
+      )}
+
       <section>
         <h2 className="text-xl font-semibold mb-4">Featured Foods</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {foods.map((food) => (
-            <Link
-              key={food.id}
-              to={`/foods/${food.id}`}
-              className="block p-4 rounded-xl border bg-white shadow-sm hover:shadow transition"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium capitalize">{food.name}</span>
-                {food.health_index !== null && (
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                    food.health_index >= 75 ? "bg-green-100 text-green-700" :
-                    food.health_index >= 50 ? "bg-yellow-100 text-yellow-700" :
-                    "bg-red-100 text-red-700"
-                  }`}>
-                    {food.health_index}
-                  </span>
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {foods.map((food) => (
+              <Link
+                key={food.id}
+                to={`/foods/${food.id}`}
+                className="block p-4 rounded-xl border bg-white shadow-sm hover:shadow transition"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium capitalize">{food.name}</span>
+                  {food.health_index !== null && (
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                      food.health_index >= 75 ? "bg-green-100 text-green-700" :
+                      food.health_index >= 50 ? "bg-yellow-100 text-yellow-700" :
+                      "bg-red-100 text-red-700"
+                    }`}>
+                      {food.health_index}
+                    </span>
+                  )}
+                </div>
+                {food.category && (
+                  <span className="text-xs text-gray-400 mt-1 block">{food.category}</span>
                 )}
-              </div>
-              {food.category && (
-                <span className="text-xs text-gray-400 mt-1 block">{food.category}</span>
-              )}
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

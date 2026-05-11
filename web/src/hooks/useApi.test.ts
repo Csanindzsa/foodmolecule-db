@@ -31,6 +31,14 @@ const mockGuide = mock(() => Promise.resolve({
   generated_by: "ai",
   generated_at: "2024-01-01T00:00:00Z",
 }));
+const mockFoodHealthIndex = mock(() => Promise.resolve({
+  food_id: "food-1",
+  health_index: 75,
+  benefit_score: 80,
+  safety_score: 70,
+  bioavailability_score: 60,
+  label: "Good",
+}));
 const mockMolecule = mock(() => Promise.resolve({
   id: "mol-1",
   name: "Caffeine",
@@ -52,6 +60,7 @@ mock.module("../lib/api", () => ({
     food: mockFood,
     foodStudies: mockFoodStudies,
     guide: mockGuide,
+    foodHealthIndex: mockFoodHealthIndex,
     molecule: mockMolecule,
     banList: mockBanList,
     compare: mockCompare,
@@ -69,6 +78,7 @@ import {
   useFoodMolecules,
   useFoodStudies,
   useFoodGuide,
+  useFoodHealthIndex,
   useMoleculeDetail,
   useMoleculeFoods,
   useMoleculeNeutralizations,
@@ -102,6 +112,7 @@ describe("useApi hooks", () => {
     mockFood.mockClear();
     mockFoodStudies.mockClear();
     mockGuide.mockClear();
+    mockFoodHealthIndex.mockClear();
     mockMolecule.mockClear();
     mockBanList.mockClear();
     mockCompare.mockClear();
@@ -314,6 +325,40 @@ describe("useApi hooks", () => {
         version: 1,
         generated_by: "ai",
         generated_at: "2024-01-01T00:00:00Z",
+      });
+    });
+  });
+
+  /* ---------------------------------------------------------------- */
+  describe("useFoodHealthIndex", () => {
+    test("happy path — correct queryKey, enabled, staleTime 5 min", () => {
+      useFoodHealthIndex("food-1");
+      const config = lastUseQueryCall();
+      expect(config.queryKey).toEqual(["food", "food-1", "health-index"]);
+      expect(config.enabled).toBe(true);
+      expect(config.staleTime).toBe(5 * 60 * 1000);
+    });
+
+    test("disabled when id is empty string", () => {
+      useFoodHealthIndex("");
+      const config = lastUseQueryCall();
+      expect(config.enabled).toBe(false);
+    });
+
+    test("queryFn calls api.foodHealthIndex with the id", async () => {
+      useFoodHealthIndex("food-1");
+      const config = lastUseQueryCall();
+      const result = await config.queryFn();
+
+      expect(mockFoodHealthIndex).toHaveBeenCalledTimes(1);
+      expect(mockFoodHealthIndex).toHaveBeenCalledWith("food-1");
+      expect(result).toEqual({
+        food_id: "food-1",
+        health_index: 75,
+        benefit_score: 80,
+        safety_score: 70,
+        bioavailability_score: 60,
+        label: "Good",
       });
     });
   });
@@ -704,6 +749,27 @@ describe("useApi hooks", () => {
       expect(config.queryKey).toEqual(["molecule", xssId]);
       config.queryFn();
       expect(mockMolecule).toHaveBeenCalledWith(xssId);
+    });
+
+    /* -- useFoodHealthIndex adversarial -- */
+    test("useFoodHealthIndex accepts 10K character id and passes to queryFn", () => {
+      const longId = "h".repeat(10000);
+      useFoodHealthIndex(longId);
+      const config = lastUseQueryCall();
+      expect(config.enabled).toBe(true);
+      expect(config.queryKey).toEqual(["food", longId, "health-index"]);
+      config.queryFn();
+      expect(mockFoodHealthIndex).toHaveBeenCalledWith(longId);
+    });
+
+    test("useFoodHealthIndex passes XSS payload in id through to queryFn", () => {
+      const xssId = "food-<script>alert(1)</script>";
+      useFoodHealthIndex(xssId);
+      const config = lastUseQueryCall();
+      expect(config.enabled).toBe(true);
+      expect(config.queryKey).toEqual(["food", xssId, "health-index"]);
+      config.queryFn();
+      expect(mockFoodHealthIndex).toHaveBeenCalledWith(xssId);
     });
   });
 });

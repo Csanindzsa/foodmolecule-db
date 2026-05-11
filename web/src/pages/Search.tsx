@@ -1,26 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api } from "../lib/api";
-import type { Food, Molecule } from "../lib/api";
+import { useSearch } from "../hooks/useApi";
 
 export default function Search() {
   const [params, setParams] = useSearchParams();
   const q = params.get("q") || "";
-  const [foods, setFoods] = useState<Food[]>([]);
-  const [molecules, setMolecules] = useState<Molecule[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [debouncedQ, setDebouncedQ] = useState(q);
 
   useEffect(() => {
-    if (!q.trim()) return;
-    setLoading(true);
-    api.search(q)
-      .then((data) => {
-        setFoods(data.foods || []);
-        setMolecules(data.molecules || []);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    const timer = setTimeout(() => setDebouncedQ(q), 300);
+    return () => clearTimeout(timer);
   }, [q]);
+
+  const { data, isLoading, error } = useSearch(debouncedQ);
 
   return (
     <div className="space-y-6">
@@ -37,13 +29,21 @@ export default function Search() {
         }}
       />
 
-      {loading && <p className="text-gray-500">Searching...</p>}
+      {isLoading && debouncedQ.length > 0 && (
+        <p className="text-gray-500">Searching...</p>
+      )}
 
-      {foods.length > 0 && (
+      {error && (
+        <p className="text-red-500">
+          Error: {error instanceof Error ? error.message : "Search failed"}
+        </p>
+      )}
+
+      {data?.foods && data.foods.length > 0 && (
         <section>
           <h2 className="text-lg font-semibold mb-2">Foods</h2>
           <div className="grid gap-2">
-            {foods.map((f) => (
+            {data.foods.map((f) => (
               <Link
                 key={f.id}
                 to={`/foods/${f.id}`}
@@ -56,11 +56,11 @@ export default function Search() {
         </section>
       )}
 
-      {molecules.length > 0 && (
+      {data?.molecules && data.molecules.length > 0 && (
         <section>
           <h2 className="text-lg font-semibold mb-2">Molecules</h2>
           <div className="grid gap-2">
-            {molecules.map((m) => (
+            {data.molecules.map((m) => (
               <div key={m.id} className="p-3 rounded-lg border bg-white">
                 <span className="font-medium">{m.name}</span>
                 {m.molecular_formula && (

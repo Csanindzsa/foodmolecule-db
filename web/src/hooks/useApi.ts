@@ -3,6 +3,7 @@ import { api } from "../lib/api";
 import type {
   Food,
   Molecule,
+  HealthIndexBreakdown,
 } from "../lib/api";
 
 /**
@@ -105,6 +106,20 @@ export function useFoodGuide(id: string) {
     queryFn: () => api.guide(id),
     enabled: !!id,
     staleTime: STALE_TIME_10_MIN,
+  });
+}
+
+/**
+ * Fetch the health index breakdown for a food.
+ * QueryKey: `["food", id, "health-index"]`. Enabled when id is truthy.
+ * staleTime: 5 minutes.
+ */
+export function useFoodHealthIndex(id: string) {
+  return useQuery<HealthIndexBreakdown>({
+    queryKey: ["food", id, "health-index"],
+    queryFn: () => api.foodHealthIndex(id),
+    enabled: !!id,
+    staleTime: STALE_TIME_5_MIN,
   });
 }
 
