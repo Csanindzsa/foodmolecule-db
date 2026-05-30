@@ -298,7 +298,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
               textShadow: "0px 2px 3px rgba(0,0,0,0.2)", // Added shadow for better visibility
             }}
           >
-            Discover restaurants
+            Discover foods
           </Typography>
         </Box>
       </Box>
@@ -317,7 +317,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
               fontWeight: 600,
             }}
           >
-            Popular Restaurants
+            Featured foods and molecules
           </Typography>
           <Grid container spacing={3}>
             {restaurants.slice(0, 4).map((restaurant) => (

@@ -435,6 +435,76 @@ const Navbar = ({
 // Main App component
 import ProtectedRoute from "../components/ProtectedRoute";
 
+const svgDataUri = (svg: string) =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+
+const demoCarrotImage = svgDataUri(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420">
+  <rect width="720" height="420" rx="32" fill="#fff7e8"/>
+  <circle cx="548" cy="100" r="92" fill="#e8f7dc"/>
+  <circle cx="146" cy="318" r="120" fill="#fff0c7"/>
+  <path d="M350 116c-56-4-102 28-97 87 5 65 48 138 88 180 49-35 102-104 116-167 14-64-39-96-107-100z" fill="#ff8c00"/>
+  <path d="M348 115c-38-74-7-105 31-21 20-79 70-73 48 8 60-57 98-19 18 31-35 22-75 18-97-18z" fill="#39aa4a"/>
+  <path d="M286 188l72-14M316 255l84-18M332 317l62-14" stroke="#d96f00" stroke-width="12" stroke-linecap="round"/>
+  <text x="62" y="84" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#2f6b38">Carrot</text>
+  <text x="62" y="124" font-family="Arial, sans-serif" font-size="20" fill="#6d6d6d">Food + ingredient preview</text>
+  <text x="446" y="360" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#d96f00">beta-carotene</text>
+</svg>`);
+
+const demoRestaurants: Restaurant[] = [
+  {
+    id: 1,
+    name: "Carrot and beta-carotene",
+    foods_on_menu: 1,
+    description: "Demo preview entry for the food and molecule detail flow.",
+    image: demoCarrotImage,
+    cuisine: "Food + molecule preview",
+    hazard_level: 0,
+  },
+];
+
+const demoIngredients: Ingredient[] = [
+  {
+    id: 1,
+    name: "Beta-carotene",
+    description: "A carotenoid molecule found in carrots and other orange vegetables.",
+    hazard_level: 0,
+  },
+  {
+    id: 2,
+    name: "Dietary fiber",
+    description: "Plant fiber associated with digestive and metabolic benefits.",
+    hazard_level: 0,
+  },
+];
+
+const demoFoods: Food[] = [
+  {
+    id: 1,
+    restaurant: 1,
+    restaurant_name: "Carrot and beta-carotene",
+    name: "Carrot",
+    serving_size: 100,
+    macro_table: {
+      energy_kcal: 41,
+      fat: 0.2,
+      saturated_fat: 0,
+      carbohydrates: 9.6,
+      sugars: 4.7,
+      fiber: 2.8,
+      protein: 0.9,
+      salt: 0.17,
+    },
+    is_organic: true,
+    is_gluten_free: true,
+    is_alcohol_free: true,
+    is_lactose_free: true,
+    ingredients: [1, 2],
+    image: demoCarrotImage,
+    hazard_level: 0,
+  },
+];
+
 const App = () => {
   // ... existing state declarations and useEffects ...
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -445,11 +515,15 @@ const App = () => {
     email?: string;
     is_supervisor?: boolean;
   }>({});
-  const [restaurants, setRestaurants] = useState<Array<Restaurant>>([]);
-  const [ingredients, setIngredients] = useState<Array<Ingredient>>([]);
-  const [foods, setFoods] = useState<Array<Food>>([]);
-  const [selectedRestaurants, setSelectedRestaurants] = useState<number[]>([]);
-  const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
+  const [restaurants, setRestaurants] = useState<Array<Restaurant>>(demoRestaurants);
+  const [ingredients, setIngredients] = useState<Array<Ingredient>>(demoIngredients);
+  const [foods, setFoods] = useState<Array<Food>>(demoFoods);
+  const [selectedRestaurants, setSelectedRestaurants] = useState<number[]>(
+    demoRestaurants.map((restaurant) => restaurant.id)
+  );
+  const [selectedIngredients, setSelectedIngredients] = useState<number[]>(
+    demoIngredients.map((ingredient) => ingredient.id)
+  );
   const isDataLoaded = useRef(false); // Track if data has been loaded
   const navigate = useNavigate();
   const [notificationMessage, setNotificationMessage] = useState<{

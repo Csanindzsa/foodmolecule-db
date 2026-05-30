@@ -11,6 +11,10 @@ export const getRestaurantImage = (imageValue: string | undefined, isLocalAsset?
     return 'https://via.placeholder.com/300x180?text=Restaurant';
   }
 
+  if (imageValue.startsWith('data:') || imageValue.startsWith('/')) {
+    return imageValue;
+  }
+
   // If the image is explicitly marked as local or doesn't start with http/https, treat as local asset
   if (isLocalAsset || (!imageValue.startsWith('http://') && !imageValue.startsWith('https://'))) {
     try {
