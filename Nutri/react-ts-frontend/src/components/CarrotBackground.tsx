@@ -1,5 +1,8 @@
 import React, { ReactNode } from "react";
 import { Box } from "@mui/material";
+import background1 from "../assets/backgrounds/background1.png";
+import background2 from "../assets/backgrounds/background2.png";
+import background3 from "../assets/backgrounds/background3.png";
 
 interface CarrotBackgroundProps {
   children: ReactNode;
@@ -25,7 +28,7 @@ const CarrotBackground: React.FC<CarrotBackgroundProps> = ({
           left: 0,
           right: 0,
           bottom: 0,
-          background: "linear-gradient(180deg, rgba(255, 248, 240, 0.55), rgba(245, 255, 247, 0.55))",
+          backgroundImage: `url(${background2})`,
           backgroundRepeat: "no-repeat", // Changed from "repeat" to "no-repeat"
           backgroundSize: backgroundSize,
           backgroundPosition: "center center", // Added to ensure the image is centered

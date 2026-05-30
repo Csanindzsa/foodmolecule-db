@@ -58,6 +58,9 @@ import { API_ENDPOINTS, API_BASE_URL } from "../config/environment";
 // Import ButtonProps for the type definition
 import { ButtonProps } from "@mui/material/Button";
 
+// Import the logo image
+import logoImage from "../assets/images/logo.png";
+
 // Add these imports for background components
 import { BackgroundProvider } from "../contexts/BackgroundContext";
 // Remove this line:
@@ -79,16 +82,11 @@ const LogoContainer = styled("div")({
   cursor: "pointer",
 });
 
-const Logo = styled(Box)({
-  width: "40px",
+// Styling for the transparent logo
+const Logo = styled("img")({
   height: "40px",
-  borderRadius: "8px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "rgba(255, 255, 255, 0.18)",
-  color: "#ffffff",
-  fontWeight: 700,
+  filter: "drop-shadow(0px 0px 1px rgba(0,0,0,0.2))", // subtle shadow to help with white parts
+  background: "transparent", // ensures background is transparent
 });
 
 // Define type that combines ButtonProps, React Router LinkProps, and component prop
@@ -208,7 +206,7 @@ const Navbar = ({
         <Toolbar disableGutters>
           {/* Fix the logo path */}
           <LogoContainer>
-            <Logo aria-label="Nutri Logo" onClick={()=>handleNavigation("/")}>N</Logo>
+            <Logo src={logoImage} alt="Nutri Logo" onClick={()=>handleNavigation("/")}/>
           </LogoContainer>
 
           {/* Website Name */}
@@ -696,6 +694,7 @@ const App = () => {
               name="description"
               content="Nutri - Your Dietary Aid Application"
             />
+            <meta property="og:image" content={logoImage} />
           </Helmet>
 
           <Navbar userData={userData} handleLogout={handleLogout} />

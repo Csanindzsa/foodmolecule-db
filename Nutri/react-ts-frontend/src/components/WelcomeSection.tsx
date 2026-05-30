@@ -25,6 +25,101 @@ interface WelcomeSectionProps {
   restaurants: Restaurant[];
 }
 
+const CarrotOutline = ({
+  sx,
+}: {
+  sx: Record<string, string | number | object>;
+}) => (
+  <Box
+    component="svg"
+    viewBox="0 0 120 170"
+    aria-hidden="true"
+    sx={{
+      position: "absolute",
+      width: 72,
+      height: 102,
+      fill: "none",
+      stroke: "#ffffff",
+      strokeWidth: 7,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      opacity: 0.32,
+      pointerEvents: "none",
+      ...sx,
+    }}
+  >
+    <path d="M60 48 C34 48 23 62 27 88 C31 113 45 143 60 160 C75 143 89 113 93 88 C97 62 86 48 60 48 Z" />
+    <path d="M60 47 C44 28 41 12 52 6 C63 0 70 19 60 47 Z" />
+    <path d="M60 47 C65 23 79 10 91 18 C103 26 88 44 60 47 Z" />
+    <path d="M60 47 C51 25 34 15 23 25 C13 35 33 48 60 47 Z" />
+    <path d="M34 80 L57 74" />
+    <path d="M86 101 L62 96" />
+    <path d="M42 123 L65 116" />
+  </Box>
+);
+
+const CarrotPattern = () => (
+  <Box
+    aria-hidden="true"
+    sx={{
+      position: "absolute",
+      inset: 0,
+      overflow: "hidden",
+      zIndex: 0,
+      pointerEvents: "none",
+    }}
+  >
+    <CarrotOutline sx={{ top: 34, left: "8%", transform: "rotate(-16deg)" }} />
+    <CarrotOutline
+      sx={{
+        top: 92,
+        left: "20%",
+        width: 54,
+        height: 76,
+        transform: "rotate(18deg)",
+        opacity: 0.26,
+      }}
+    />
+    <CarrotOutline
+      sx={{
+        top: 26,
+        right: "12%",
+        width: 68,
+        height: 96,
+        transform: "rotate(14deg)",
+      }}
+    />
+    <CarrotOutline
+      sx={{
+        top: 176,
+        right: "22%",
+        width: 50,
+        height: 70,
+        transform: "rotate(-26deg)",
+        opacity: 0.24,
+      }}
+    />
+    <CarrotOutline
+      sx={{
+        bottom: 28,
+        left: "10%",
+        width: 46,
+        height: 65,
+        transform: "rotate(32deg)",
+        opacity: 0.24,
+      }}
+    />
+    <CarrotOutline
+      sx={{
+        bottom: 58,
+        right: "6%",
+        transform: "rotate(-18deg)",
+        opacity: 0.28,
+      }}
+    />
+  </Box>
+);
+
 const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
@@ -59,6 +154,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
           zIndex: 1,
         }}
       >
+        <CarrotPattern />
         <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
           {/* Welcome Header */}
           <Box sx={{ textAlign: "center", mb: 8 }}>
