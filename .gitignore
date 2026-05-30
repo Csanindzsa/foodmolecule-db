@@ -84,7 +84,6 @@ data/exports/
 # Ruff
 .ruff_cache/
 
-Nutri/
 /obsidian/.obsidian
 /.swarm
 /ai
