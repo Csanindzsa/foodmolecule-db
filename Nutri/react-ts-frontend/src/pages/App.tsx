@@ -46,6 +46,11 @@ import {
   Snackbar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import HomeIcon from "@mui/icons-material/Home";
+import LocalDiningIcon from "@mui/icons-material/LocalDining";
+import BiotechIcon from "@mui/icons-material/Biotech";
+import LoginIcon from "@mui/icons-material/Login";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { styled } from "@mui/material/styles";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -121,6 +126,37 @@ const AuthButton = styled(Button)<StyledButtonProps>(({ theme }) => ({
     backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
 }));
+
+const mobileMenuIconByName: Record<string, React.ReactElement> = {
+  Home: <HomeIcon fontSize="small" />,
+  Foods: <LocalDiningIcon fontSize="small" />,
+  Ingredients: <BiotechIcon fontSize="small" />,
+  "Create Food": <LocalDiningIcon fontSize="small" />,
+  Approvals: <SupportIcon fontSize="small" />,
+};
+
+const mobileMenuItemSx = {
+  mx: 1,
+  my: 0.5,
+  px: 1.5,
+  py: 1.1,
+  borderRadius: 2,
+  gap: 1.25,
+  fontWeight: 600,
+  color: "#333",
+  "&:hover": {
+    bgcolor: "rgba(255,140,0,0.12)",
+    color: "#bf5f00",
+  },
+};
+
+const mobileMenuIconSx = {
+  color: "#FF8C00",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 24,
+};
 
 
 
@@ -224,24 +260,25 @@ const Navbar = ({
           <Typography
             variant="h6"
             component="div"
-            sx={{
-              flexGrow: isMobile ? 1 : 0,
-              color: "#fff",
-              fontWeight: 600,
-              display: { xs: "block", sm: "block" },
-              cursor: "pointer",
-            }}
+	            sx={{
+	              flexGrow: isMobile ? 1 : 0,
+	              color: "#fff",
+	              fontWeight: 600,
+	              display: { xs: "none", sm: "block" },
+	              cursor: "pointer",
+	            }}
             onClick={()=>handleNavigation("/")}
           >
             Nutrii
           </Typography>
 
-          {isMobile ? (
-            <>
-              {/* Mobile menu */}
-              <Box sx={{ flexGrow: 1 }} />
-              <IconButton
-                size="large"
+	          {isMobile ? (
+	            <>
+	              {/* Mobile menu */}
+	              <Box sx={{ flexGrow: 1 }} />
+	              <KoFiButton compact onClick={handleKoFiSupport} sx={{ mr: 1 }} />
+	              <IconButton
+	                size="large"
                 edge="end"
                 color="inherit"
                 aria-label="menu"
@@ -249,80 +286,124 @@ const Navbar = ({
               >
                 <MenuIcon />
               </IconButton>
-              <Menu
-                anchorEl={mainMenuAnchor}
-                open={Boolean(mainMenuAnchor)}
-                onClose={handleMainMenuClose}
+	              <Menu
+	                anchorEl={mainMenuAnchor}
+	                open={Boolean(mainMenuAnchor)}
+	                onClose={handleMainMenuClose}
                 anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-              >
-                {navItems.map((item) => (
-                  <MenuItem
-                    key={item.name}
-                    onClick={() => handleNavigation(item.path)}
-                  >
-                    {item.name}
-                  </MenuItem>
-                ))}
+	                  vertical: "top",
+	                  horizontal: "right",
+	                }}
+	                keepMounted
+	                PaperProps={{
+	                  elevation: 8,
+	                  sx: {
+	                    mt: 1,
+	                    minWidth: 210,
+	                    borderRadius: 3,
+	                    border: "1px solid rgba(255,140,0,0.25)",
+	                    bgcolor: "rgba(255,250,244,0.98)",
+	                    overflow: "visible",
+	                    boxShadow: "0 18px 44px rgba(71,43,0,0.24)",
+	                    "&::before": {
+	                      content: '""',
+	                      position: "absolute",
+	                      top: -7,
+	                      right: 18,
+	                      width: 14,
+	                      height: 14,
+	                      bgcolor: "rgba(255,250,244,0.98)",
+	                      borderLeft: "1px solid rgba(255,140,0,0.25)",
+	                      borderTop: "1px solid rgba(255,140,0,0.25)",
+	                      transform: "rotate(45deg)",
+	                    },
+	                    "& .MuiList-root": {
+	                      py: 1,
+	                    },
+	                  },
+	                }}
+	              >
+	                {navItems.map((item) => (
+	                  <MenuItem
+	                    key={item.name}
+	                    onClick={() => handleNavigation(item.path)}
+	                    sx={mobileMenuItemSx}
+	                  >
+	                    <Box sx={mobileMenuIconSx}>
+	                      {mobileMenuIconByName[item.name]}
+	                    </Box>
+	                    {item.name}
+	                  </MenuItem>
+	                ))}
 
-                <Box sx={{ px: 1.5, py: 1 }}>
-                  <KoFiButton fullWidth compact onClick={handleKoFiSupport} />
-                </Box>
-
-                {userData.username ? (
+	                {userData.username ? (
                   [
                     <MenuItem
                       key="support"
-                      onClick={() => {
-                        handleMainMenuClose();
-                        navigate("/support");
-                      }}
-                    >
-                      <SupportIcon fontSize="small" sx={{ mr: 1 }} />
-                      Support
-                    </MenuItem>,
+	                      onClick={() => {
+	                        handleMainMenuClose();
+	                        navigate("/support");
+	                      }}
+	                      sx={mobileMenuItemSx}
+	                    >
+	                      <Box sx={mobileMenuIconSx}>
+	                        <SupportIcon fontSize="small" />
+	                      </Box>
+	                      Support
+	                    </MenuItem>,
                     <MenuItem
                       key="profile"
-                      onClick={() => {
-                        handleMainMenuClose();
-                        navigate("/edit-user");
-                      }}
-                    >
-                      <EditIcon fontSize="small" sx={{ mr: 1 }} />
-                      Edit Profile
-                    </MenuItem>,
+	                      onClick={() => {
+	                        handleMainMenuClose();
+	                        navigate("/edit-user");
+	                      }}
+	                      sx={mobileMenuItemSx}
+	                    >
+	                      <Box sx={mobileMenuIconSx}>
+	                        <EditIcon fontSize="small" />
+	                      </Box>
+	                      Edit Profile
+	                    </MenuItem>,
                     <MenuItem
                       key="logout"
-                      onClick={() => {
-                        handleMainMenuClose();
-                        handleLogout();
-                      }}
-                    >
-                      <ExitToAppIcon fontSize="small" sx={{ mr: 1 }} />
-                      Logout
-                    </MenuItem>,
+	                      onClick={() => {
+	                        handleMainMenuClose();
+	                        handleLogout();
+	                      }}
+	                      sx={mobileMenuItemSx}
+	                    >
+	                      <Box sx={mobileMenuIconSx}>
+	                        <ExitToAppIcon fontSize="small" />
+	                      </Box>
+	                      Logout
+	                    </MenuItem>,
                   ]
                 ) : (
                   <>
                     <MenuItem
+	                      onClick={() => {
+	                        handleMainMenuClose();
+	                        navigate("/login");
+	                      }}
+	                      sx={mobileMenuItemSx}
+	                    >
+	                      <Box sx={mobileMenuIconSx}>
+	                        <LoginIcon fontSize="small" />
+	                      </Box>
+	                      Login
+	                    </MenuItem>
+	                    <MenuItem
                       onClick={() => {
-                        handleMainMenuClose();
-                        navigate("/login");
-                      }}
-                    >
-                      Login
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        handleMainMenuClose();
-                        navigate("/register");
-                      }}
-                    >
-                      Register
-                    </MenuItem>
+	                        handleMainMenuClose();
+	                        navigate("/register");
+	                      }}
+	                      sx={mobileMenuItemSx}
+	                    >
+	                      <Box sx={mobileMenuIconSx}>
+	                        <PersonAddIcon fontSize="small" />
+	                      </Box>
+	                      Register
+	                    </MenuItem>
                   </>
                 )}
               </Menu>

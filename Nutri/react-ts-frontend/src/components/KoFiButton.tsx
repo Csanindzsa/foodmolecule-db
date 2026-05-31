@@ -44,8 +44,8 @@ const KoFiButton: React.FC<KoFiButtonProps> = ({
         alt="Support me on Ko-fi"
         sx={{
           display: "block",
-          width: compact ? 210 : "100%",
-          maxWidth: compact ? 210 : 360,
+          width: compact ? { xs: 148, sm: 190, md: 210 } : "100%",
+          maxWidth: compact ? { xs: 148, sm: 190, md: 210 } : 360,
           height: "auto",
         }}
       />
