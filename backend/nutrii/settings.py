@@ -73,6 +73,14 @@ import dj_database_url
 _SUPABASE_URL = config("SUPABASE_URL", default="")
 _DATABASE_URL = config("DATABASE_URL", default="")
 
+
+def _set_postgres_timezone_options(database_config):
+    if "postgresql" not in database_config.get("ENGINE", ""):
+        return
+
+    database_config.setdefault("OPTIONS", {})
+    database_config["OPTIONS"]["options"] = "-c timezone=UTC"
+
 if _DATABASE_URL:
     # Use explicit DATABASE_URL if provided
     DATABASES = {
@@ -83,8 +91,7 @@ if _DATABASE_URL:
         )
     }
     # Direct connection for migrations — bypasses PgBouncer pooler
-    DATABASES["default"].setdefault("OPTIONS", {})
-    DATABASES["default"]["OPTIONS"]["options"] = "-c timezone=UTC"
+    _set_postgres_timezone_options(DATABASES["default"])
 elif _SUPABASE_URL:
     # Construct DATABASE_URL from SUPABASE_URL + SUPABASE_DB_PASSWORD.
     # Connects directly via db.<ref>.supabase.co (bypasses PgBouncer pooler).
@@ -116,8 +123,7 @@ elif _SUPABASE_URL:
         )
     }
     # Direct connection for migrations — bypasses PgBouncer pooler
-    DATABASES["default"].setdefault("OPTIONS", {})
-    DATABASES["default"]["OPTIONS"]["options"] = "-c timezone=UTC"
+    _set_postgres_timezone_options(DATABASES["default"])
 else:
     # SQLite fallback for CI/testing — allows pytest to run offline
     # without Supabase. pytest-django manages test DB isolation.

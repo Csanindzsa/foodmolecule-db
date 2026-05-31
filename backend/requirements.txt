@@ -19,6 +19,7 @@ requests>=2.31
 pandas>=2.2
 numpy>=1.26
 pydantic>=2.7
+jsonschema>=4.22
 
 # ─── Testing ───────────────────────────────────────────────────────────────
 pytest>=8.2

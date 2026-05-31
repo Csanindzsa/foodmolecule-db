@@ -11,8 +11,8 @@
     "aliases": { "type": "array", "items": { "type": "string" } },
     "category": { "type": "string", "maxLength": 100 },
     "origin": { "type": ["string", "null"], "maxLength": 255 },
-    "overall_safety_score": { "type": "integer", "minimum": 0, "maximum": 100 },
-    "health_index": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "overall_safety_score": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+    "health_index": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
     "ban_listed": { "type": "boolean", "default": false },
     "image_url": { "type": ["string", "null"], "format": "uri" },
     "metadata": {

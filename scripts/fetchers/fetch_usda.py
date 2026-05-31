@@ -17,20 +17,34 @@ import httpx
 from scripts.pipeline.config import MAX_RETRIES, RATE_LIMITS, USDA_API_BASE, USDA_API_KEY
 from scripts.pipeline.models import FoodEntry, FoodMoleculeLink
 
+USDA_SEARCH_DATA_TYPES = ["Foundation", "SR Legacy"]
+
 
 def search_food(query: str, page_size: int = 5) -> list[dict]:
     """Search for foods by name."""
     url = f"{USDA_API_BASE}/foods/search"
-    params = {
-        "query": query,
-        "api_key": USDA_API_KEY,
-        "pageSize": page_size,
-        "dataType": ["Foundation", "SR Legacy", "Survey (FNDDS)"],
-    }
+    foods: list[dict] = []
+    seen_ids: set[int] = set()
+
     with httpx.Client() as client:
-        resp = client.get(url, params=params, timeout=30)
-        resp.raise_for_status()
-        return resp.json().get("foods", [])
+        for data_type in USDA_SEARCH_DATA_TYPES:
+            params = {
+                "query": query,
+                "api_key": USDA_API_KEY,
+                "pageSize": page_size,
+                "dataType": data_type,
+            }
+            resp = client.get(url, params=params, timeout=30)
+            resp.raise_for_status()
+
+            for food in resp.json().get("foods", []):
+                fdc_id = food.get("fdcId")
+                if not fdc_id or fdc_id in seen_ids:
+                    continue
+                seen_ids.add(fdc_id)
+                foods.append(food)
+
+    return foods
 
 
 def get_food_detail(fdc_id: int) -> dict:
