@@ -120,11 +120,55 @@ const CarrotPattern = () => (
   </Box>
 );
 
+const searchPlaceholderTargets = ["foods", "ingredients"];
+
 const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [typedSearchTarget, setTypedSearchTarget] = useState(
+    searchPlaceholderTargets[0]
+  );
+  const [searchTargetIndex, setSearchTargetIndex] = useState(0);
+  const [isDeletingSearchTarget, setIsDeletingSearchTarget] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  useEffect(() => {
+    const currentTarget = searchPlaceholderTargets[searchTargetIndex];
+    let delay = isDeletingSearchTarget ? 45 : 75;
+
+    if (!isDeletingSearchTarget && typedSearchTarget === currentTarget) {
+      delay = 1500;
+    }
+
+    if (isDeletingSearchTarget && typedSearchTarget === "") {
+      delay = 260;
+    }
+
+    const timeout = window.setTimeout(() => {
+      if (!isDeletingSearchTarget && typedSearchTarget === currentTarget) {
+        setIsDeletingSearchTarget(true);
+        return;
+      }
+
+      if (isDeletingSearchTarget && typedSearchTarget === "") {
+        setIsDeletingSearchTarget(false);
+        setSearchTargetIndex(
+          (currentIndex) =>
+            (currentIndex + 1) % searchPlaceholderTargets.length
+        );
+        return;
+      }
+
+      setTypedSearchTarget((currentText) =>
+        isDeletingSearchTarget
+          ? currentText.slice(0, -1)
+          : currentTarget.slice(0, currentText.length + 1)
+      );
+    }, delay);
+
+    return () => window.clearTimeout(timeout);
+  }, [isDeletingSearchTarget, searchTargetIndex, typedSearchTarget]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,10 +248,54 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
             <InputAdornment position="start" sx={{ pl: 2 }}>
               <SearchIcon color="action" />
             </InputAdornment>
+            {!searchTerm && (
+              <Box
+                aria-hidden="true"
+                sx={{
+                  position: "absolute",
+                  left: 58,
+                  right: 20,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  display: "flex",
+                  alignItems: "center",
+                  pointerEvents: "none",
+                  color: "#777",
+                  fontSize: "1.1rem",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                }}
+              >
+                <Box component="span">Find&nbsp;</Box>
+                <Box
+                  component="span"
+                  sx={{
+                    color: "#FF8C00",
+                    fontWeight: 600,
+                  }}
+                >
+                  {typedSearchTarget}
+                </Box>
+                <Box
+                  component="span"
+                  sx={{
+                    ml: 0.25,
+                    width: "0.55em",
+                    color: "#FF8C00",
+                    animation: "searchCursorBlink 1s step-end infinite",
+                    "@keyframes searchCursorBlink": {
+                      "0%, 45%": { opacity: 1 },
+                      "46%, 100%": { opacity: 0 },
+                    },
+                  }}
+                >
+                  _
+                </Box>
+              </Box>
+            )}
             <TextField
               fullWidth
               variant="standard"
-              placeholder="Find food"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -217,9 +305,9 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
                 ml: 1,
                 flex: 1,
                 "& .MuiInputBase-input": {
-                  py: 1.5,
-                  fontSize: "1.1rem",
-                },
+	                  py: 1.5,
+	                  fontSize: "1.1rem",
+	                },
               }}
             />
           </Paper>
