@@ -8,62 +8,73 @@ import React, {
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
+  Autocomplete,
   Typography,
   Container,
   Paper,
   Checkbox,
-  FormControlLabel,
   Grid,
   Chip,
   Card,
   CardContent,
-  List,
-  ListItem,
   ListItemText,
-  ListItemSecondaryAction,
-  IconButton,
-  Divider,
   CardMedia,
   CardActions,
   Button,
   TextField,
   InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  OutlinedInput,
-  SelectChangeEvent,
-  FormGroup,
   CircularProgress,
+  Slider,
 } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
-import RestaurantIcon from "@mui/icons-material/Restaurant";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { Restaurant, Food, Ingredient, MacroTable } from "../interfaces";
+import { Food, Ingredient } from "../interfaces";
 import HazardLevelIndicator from "../components/HazardLevelIndicator";
-import { getHazardColor } from "../utils/hazardUtils";
+import { getHazardColor, getHazardLabel } from "../utils/hazardUtils";
 
 interface FoodListProps {
   accessToken: string | null;
-  restaurants: Restaurant[];
   ingredients: Ingredient[];
   foods: Food[];
-  selectedRestaurants: number[];
-  setSelectedRestaurants: React.Dispatch<React.SetStateAction<number[]>>;
   selectedIngredients: number[];
   setSelectedIngredients: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
+const dietaryOptions = [
+  { value: "organic", label: "Organic" },
+  { value: "gluten_free", label: "Gluten Free" },
+  { value: "alcohol_free", label: "Alcohol Free" },
+  { value: "lactose_free", label: "Lactose Free" },
+  { value: "paleo", label: "Paleo" },
+  { value: "keto", label: "Keto" },
+  { value: "vegan", label: "Vegan" },
+  { value: "vegetarian", label: "Vegetarian" },
+  { value: "whole_food", label: "Whole Food" },
+  { value: "low_sugar", label: "Low Sugar" },
+  { value: "low_sodium", label: "Low Sodium" },
+  { value: "high_fiber", label: "High Fiber" },
+];
+
+const foodHasDietaryPreference = (food: Food, preference: string) => {
+  if (food.dietary_preferences?.includes(preference)) return true;
+
+  const legacyPreferenceMatches: Record<string, boolean> = {
+    organic: food.is_organic,
+    gluten_free: food.is_gluten_free,
+    alcohol_free: food.is_alcohol_free,
+    lactose_free: food.is_lactose_free,
+  };
+
+  return Boolean(legacyPreferenceMatches[preference]);
+};
+
+const hazardSliderGradient =
+  "linear-gradient(90deg, #4CAF50 0%, #8BC34A 25%, #FFEB3B 50%, #F44336 75%, #9C27B0 100%)";
+
 const FoodList: React.FC<FoodListProps> = ({
   accessToken,
-  restaurants,
   ingredients,
   foods,
-  selectedRestaurants,
-  setSelectedRestaurants,
   selectedIngredients,
   setSelectedIngredients,
 }) => {
@@ -76,33 +87,26 @@ const FoodList: React.FC<FoodListProps> = ({
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Add state for dietary filters
-  const [dietaryFilters, setDietaryFilters] = useState({
-    isOrganic: false,
-    isGlutenFree: false,
-    isAlcoholFree: false,
-    isLactoseFree: false,
-  });
+  const [selectedDietaryPreferences, setSelectedDietaryPreferences] = useState<string[]>([]);
+  const [maxHazardLevel, setMaxHazardLevel] = useState(5);
+  const selectedIngredientOptions = useMemo(
+    () =>
+      ingredients.filter((ingredient) =>
+        selectedIngredients.includes(ingredient.id)
+      ),
+    [ingredients, selectedIngredients]
+  );
+  const selectedDietaryPreferenceOptions = useMemo(
+    () =>
+      dietaryOptions.filter((option) =>
+        selectedDietaryPreferences.includes(option.value)
+      ),
+    [selectedDietaryPreferences]
+  );
 
   // Pagination state
   const [visibleCount, setVisibleCount] = useState(100);
   const [loading, setLoading] = useState(false);
-
-  const toggleRestaurantSelection = (id: number) => {
-    setSelectedRestaurants((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((rid) => rid !== id)
-        : [...prevSelected, id]
-    );
-  };
-
-  const toggleIngredientSelection = (id: number) => {
-    setSelectedIngredients((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((iid) => iid !== id)
-        : [...prevSelected, id]
-    );
-  };
 
   // Update this handler to navigate to the ViewFood component instead
   const handleFoodClick = (foodId: number) => {
@@ -134,26 +138,15 @@ const FoodList: React.FC<FoodListProps> = ({
     };
   }, []);
 
-  // Handler for restaurant selection change
-  const handleRestaurantChange = (event: SelectChangeEvent<number[]>) => {
-    const value = event.target.value as number[];
-    setSelectedRestaurants(value);
+  const handleIngredientChange = (_event: React.SyntheticEvent, value: Ingredient[]) => {
+    setSelectedIngredients(value.map((ingredient) => ingredient.id));
   };
 
-  // Handler for ingredient selection change
-  const handleIngredientChange = (event: SelectChangeEvent<number[]>) => {
-    const value = event.target.value as number[];
-    setSelectedIngredients(value);
-  };
-
-  // Handler for dietary filter changes
-  const handleDietaryFilterChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+  const handleDietaryPreferenceChange = (
+    _event: React.SyntheticEvent,
+    value: typeof dietaryOptions
   ) => {
-    setDietaryFilters({
-      ...dietaryFilters,
-      [event.target.name]: event.target.checked,
-    });
+    setSelectedDietaryPreferences(value.map((option) => option.value));
   };
 
   // Add this new handler for chip clicks
@@ -161,16 +154,15 @@ const FoodList: React.FC<FoodListProps> = ({
     e.stopPropagation(); // Prevent card click
 
     // Update the appropriate dietary filter
-    setDietaryFilters((prev) => ({
-      ...prev,
-      [filterName]: true,
-    }));
+    setSelectedDietaryPreferences((prev) =>
+      prev.includes(filterName) ? prev : [...prev, filterName]
+    );
 
     // Scroll back to top to make it obvious to the user that a filter was applied
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Extract search query and restaurant from URL parameters on component mount
+  // Extract search query from URL parameters on component mount
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
 
@@ -181,35 +173,11 @@ const FoodList: React.FC<FoodListProps> = ({
       setDebouncedSearchTerm(searchQuery); // Also set debounced term immediately in this case
     }
 
-    // Handle restaurant parameter
-    const restaurantId = searchParams.get("restaurant");
-    if (restaurantId) {
-      const id = parseInt(restaurantId);
-      if (!isNaN(id)) {
-        setSelectedRestaurants([id]);
-
-        // Scroll to the filter section with smooth animation
-        setTimeout(() => {
-          const filterSection = document.getElementById("filter-section");
-          if (filterSection) {
-            filterSection.scrollIntoView({ behavior: "smooth" });
-          }
-        }, 300);
-      }
-    }
-  }, [location.search, setSelectedRestaurants]);
+  }, [location.search]);
 
   // Filter foods based on all criteria - now using debouncedSearchTerm
   const allFilteredFoods = useMemo(() => {
     return foods.filter((food) => {
-      // Restaurant filter
-      if (
-        selectedRestaurants.length > 0 &&
-        !selectedRestaurants.includes(food.restaurant)
-      ) {
-        return false;
-      }
-
       // Ingredient filter - food must contain at least one selected ingredient
       if (
         selectedIngredients.length > 0 &&
@@ -226,20 +194,25 @@ const FoodList: React.FC<FoodListProps> = ({
         return false;
       }
 
-      // Dietary filters
-      if (dietaryFilters.isOrganic && !food.is_organic) return false;
-      if (dietaryFilters.isGlutenFree && !food.is_gluten_free) return false;
-      if (dietaryFilters.isAlcoholFree && !food.is_alcohol_free) return false;
-      if (dietaryFilters.isLactoseFree && !food.is_lactose_free) return false;
+      if ((food.hazard_level ?? 0) > maxHazardLevel) return false;
+
+      if (
+        selectedDietaryPreferences.length > 0 &&
+        !selectedDietaryPreferences.every((preference) =>
+          foodHasDietaryPreference(food, preference)
+        )
+      ) {
+        return false;
+      }
 
       return true;
     });
   }, [
     foods,
-    selectedRestaurants,
     selectedIngredients,
     debouncedSearchTerm, // Changed from searchTerm to debouncedSearchTerm
-    dietaryFilters,
+    maxHazardLevel,
+    selectedDietaryPreferences,
   ]);
 
   // Visible foods - only show up to the current visibleCount
@@ -263,9 +236,9 @@ const FoodList: React.FC<FoodListProps> = ({
     setVisibleCount(100);
   }, [
     debouncedSearchTerm,
-    selectedRestaurants,
     selectedIngredients,
-    dietaryFilters,
+    maxHazardLevel,
+    selectedDietaryPreferences,
   ]); // Updated to use debouncedSearchTerm
 
   // Setup intersection observer for infinite scroll
@@ -318,135 +291,239 @@ const FoodList: React.FC<FoodListProps> = ({
       <Box
         id="filter-section" // Add this id for scrolling functionality
         sx={{
-          p: 3,
-          backgroundColor: "white",
+          p: { xs: 2.5, md: 3 },
+          backgroundColor: "rgba(255,255,255,0.96)",
           borderBottom: "1px solid #eaeaea",
         }}
       >
         <Grid container spacing={3}>
           {/* Search Box */}
           <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Search Foods"
-              variant="outlined"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                height: "100%",
+                borderRadius: 2,
+                border: "1px solid #f0e0cd",
+                background: "#fffaf4",
               }}
-            />
-          </Grid>
-
-          {/* Restaurant Filter */}
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>Restaurants</InputLabel>
-              <Select
-                multiple
-                value={selectedRestaurants}
-                onChange={handleRestaurantChange}
-                input={<OutlinedInput label="Restaurants" />}
-                renderValue={(selected) => {
-                  if (selected.length === restaurants.length)
-                    return "All Restaurants";
-                  return `${selected.length} Restaurant${
-                    selected.length !== 1 ? "s" : ""
-                  } Selected`;
+            >
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
+                Search
+              </Typography>
+              <TextField
+                fullWidth
+                label="Search Foods"
+                variant="outlined"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
                 }}
-              >
-                {restaurants.map((restaurant) => (
-                  <MenuItem key={restaurant.id} value={restaurant.id}>
-                    <Checkbox
-                      checked={selectedRestaurants.includes(restaurant.id)}
-                    />
-                    <ListItemText primary={restaurant.name} />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+              />
+            </Paper>
           </Grid>
 
           {/* Ingredient Filter */}
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>Ingredients</InputLabel>
-              <Select
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                height: "100%",
+                borderRadius: 2,
+                border: "1px solid #f0e0cd",
+                background: "#fffaf4",
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
+                Ingredients
+              </Typography>
+              <Autocomplete
                 multiple
-                value={selectedIngredients}
+                disableCloseOnSelect
+                options={ingredients}
+                value={selectedIngredientOptions}
                 onChange={handleIngredientChange}
-                input={<OutlinedInput label="Ingredients" />}
-                renderValue={(selected) => {
-                  if (selected.length === ingredients.length)
-                    return "All Ingredients";
-                  return `${selected.length} Ingredient${
-                    selected.length !== 1 ? "s" : ""
-                  } Selected`;
-                }}
-              >
-                {ingredients.map((ingredient) => (
-                  <MenuItem key={ingredient.id} value={ingredient.id}>
-                    <Checkbox
-                      checked={selectedIngredients.includes(ingredient.id)}
+                getOptionLabel={(option) => option.name}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderOption={(props, option, { selected }) => (
+                  <Box component="li" {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 1 }} />
+                    <ListItemText
+                      primary={option.name}
+                      secondary={option.description}
                     />
-                    <ListItemText primary={ingredient.name} />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                  </Box>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Ingredients"
+                    placeholder={
+                      selectedIngredients.length === 0
+                        ? "Type to search ingredients"
+                        : ""
+                    }
+                  />
+                )}
+              />
+              {selectedIngredients.length === 0 && (
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                  All ingredients are included until you select one.
+                </Typography>
+              )}
+            </Paper>
           </Grid>
 
-          {/* Dietary Filters */}
           <Grid item xs={12} md={6}>
-            <Typography variant="subtitle1" gutterBottom>
-              Dietary Preferences
-            </Typography>
-            <FormGroup row>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={dietaryFilters.isOrganic}
-                    onChange={handleDietaryFilterChange}
-                    name="isOrganic"
-                  />
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                height: "100%",
+                borderRadius: 2,
+                border: "1px solid #f0e0cd",
+                background: "#fffaf4",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mb: 1.5,
+                }}
+              >
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                    Max Hazard Level
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Show foods at or below this point
+                  </Typography>
+                </Box>
+                <Chip
+                  label={`${maxHazardLevel} · ${getHazardLabel(maxHazardLevel)}`}
+                  sx={{
+                    bgcolor: getHazardColor(maxHazardLevel),
+                    color: maxHazardLevel === 2 ? "#333" : "#fff",
+                    fontWeight: 700,
+                  }}
+                />
+              </Box>
+              <Slider
+                value={maxHazardLevel}
+                min={0}
+                max={5}
+                step={1}
+                marks={[
+                  { value: 0, label: "0" },
+                  { value: 1, label: "1" },
+                  { value: 2, label: "2" },
+                  { value: 3, label: "3" },
+                  { value: 4, label: "4" },
+                  { value: 5, label: "5" },
+                ]}
+                valueLabelDisplay="auto"
+                onChange={(_, value) =>
+                  setMaxHazardLevel(Array.isArray(value) ? value[0] : value)
                 }
-                label="Organic"
+                sx={{
+                  width: "calc(100% - 32px)",
+                  mx: 2,
+                  pt: 2,
+                  color: getHazardColor(maxHazardLevel),
+                  "& .MuiSlider-rail": {
+                    height: 8,
+                    opacity: 1,
+                    borderRadius: 999,
+                    background: hazardSliderGradient,
+                  },
+                  "& .MuiSlider-track": {
+                    height: 8,
+                    border: 0,
+                    borderRadius: 999,
+                    background: hazardSliderGradient,
+                  },
+                  "& .MuiSlider-thumb": {
+                    width: 24,
+                    height: 24,
+                    border: "3px solid #fff",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+                    backgroundColor: getHazardColor(maxHazardLevel),
+                  },
+                  "& .MuiSlider-mark": {
+                    width: 2,
+                    height: 8,
+                    backgroundColor: "rgba(255,255,255,0.85)",
+                  },
+                  "& .MuiSlider-markLabel": {
+                    fontSize: "0.75rem",
+                    color: "text.secondary",
+                  },
+                  "& .MuiSlider-valueLabel": {
+                    backgroundColor: getHazardColor(maxHazardLevel),
+                    color: maxHazardLevel === 2 ? "#333" : "#fff",
+                    fontWeight: 700,
+                  },
+                }}
               />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={dietaryFilters.isGlutenFree}
-                    onChange={handleDietaryFilterChange}
-                    name="isGlutenFree"
+            </Paper>
+          </Grid>
+
+          {/* Dietary Preferences */}
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                height: "100%",
+                borderRadius: 2,
+                border: "1px solid #f0e0cd",
+                background: "#fffaf4",
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
+                Dietary Preferences
+              </Typography>
+              <Autocomplete
+                multiple
+                disableCloseOnSelect
+                options={dietaryOptions}
+                value={selectedDietaryPreferenceOptions}
+                onChange={handleDietaryPreferenceChange}
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+                renderOption={(props, option, { selected }) => (
+                  <Box component="li" {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 1 }} />
+                    <ListItemText primary={option.label} />
+                  </Box>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Dietary Preferences"
+                    placeholder={
+                      selectedDietaryPreferences.length === 0
+                        ? "Type to search preferences"
+                        : ""
+                    }
                   />
-                }
-                label="Gluten Free"
+                )}
               />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={dietaryFilters.isAlcoholFree}
-                    onChange={handleDietaryFilterChange}
-                    name="isAlcoholFree"
-                  />
-                }
-                label="Alcohol Free"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={dietaryFilters.isLactoseFree}
-                    onChange={handleDietaryFilterChange}
-                    name="isLactoseFree"
-                  />
-                }
-                label="Lactose Free"
-              />
-            </FormGroup>
+              {selectedDietaryPreferences.length === 0 && (
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                  All dietary preferences are included until you select one.
+                </Typography>
+              )}
+            </Paper>
           </Grid>
         </Grid>
       </Box>
@@ -506,14 +583,10 @@ const FoodList: React.FC<FoodListProps> = ({
                     />
                   </Box>
 
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <RestaurantIcon
-                      sx={{ color: "text.secondary", mr: 1, fontSize: 18 }}
-                    />
-                    <Typography variant="body2" color="text.secondary">
-                      {food.restaurant_name || "Unknown Restaurant"}
-                    </Typography>
-                  </Box>
+                  <Typography variant="body2" color="text.secondary">
+                    {food.ingredients.length} linked ingredient
+                    {food.ingredients.length === 1 ? "" : "s"}
+                  </Typography>
 
                   <Box sx={{ mt: 2 }}>
                     {food.is_organic && (
@@ -527,7 +600,7 @@ const FoodList: React.FC<FoodListProps> = ({
                           cursor: "pointer",
                           "&:hover": { opacity: 0.8 },
                         }}
-                        onClick={(e) => handleTagClick("isOrganic", e)}
+                        onClick={(e) => handleTagClick("organic", e)}
                       />
                     )}
                     {food.is_gluten_free && (
@@ -541,7 +614,7 @@ const FoodList: React.FC<FoodListProps> = ({
                           cursor: "pointer",
                           "&:hover": { opacity: 0.8 },
                         }}
-                        onClick={(e) => handleTagClick("isGlutenFree", e)}
+                        onClick={(e) => handleTagClick("gluten_free", e)}
                       />
                     )}
                     {food.is_lactose_free && (
@@ -555,7 +628,7 @@ const FoodList: React.FC<FoodListProps> = ({
                           cursor: "pointer",
                           "&:hover": { opacity: 0.8 },
                         }}
-                        onClick={(e) => handleTagClick("isLactoseFree", e)}
+                        onClick={(e) => handleTagClick("lactose_free", e)}
                       />
                     )}
                     {food.is_alcohol_free && (
@@ -569,7 +642,7 @@ const FoodList: React.FC<FoodListProps> = ({
                           cursor: "pointer",
                           "&:hover": { opacity: 0.8 },
                         }}
-                        onClick={(e) => handleTagClick("isAlcoholFree", e)}
+                        onClick={(e) => handleTagClick("alcohol_free", e)}
                       />
                     )}
                   </Box>
@@ -620,7 +693,7 @@ const FoodList: React.FC<FoodListProps> = ({
               py: 4,
             }}
           >
-            <CircularProgress size={30} sx={{ color: "#FF8C00" }} />
+            <CircularProgress size={30} />
           </Box>
         )}
       </Box>

@@ -62,6 +62,7 @@ export interface Food {
     approved_supervisors_count?: number;
     approved_supervisors?: Supervisor[];
     hazard_level?: number;  // Add this field
+    dietary_preferences?: string[];
 }
 
 export interface FoodChange {

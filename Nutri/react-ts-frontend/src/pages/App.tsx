@@ -21,6 +21,8 @@ import EditUser from "./EditUser";
 import DeleteUser from "./DeleteUser";
 import AccountDeleted from "./AccountDeleted";
 import FoodList from "./FoodList";
+import IngredientDetail from "./IngredientDetail";
+import IngredientList from "./IngredientList";
 import ApproveFood from "../components/ApproveFood";
 import ViewFood from "../components/ViewFood";
 import Approvals from "./Approvals";
@@ -65,7 +67,6 @@ import logoImage from "../assets/images/logo.png";
 import { BackgroundProvider } from "../contexts/BackgroundContext";
 // Remove this line:
 // import BackgroundSettings from "../components/BackgroundSettings";
-import Restaurants from "./Restaurants"; // Add this import
 import EditFood from "./EditFood"; // Add this import
 import Support from "./Support"; // Add this import
 import SupportIcon from "@mui/icons-material/Support"; // Add this import
@@ -179,8 +180,8 @@ const Navbar = ({
   // Navigation items with conditional Create Food - only show when logged in
   const navItems = [
     { name: "Home", path: "/" },
-    { name: "Restaurants", path: "/restaurants" }, // Add Restaurants page
     { name: "Foods", path: "/foods" },
+    { name: "Ingredients", path: "/ingredients" },
     // Only include Create Food if user is logged in
     ...(userData.username
       ? [{ name: "Create Food", path: "/create-food" }]
@@ -502,6 +503,16 @@ const demoFoods: Food[] = [
     ingredients: [1, 2],
     image: demoCarrotImage,
     hazard_level: 0,
+    dietary_preferences: [
+      "organic",
+      "gluten_free",
+      "alcohol_free",
+      "lactose_free",
+      "paleo",
+      "vegan",
+      "vegetarian",
+      "whole_food",
+    ],
   },
 ];
 
@@ -521,9 +532,7 @@ const App = () => {
   const [selectedRestaurants, setSelectedRestaurants] = useState<number[]>(
     demoRestaurants.map((restaurant) => restaurant.id)
   );
-  const [selectedIngredients, setSelectedIngredients] = useState<number[]>(
-    demoIngredients.map((ingredient) => ingredient.id)
-  );
+  const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
   const isDataLoaded = useRef(false); // Track if data has been loaded
   const navigate = useNavigate();
   const [notificationMessage, setNotificationMessage] = useState<{
@@ -671,13 +680,6 @@ const App = () => {
             );
           }
 
-          // Initialize selectedIngredients only if it is empty
-          if (selectedIngredients.length === 0) {
-            setSelectedIngredients(
-              ingredientsData.map((i: Ingredient) => i.id)
-            );
-          }
-
           isDataLoaded.current = true; // Mark data as loaded
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -794,21 +796,27 @@ const App = () => {
               }
             />
             <Route
-              path="/restaurants"
-              element={<Restaurants restaurants={restaurants} />}
-            />
-            <Route
               path="/foods"
               element={
                 <FoodList
                   accessToken={accessToken}
-                  restaurants={restaurants}
                   ingredients={ingredients}
                   foods={foods}
-                  selectedRestaurants={selectedRestaurants}
-                  setSelectedRestaurants={setSelectedRestaurants}
                   selectedIngredients={selectedIngredients}
                   setSelectedIngredients={setSelectedIngredients}
+                />
+              }
+            />
+            <Route
+              path="/ingredients"
+              element={<IngredientList ingredients={ingredients} foods={foods} />}
+            />
+            <Route
+              path="/ingredient/:ingredientId"
+              element={
+                <IngredientDetailPage
+                  ingredients={ingredients}
+                  foods={foods}
                 />
               }
             />
@@ -1201,6 +1209,24 @@ const ViewFoodPage: React.FC<{
   return (
     <ViewFood food={food} ingredients={ingredients} accessToken={accessToken} />
   ); // Pass accessToken to ViewFood
+};
+
+const IngredientDetailPage: React.FC<{
+  ingredients: Ingredient[];
+  foods: Food[];
+}> = ({ ingredients, foods }) => {
+  const { ingredientId } = useParams<{ ingredientId: string }>();
+  const ingredient = ingredients.find((item) => item.id === Number(ingredientId));
+
+  if (!ingredient) {
+    return (
+      <Container sx={{ mt: 4 }}>
+        <Alert severity="error">Ingredient not found</Alert>
+      </Container>
+    );
+  }
+
+  return <IngredientDetail ingredient={ingredient} foods={foods} />;
 };
 
 export default App;
