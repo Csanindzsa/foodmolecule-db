@@ -14,6 +14,7 @@ import CoffeeIcon from "@mui/icons-material/Coffee";
 import GoogleIcon from "@mui/icons-material/Google";
 import LinkIcon from "@mui/icons-material/Link";
 import { API_ENDPOINTS, KOFI_SUPPORT_URL } from "../config/environment";
+import KoFiButton from "./KoFiButton";
 
 type AuthProviderPanelProps = {
   mode: "login" | "register";
@@ -97,21 +98,13 @@ const AuthProviderPanel: React.FC<AuthProviderPanelProps> = ({ mode }) => {
           backend webhook data, so the same username can hold Google, Apple, and
           Ko-fi entitlement records.
         </Typography>
-        <Button
-          variant="contained"
+        <KoFiButton
+          fullWidth
           href={KOFI_SUPPORT_URL}
           target="_blank"
           rel="noopener noreferrer"
-          startIcon={<CoffeeIcon />}
-          sx={{
-            bgcolor: "#FF8C00",
-            "&:hover": { bgcolor: "#e67e00" },
-            textTransform: "none",
-            fontWeight: 700,
-          }}
-        >
-          Support Nutrii on Ko-fi
-        </Button>
+          sx={{ maxWidth: 360 }}
+        />
       </Box>
 
       <Box sx={{ mt: 3 }}>

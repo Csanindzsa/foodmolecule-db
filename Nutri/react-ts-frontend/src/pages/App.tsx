@@ -74,6 +74,7 @@ import { BackgroundProvider } from "../contexts/BackgroundContext";
 import EditFood from "./EditFood"; // Add this import
 import Support from "./Support"; // Add this import
 import SupportIcon from "@mui/icons-material/Support"; // Add this import
+import KoFiButton from "../components/KoFiButton";
 
 // import styled from "styled-components";
 
@@ -267,10 +268,9 @@ const Navbar = ({
                   </MenuItem>
                 ))}
 
-                <MenuItem onClick={handleKoFiSupport}>
-                  <SupportIcon fontSize="small" sx={{ mr: 1 }} />
-                  Support Nutrii
-                </MenuItem>
+                <Box sx={{ px: 1.5, py: 1 }}>
+                  <KoFiButton fullWidth compact onClick={handleKoFiSupport} />
+                </Box>
 
                 {userData.username ? (
                   [
@@ -341,13 +341,7 @@ const Navbar = ({
                     {item.name}
                   </NavLink>
                 ))}
-                <NavLink
-                  color="inherit"
-                  onClick={handleKoFiSupport}
-                  startIcon={<SupportIcon />}
-                >
-                  Support Nutrii
-                </NavLink>
+                <KoFiButton compact onClick={handleKoFiSupport} sx={{ ml: 1 }} />
               </Box>
 
               {/* Login/Register buttons or user info on the right */}

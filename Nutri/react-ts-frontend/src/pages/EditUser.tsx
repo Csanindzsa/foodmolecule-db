@@ -23,6 +23,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { API_BASE_URL, API_ENDPOINTS, KOFI_SUPPORT_URL } from "../config/environment";
+import KoFiButton from "../components/KoFiButton";
 
 interface EditUserProps {
   accessToken: string | null;
@@ -307,21 +308,13 @@ const EditUser: React.FC<EditUserProps> = ({
                   </Button>
                 </Grid>
                 <Grid item xs={12}>
-                  <Button
+                  <KoFiButton
                     fullWidth
-                    variant="contained"
                     href={KOFI_SUPPORT_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    startIcon={<CoffeeIcon />}
-                    sx={{
-                      ...linkButtonSx,
-                      bgcolor: "#FF8C00",
-                      "&:hover": { bgcolor: "#e67e00" },
-                    }}
-                  >
-                    Support on Ko-fi
-                  </Button>
+                    sx={{ justifyContent: "center" }}
+                  />
                 </Grid>
               </Grid>
 
