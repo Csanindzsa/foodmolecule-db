@@ -1,0 +1,313 @@
+{
+  "id": "ab2ec162-7905-47a8-a92a-7b0035bf9af4",
+  "name": "bananas, overripe, raw",
+  "aliases": [],
+  "category": "Fruits and Fruit Juices",
+  "origin": "",
+  "overall_safety_score": null,
+  "health_index": null,
+  "ban_listed": false,
+  "image_url": "",
+  "metadata": {
+    "source": "USDA FoodData Central",
+    "usda_fdc_id": 1105073,
+    "data_type": "Foundation",
+    "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1105073/nutrients"
+  },
+  "molecules": [
+    {
+      "molecule_name": "Proximates",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Energy",
+      "amount_per_100g": 85.0,
+      "unit": "kcal",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Energy",
+      "amount_per_100g": 357.0,
+      "unit": "kJ",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Protein",
+      "amount_per_100g": 0.73,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Total lipid (fat)",
+      "amount_per_100g": 0.22,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Carbohydrates",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Carbohydrate, by difference",
+      "amount_per_100g": 20.1,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Carbohydrate, by summation",
+      "amount_per_100g": 18.0,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Fiber, total dietary",
+      "amount_per_100g": 1.7,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Total dietary fiber (AOAC 2011.25)",
+      "amount_per_100g": 2.02,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Sugars, Total",
+      "amount_per_100g": 15.8,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Sucrose",
+      "amount_per_100g": 2.1,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Glucose",
+      "amount_per_100g": 7.0,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Fructose",
+      "amount_per_100g": 6.7,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Lactose",
+      "amount_per_100g": 0.0,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Maltose",
+      "amount_per_100g": 0.0,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Galactose",
+      "amount_per_100g": 0.0,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Starch",
+      "amount_per_100g": 0.41,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Organic acids",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Citric acid",
+      "amount_per_100g": 279.0,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Malic acid",
+      "amount_per_100g": 290.0,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamins and Other Components",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamin C, total ascorbic acid",
+      "amount_per_100g": 9.7,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Thiamin",
+      "amount_per_100g": 0.04,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Riboflavin",
+      "amount_per_100g": 0.0,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Niacin",
+      "amount_per_100g": 0.57,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamin B-6",
+      "amount_per_100g": 0.234,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Biotin",
+      "amount_per_100g": 0.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Folate, total",
+      "amount_per_100g": 25.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamin A, RAE",
+      "amount_per_100g": 1.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Carotene, beta",
+      "amount_per_100g": 10.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "cis-beta-Carotene",
+      "amount_per_100g": 1.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "trans-beta-Carotene",
+      "amount_per_100g": 9.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Carotene, alpha",
+      "amount_per_100g": 8.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Cryptoxanthin, beta",
+      "amount_per_100g": 0.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Cryptoxanthin, alpha",
+      "amount_per_100g": 0.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "cis-Lycopene",
+      "amount_per_100g": 0.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "trans-Lycopene",
+      "amount_per_100g": 0.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "cis-Lutein/Zeaxanthin",
+      "amount_per_100g": 0.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamin K (phylloquinone)",
+      "amount_per_100g": 0.2,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamin K (Dihydrophylloquinone)",
+      "amount_per_100g": 0.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamin K (Menaquinone-4)",
+      "amount_per_100g": 0.0,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    }
+  ]
+}

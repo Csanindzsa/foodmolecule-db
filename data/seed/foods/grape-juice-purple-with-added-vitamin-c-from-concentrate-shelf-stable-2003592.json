@@ -1,0 +1,264 @@
+{
+  "id": "9c8a8cc7-d991-4941-a8ba-c90110eab163",
+  "name": "grape juice, purple, with added vitamin c, from concentrate, shelf stable",
+  "aliases": [],
+  "category": "Fruits and Fruit Juices",
+  "origin": "",
+  "overall_safety_score": null,
+  "health_index": null,
+  "ban_listed": false,
+  "image_url": "",
+  "metadata": {
+    "source": "USDA FoodData Central",
+    "usda_fdc_id": 2003592,
+    "data_type": "Foundation",
+    "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2003592/nutrients"
+  },
+  "molecules": [
+    {
+      "molecule_name": "Proximates",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Energy (Atwater General Factors)",
+      "amount_per_100g": 66.1099,
+      "unit": "kcal",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Energy (Atwater Specific Factors)",
+      "amount_per_100g": 64.513952,
+      "unit": "kcal",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Protein",
+      "amount_per_100g": 0.2578125,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Total lipid (fat)",
+      "amount_per_100g": 0.2875,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Carbohydrates",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Carbohydrate, by difference",
+      "amount_per_100g": 15.6227875,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Sugars, Total",
+      "amount_per_100g": 14.036,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Sucrose",
+      "amount_per_100g": 0.0,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Glucose",
+      "amount_per_100g": 6.614,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Fructose",
+      "amount_per_100g": 7.422,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Lactose",
+      "amount_per_100g": 0.0,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Maltose",
+      "amount_per_100g": 0.0,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Galactose",
+      "amount_per_100g": 0.0,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Organic acids",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Citric acid",
+      "amount_per_100g": 110.2,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Malic acid",
+      "amount_per_100g": 227.7,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Oxalic acid",
+      "amount_per_100g": 0.0,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Quinic acid",
+      "amount_per_100g": 0.0,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Minerals",
+      "amount_per_100g": null,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Calcium, Ca",
+      "amount_per_100g": 9.741,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Iron, Fe",
+      "amount_per_100g": 0.04092,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Magnesium, Mg",
+      "amount_per_100g": 7.873,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Phosphorus, P",
+      "amount_per_100g": 11.95,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Potassium, K",
+      "amount_per_100g": 49.78,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Sodium, Na",
+      "amount_per_100g": 4.019,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Zinc, Zn",
+      "amount_per_100g": 0.0571,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Copper, Cu",
+      "amount_per_100g": 0.01469,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Manganese, Mn",
+      "amount_per_100g": 0.1658,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamins and Other Components",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamin C, total ascorbic acid",
+      "amount_per_100g": 45.61,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Thiamin",
+      "amount_per_100g": 0.02588,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Niacin",
+      "amount_per_100g": 0.01638,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamin B-6",
+      "amount_per_100g": 0.03869,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Folate, total",
+      "amount_per_100g": 0.6644,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    }
+  ]
+}
