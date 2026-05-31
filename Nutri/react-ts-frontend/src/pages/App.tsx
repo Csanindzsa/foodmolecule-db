@@ -20,6 +20,7 @@ import ApproveUpdates from "./ApproveUpdates";
 import EditUser from "./EditUser";
 import DeleteUser from "./DeleteUser";
 import AccountDeleted from "./AccountDeleted";
+import DownloadApp from "./DownloadApp";
 import FoodList from "./FoodList";
 import IngredientDetail from "./IngredientDetail";
 import IngredientList from "./IngredientList";
@@ -51,6 +52,7 @@ import LocalDiningIcon from "@mui/icons-material/LocalDining";
 import BiotechIcon from "@mui/icons-material/Biotech";
 import LoginIcon from "@mui/icons-material/Login";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import { styled } from "@mui/material/styles";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -131,6 +133,7 @@ const mobileMenuIconByName: Record<string, React.ReactElement> = {
   Home: <HomeIcon fontSize="small" />,
   Foods: <LocalDiningIcon fontSize="small" />,
   Ingredients: <BiotechIcon fontSize="small" />,
+  "Download App": <PhoneIphoneIcon fontSize="small" />,
   "Create Food": <LocalDiningIcon fontSize="small" />,
   Approvals: <SupportIcon fontSize="small" />,
 };
@@ -223,6 +226,7 @@ const Navbar = ({
     { name: "Home", path: "/" },
     { name: "Foods", path: "/foods" },
     { name: "Ingredients", path: "/ingredients" },
+    { name: "Download App", path: "/download-app" },
     // Only include Create Food if user is logged in
     ...(userData.username
       ? [{ name: "Create Food", path: "/create-food" }]
@@ -927,8 +931,9 @@ const App = () => {
                 />
               }
             />
-            <Route path="/register" element={<Register />} />
-            <Route
+	            <Route path="/register" element={<Register />} />
+	            <Route path="/download-app" element={<DownloadApp />} />
+	            <Route
               path="/login"
               element={
                 <Login
