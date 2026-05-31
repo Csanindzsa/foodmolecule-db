@@ -11,10 +11,6 @@ import {
   Card,
   CardMedia,
   Container,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Button, // Add this import
   Dialog,
   DialogActions,
@@ -30,7 +26,6 @@ import RestaurantIcon from "@mui/icons-material/Restaurant";
 import CheckIcon from "@mui/icons-material/Check";
 import CancelIcon from "@mui/icons-material/Cancel";
 import LocalDiningIcon from "@mui/icons-material/LocalDining";
-import EggIcon from "@mui/icons-material/Egg";
 import EditIcon from "@mui/icons-material/Edit"; // Add this import
 import DeleteIcon from "@mui/icons-material/Delete"; // Add this import
 import { styled } from "@mui/material/styles";
@@ -189,15 +184,44 @@ const ViewFood: React.FC<ViewFoodProps> = ({
   // Update this function to return more information about each ingredient
   const getIngredientDetails = (
     ingredientIds: number[]
-  ): { name: string; hazardLevel: number }[] => {
+  ): { id: number; name: string; hazardLevel: number }[] => {
     return ingredientIds.map((id) => {
       const ingredient = ingredients.find((ing) => ing.id === id);
       return {
+        id,
         name: ingredient ? ingredient.name : `Unknown Ingredient (ID: ${id})`,
         hazardLevel: ingredient ? ingredient.hazard_level : 0,
       };
     });
   };
+
+  const handleIngredientClick = (ingredientId: number) => {
+    navigate(`/ingredient/${ingredientId}`);
+  };
+
+  const baseHazardLevel = food.hazard_level || 0;
+  const preparationProfiles = [
+    {
+      method: "Raw",
+      hazardLevel: baseHazardLevel,
+      note: "Baseline rating from linked ingredients and literature.",
+    },
+    {
+      method: "Boiled",
+      hazardLevel: Math.max(0, baseHazardLevel - 1),
+      note: "May reduce heat-sensitive compounds and water-soluble anti-nutrients.",
+    },
+    {
+      method: "Pressure boiled",
+      hazardLevel: Math.max(0, baseHazardLevel - 2),
+      note: "Higher heat and pressure may reduce some anti-nutrient burden.",
+    },
+    {
+      method: "Pressure cooked",
+      hazardLevel: Math.max(0, baseHazardLevel - 2),
+      note: "Separate rating slot for pressure-cooking evidence.",
+    },
+  ];
 
   // Function for formatting numbers consistently
   const formatNutritionValue = (value: number | null | undefined): string => {
@@ -444,9 +468,44 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                     variant="body2"
                     sx={{ mt: 1, color: "text.secondary" }}
                   >
-                    {getHazardLabel(food.hazard_level || 0)}: This food has been
+                    {getHazardLabel(baseHazardLevel)}: This food has been
                     rated based on its ingredients.
                   </Typography>
+                </Box>
+              </Box>
+
+              <Box
+                sx={{
+                  mb: 3,
+                  p: 2,
+                  borderRadius: 2,
+                  border: "1px solid #f0e0cd",
+                  bgcolor: "#fffaf4",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  AI Research Rating
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                  Dynamic rating area for the AI summary generated from PubMed and
+                  medical papers.
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  <Chip
+                    label="Evidence summary pending"
+                    size="small"
+                    variant="outlined"
+                  />
+                  <Chip
+                    label="Paper citations"
+                    size="small"
+                    variant="outlined"
+                  />
+                  <Chip
+                    label="Confidence score"
+                    size="small"
+                    variant="outlined"
+                  />
                 </Box>
               </Box>
 
@@ -493,7 +552,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                 </Typography>
               </Box>
 
-              {/* Updated Ingredients Section with scrollable container */}
+              {/* Ingredients Section */}
               <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
                 Ingredients
               </Typography>
@@ -501,10 +560,13 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                 {food.ingredients && food.ingredients.length > 0 ? (
                   <Box
                     sx={{
-                      maxHeight: 250, // Add a maximum height
-                      overflowY: "auto", // Make it scrollable when content exceeds height
-                      pr: 1, // Add some padding for the scrollbar
-                      // Add subtle scrollbar styling
+                      maxHeight: 220,
+                      overflowY: "auto",
+                      pr: 1,
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 1,
+                      alignContent: "flex-start",
                       "&::-webkit-scrollbar": {
                         width: 8,
                       },
@@ -518,61 +580,71 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                       },
                     }}
                   >
-                    <List dense>
-                      {getIngredientDetails(food.ingredients).map(
-                        (ingredient, index) => (
-                          <ListItem
-                            key={index}
-                            sx={{
-                              borderLeft: `4px solid ${getHazardColor(
+                    {getIngredientDetails(food.ingredients).map((ingredient) => (
+                      <Tooltip
+                        key={ingredient.id}
+                        title={`${getHazardLabel(
+                          ingredient.hazardLevel
+                        )} - open ingredient profile`}
+                      >
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleIngredientClick(ingredient.id)}
+                          sx={{
+                            maxWidth: { xs: "100%", sm: 260 },
+                            minWidth: 0,
+                            px: 1.25,
+                            py: 0.75,
+                            borderRadius: 999,
+                            borderColor: getHazardColor(ingredient.hazardLevel),
+                            color: "text.primary",
+                            bgcolor: `${getHazardColor(
+                              ingredient.hazardLevel
+                            )}12`,
+                            textTransform: "none",
+                            justifyContent: "flex-start",
+                            gap: 1,
+                            "&:hover": {
+                              borderColor: getHazardColor(
                                 ingredient.hazardLevel
-                              )}`,
-                              pl: 2,
-                              mb: 0.5,
-                              borderRadius: 1,
+                              ),
                               bgcolor: `${getHazardColor(
                                 ingredient.hazardLevel
-                              )}15`, // Very light background with 15% opacity
+                              )}24`,
+                            },
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 22,
+                              height: 22,
+                              minWidth: 22,
+                              minHeight: 22,
+                              borderRadius: "50%",
+                              bgcolor: getHazardColor(ingredient.hazardLevel),
+                              color: "white",
+                              fontWeight: 700,
+                              fontSize: "0.75rem",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              lineHeight: 1,
+                              flexShrink: 0,
                             }}
                           >
-                            <ListItemIcon>
-                              <EggIcon
-                                fontSize="small"
-                                sx={{
-                                  color: getHazardColor(ingredient.hazardLevel),
-                                }}
-                              />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary={ingredient.name}
-                              secondary={getHazardLabel(ingredient.hazardLevel)}
-                            />
-                            <Tooltip
-                              title={`Hazard Level: ${ingredient.hazardLevel}`}
-                            >
-                              <Box
-                                sx={{
-                                  width: 24,
-                                  height: 24,
-                                  borderRadius: "50%",
-                                  bgcolor: getHazardColor(
-                                    ingredient.hazardLevel
-                                  ),
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  color: "white",
-                                  fontWeight: "bold",
-                                  fontSize: "0.8rem",
-                                }}
-                              >
-                                {ingredient.hazardLevel}
-                              </Box>
-                            </Tooltip>
-                          </ListItem>
-                        )
-                      )}
-                    </List>
+                            {ingredient.hazardLevel}
+                          </Box>
+                          <Typography
+                            variant="body2"
+                            component="span"
+                            noWrap
+                            sx={{ minWidth: 0 }}
+                          >
+                            {ingredient.name}
+                          </Typography>
+                        </Button>
+                      </Tooltip>
+                    ))}
                   </Box>
                 ) : (
                   <Typography color="text.secondary">
@@ -616,6 +688,63 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                       </Box>
                     ))}
                   </Box>
+                </Box>
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  Preparation Method Ratings
+                </Typography>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: {
+                      xs: "1fr",
+                      sm: "repeat(2, minmax(0, 1fr))",
+                    },
+                    gap: 1.5,
+                  }}
+                >
+                  {preparationProfiles.map((profile) => (
+                    <Box
+                      key={profile.method}
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        border: "1px solid #eee",
+                        bgcolor: `${getHazardColor(profile.hazardLevel)}10`,
+                        minWidth: 0,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                          {profile.method}
+                        </Typography>
+                        <Chip
+                          label={`${profile.hazardLevel} · ${getHazardLabel(
+                            profile.hazardLevel
+                          )}`}
+                          size="small"
+                          sx={{
+                            bgcolor: getHazardColor(profile.hazardLevel),
+                            color: profile.hazardLevel === 2 ? "#333" : "#fff",
+                            fontWeight: 700,
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        {profile.note}
+                      </Typography>
+                    </Box>
+                  ))}
                 </Box>
               </Box>
 
