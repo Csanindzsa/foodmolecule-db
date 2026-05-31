@@ -89,7 +89,11 @@ const MainPage: React.FC<MainPageProps> = ({
     // Remove the Container component to allow full width
     <Box sx={{ width: "100%" }}>
       {/* WelcomeSection will now have full width */}
-      <WelcomeSection restaurants={restaurants || []} />
+      <WelcomeSection
+        restaurants={restaurants || []}
+        foods={foods || []}
+        ingredients={ingredients || []}
+      />
     </Box>
   );
 };

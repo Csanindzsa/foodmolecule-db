@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
+  Autocomplete,
   Typography,
   TextField,
   InputAdornment,
@@ -17,13 +18,22 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { Restaurant } from "../interfaces";
+import { Food, Ingredient, Restaurant } from "../interfaces";
 import { red } from "@mui/material/colors";
 import { getRestaurantImage } from "../utils/imageUtils";
 
 interface WelcomeSectionProps {
   restaurants: Restaurant[];
+  foods: Food[];
+  ingredients: Ingredient[];
 }
+
+type SearchSuggestion = {
+  id: number;
+  label: string;
+  type: "Food" | "Ingredient";
+  description?: string | null;
+};
 
 const CarrotOutline = ({
   sx,
@@ -122,16 +132,37 @@ const CarrotPattern = () => (
 
 const searchPlaceholderTargets = ["foods", "ingredients"];
 
-const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
+const WelcomeSection: React.FC<WelcomeSectionProps> = ({
+  restaurants,
+  foods,
+  ingredients,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [typedSearchTarget, setTypedSearchTarget] = useState(
-    searchPlaceholderTargets[0]
+    searchPlaceholderTargets[0],
   );
   const [searchTargetIndex, setSearchTargetIndex] = useState(0);
   const [isDeletingSearchTarget, setIsDeletingSearchTarget] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const searchSuggestions = useMemo<SearchSuggestion[]>(
+    () => [
+      ...foods.map((food) => ({
+        id: food.id,
+        label: food.name,
+        type: "Food" as const,
+        description: food.restaurant_name,
+      })),
+      ...ingredients.map((ingredient) => ({
+        id: ingredient.id,
+        label: ingredient.name,
+        type: "Ingredient" as const,
+        description: ingredient.description,
+      })),
+    ],
+    [foods, ingredients],
+  );
 
   useEffect(() => {
     const currentTarget = searchPlaceholderTargets[searchTargetIndex];
@@ -155,7 +186,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
         setIsDeletingSearchTarget(false);
         setSearchTargetIndex(
           (currentIndex) =>
-            (currentIndex + 1) % searchPlaceholderTargets.length
+            (currentIndex + 1) % searchPlaceholderTargets.length,
         );
         return;
       }
@@ -163,7 +194,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
       setTypedSearchTarget((currentText) =>
         isDeletingSearchTarget
           ? currentText.slice(0, -1)
-          : currentTarget.slice(0, currentText.length + 1)
+          : currentTarget.slice(0, currentText.length + 1),
       );
     }, delay);
 
@@ -178,6 +209,17 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
     } else {
       navigate("/foods");
     }
+  };
+
+  const handleSuggestionSelect = (suggestion: SearchSuggestion | null) => {
+    if (!suggestion) return;
+
+    setSearchTerm(suggestion.label);
+    navigate(
+      suggestion.type === "Food"
+        ? `/food/${suggestion.id}`
+        : `/ingredient/${suggestion.id}`,
+    );
   };
 
   // Temporary preview cards use the legacy restaurant-shaped data until backend wiring lands.
@@ -212,7 +254,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
                 mb: 1,
               }}
             >
-              Welcome to Nutri
+              Welcome to Nutrii
             </Typography>
 
             <Typography
@@ -230,12 +272,13 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
           <Paper
             component="form"
             onSubmit={handleSearch}
-            elevation={3}
-            sx={{
-              p: "2px 4px",
-              display: "flex",
-              alignItems: "center",
-              width: "90%",
+	            elevation={3}
+	            sx={{
+	              p: "0 4px",
+	              display: "flex",
+	              alignItems: "center",
+	              minHeight: 64,
+	              width: "90%",
               maxWidth: "800px",
               mx: "auto",
               borderRadius: 3,
@@ -293,22 +336,111 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
                 </Box>
               </Box>
             )}
-            <TextField
+            <Autocomplete
               fullWidth
-              variant="standard"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                disableUnderline: true,
+              clearOnBlur={false}
+              forcePopupIcon={false}
+              open={searchTerm.trim().length > 0}
+              options={searchSuggestions}
+              inputValue={searchTerm}
+              onInputChange={(_, value) => setSearchTerm(value)}
+              onChange={(_, value) => handleSuggestionSelect(value)}
+              filterOptions={(options, state) => {
+                const query = state.inputValue.trim().toLowerCase();
+                if (!query) return [];
+
+                return options
+                  .filter((option) =>
+                    [option.label, option.description || "", option.type].some(
+                      (value) => value.toLowerCase().includes(query),
+                    ),
+                  )
+                  .slice(0, 8);
               }}
-              sx={{
-                ml: 1,
-                flex: 1,
-                "& .MuiInputBase-input": {
-	                  py: 1.5,
-	                  fontSize: "1.1rem",
+              getOptionLabel={(option) => option.label}
+              isOptionEqualToValue={(option, value) =>
+                option.type === value.type && option.id === value.id
+              }
+              renderOption={(props, option) => (
+                <Box
+                  component="li"
+                  {...props}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 2,
+                  }}
+                >
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {option.label}
+                    </Typography>
+                    {option.description && (
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        noWrap
+                        sx={{ display: "block", maxWidth: 360 }}
+                      >
+                        {option.description}
+                      </Typography>
+                    )}
+                  </Box>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 999,
+                      bgcolor:
+                        option.type === "Food"
+                          ? "rgba(255,140,0,0.14)"
+                          : "rgba(76,175,80,0.14)",
+                      color: option.type === "Food" ? "#c46600" : "#2e7d32",
+                      fontWeight: 700,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {option.type}
+                  </Typography>
+                </Box>
+              )}
+              noOptionsText={
+                searchTerm.trim() ? "No matching foods or ingredients" : ""
+              }
+	              sx={{
+	                ml: 1,
+	                flex: 1,
+	                height: "100%",
+	                "& .MuiInputBase-root": {
+	                  minHeight: 64,
+	                  alignItems: "center",
+	                },
+	                "& .MuiAutocomplete-endAdornment": {
+	                  display: "none",
 	                },
               }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="standard"
+                  InputProps={{
+                    ...params.InputProps,
+                    disableUnderline: true,
+                  }}
+                  inputProps={{
+                    ...params.inputProps,
+                    "aria-label": "Search foods and ingredients",
+	                  }}
+		                  sx={{
+		                    "& .MuiInputBase-input": {
+                      py: 0,
+                      fontSize: "1.1rem",
+                    },
+                  }}
+                />
+              )}
             />
           </Paper>
         </Container>
@@ -405,7 +537,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
               fontWeight: 600,
             }}
           >
-            Featured foods and molecules
+            Featured foods/ingredients and molecules
           </Typography>
           <Grid container spacing={3}>
             {restaurants.slice(0, 4).map((restaurant) => (
@@ -426,7 +558,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
                     height="140"
                     image={getRestaurantImage(
                       restaurant.image,
-                      restaurant.imageIsLocal
+                      restaurant.imageIsLocal,
                     )}
                     alt={restaurant.name}
                   />
