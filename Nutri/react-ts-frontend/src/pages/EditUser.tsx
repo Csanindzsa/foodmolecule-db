@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Container,
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Paper,
-  Grid,
   Alert,
-  CircularProgress,
-  Divider,
   Avatar,
+  Box,
+  Button,
+  Chip,
+  Container,
+  Divider,
+  Grid,
   InputAdornment,
-  IconButton,
+  Paper,
+  TextField,
+  Typography,
 } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
+import AppleIcon from "@mui/icons-material/Apple";
+import CoffeeIcon from "@mui/icons-material/Coffee";
 import EmailIcon from "@mui/icons-material/Email";
-import LockIcon from "@mui/icons-material/Lock";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import GoogleIcon from "@mui/icons-material/Google";
+import LinkIcon from "@mui/icons-material/Link";
+import PersonIcon from "@mui/icons-material/Person";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
-import {API_BASE_URL} from "../config/environment";
+import { API_BASE_URL, API_ENDPOINTS, KOFI_SUPPORT_URL } from "../config/environment";
 
 interface EditUserProps {
   accessToken: string | null;
@@ -42,26 +42,27 @@ interface EditUserProps {
   setRefreshToken?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
+const linkButtonSx = {
+  py: 1.2,
+  justifyContent: "flex-start",
+  textTransform: "none",
+  fontWeight: 700,
+  borderRadius: 2,
+};
+
 const EditUser: React.FC<EditUserProps> = ({
   accessToken,
   userData,
   setUserData,
-  setAccessToken,
-  setRefreshToken,
 }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Populate form with current user data
     if (userData) {
       setUsername(userData.username || "");
       setEmail(userData.email || "");
@@ -69,7 +70,6 @@ const EditUser: React.FC<EditUserProps> = ({
   }, [userData]);
 
   useEffect(() => {
-    // Redirect to login if no access token
     if (!accessToken) {
       navigate("/login");
     }
@@ -88,14 +88,6 @@ const EditUser: React.FC<EditUserProps> = ({
       newErrors.email = "Email is invalid";
     }
 
-    if (password && password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    }
-
-    if (password && password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -103,67 +95,37 @@ const EditUser: React.FC<EditUserProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
     setErrors({});
     setSuccessMessage("");
 
     try {
-      // Prepare data object
-      const updateData: Record<string, string> = {};
-
-      updateData.username = username;
-      updateData.email = email;
-
-      // Only include password if it was provided
-      if (password) {
-        updateData.password = password;
-      }
-
       const response = await fetch(`${API_BASE_URL}/users/edit/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(updateData),
+        body: JSON.stringify({ username, email }),
       });
 
       if (response.ok) {
         const data = await response.json();
 
-        // Update the user data in the parent component state
         setUserData((prevData) => ({
           ...prevData,
           username: data.user.username,
           email: data.user.email,
         }));
 
-        // Update tokens if provided by API
-        if (data.tokens && setAccessToken && setRefreshToken) {
-          setAccessToken(data.tokens.access);
-          setRefreshToken(data.tokens.refresh);
-          localStorage.setItem("access_token", data.tokens.access);
-          localStorage.setItem("refresh_token", data.tokens.refresh);
-        }
-
-        // Set success message
-        setSuccessMessage("Profile updated successfully");
-
-        // Clear password fields after successful update
-        setPassword("");
-        setConfirmPassword("");
-
-        // Scroll to top to show success message
+        setSuccessMessage("Account updated successfully");
         window.scrollTo(0, 0);
       } else {
         const errorData = await response.json();
         const newErrors: Record<string, string> = {};
 
-        // Handle validation errors from the backend
         if (errorData.username) {
           newErrors.username = Array.isArray(errorData.username)
             ? errorData.username[0]
@@ -176,13 +138,6 @@ const EditUser: React.FC<EditUserProps> = ({
             : errorData.email;
         }
 
-        if (errorData.password) {
-          newErrors.password = Array.isArray(errorData.password)
-            ? errorData.password[0]
-            : errorData.password;
-        }
-
-        // Handle generic errors
         if (errorData.detail) {
           newErrors.general = errorData.detail;
         }
@@ -199,36 +154,25 @@ const EditUser: React.FC<EditUserProps> = ({
     }
   };
 
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleToggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
-
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
-      {/* Header with orange background */}
       <Box
         sx={{
           backgroundColor: "#FF8C00",
           py: 3,
           px: 4,
           borderRadius: "10px 10px 0 0",
-          mb: 0,
           color: "white",
         }}
       >
         <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-          Edit Profile
+          Account
         </Typography>
         <Typography variant="subtitle1">
-          Update your account information
+          Manage your Nutrii username and connected providers
         </Typography>
       </Box>
 
-      {/* Main Content */}
       <Paper
         elevation={3}
         sx={{
@@ -272,7 +216,6 @@ const EditUser: React.FC<EditUserProps> = ({
               </Avatar>
             </Grid>
 
-            {/* User Info Section */}
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
                 Account Information
@@ -289,7 +232,10 @@ const EditUser: React.FC<EditUserProps> = ({
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     error={!!errors.username}
-                    helperText={errors.username || ""}
+                    helperText={
+                      errors.username ||
+                      "This is the shared Nutrii identity across linked providers."
+                    }
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -304,13 +250,16 @@ const EditUser: React.FC<EditUserProps> = ({
                   <TextField
                     fullWidth
                     id="email"
-                    label="Email"
+                    label="Primary email"
                     name="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     error={!!errors.email}
-                    helperText={errors.email || ""}
+                    helperText={
+                      errors.email ||
+                      "Used for account recovery and Ko-fi supporter matching."
+                    }
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -323,90 +272,67 @@ const EditUser: React.FC<EditUserProps> = ({
               </Grid>
             </Grid>
 
-            {/* Password Section */}
             <Grid item xs={12} mt={2}>
               <Typography variant="h6" gutterBottom>
-                Change Password (optional)
+                Connected Providers
               </Typography>
               <Divider sx={{ mb: 2 }} />
 
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    id="password"
-                    label="New Password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    error={!!errors.password}
-                    helperText={
-                      errors.password ||
-                      "Leave blank if you don't want to change your password"
-                    }
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockIcon />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={handleTogglePasswordVisibility}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Connect multiple providers to the same Nutrii account so Google,
+                Apple, and Ko-fi support can all map to one username.
+              </Alert>
 
-                <Grid item xs={12}>
-                  <TextField
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Button
                     fullWidth
-                    id="confirmPassword"
-                    label="Confirm New Password"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    disabled={!password}
-                    error={!!errors.confirmPassword}
-                    helperText={errors.confirmPassword || ""}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockIcon />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle confirm password visibility"
-                            onClick={handleToggleConfirmPasswordVisibility}
-                            edge="end"
-                            disabled={!password}
-                          >
-                            {showConfirmPassword ? (
-                              <VisibilityOff />
-                            ) : (
-                              <Visibility />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    variant="outlined"
+                    href={API_ENDPOINTS.oauthLink("google")}
+                    startIcon={<GoogleIcon />}
+                    sx={linkButtonSx}
+                  >
+                    Connect Google
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    href={API_ENDPOINTS.oauthLink("apple")}
+                    startIcon={<AppleIcon />}
+                    sx={linkButtonSx}
+                  >
+                    Connect Apple
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    href={KOFI_SUPPORT_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    startIcon={<CoffeeIcon />}
+                    sx={{
+                      ...linkButtonSx,
+                      bgcolor: "#FF8C00",
+                      "&:hover": { bgcolor: "#e67e00" },
                     }}
-                  />
+                  >
+                    Support on Ko-fi
+                  </Button>
                 </Grid>
               </Grid>
+
+              <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
+                <Chip icon={<GoogleIcon />} label="Google" />
+                <Chip icon={<AppleIcon />} label="Apple" />
+                <Chip icon={<CoffeeIcon />} label="Ko-fi entitlement" />
+                <Chip icon={<LinkIcon />} label="One account" />
+              </Box>
             </Grid>
 
-            {/* Actions */}
             <Grid
               item
               xs={12}
@@ -417,9 +343,7 @@ const EditUser: React.FC<EditUserProps> = ({
                 color="primary"
                 type="submit"
                 disabled={isLoading}
-                startIcon={
-                  isLoading ? <CircularProgress size={20} /> : <SaveIcon />
-                }
+                startIcon={<SaveIcon />}
                 sx={{
                   bgcolor: "#FF8C00",
                   "&:hover": {
@@ -428,7 +352,7 @@ const EditUser: React.FC<EditUserProps> = ({
                   px: 4,
                 }}
               >
-                {isLoading ? "Saving..." : "Save Changes"}
+                {isLoading ? "Saving..." : "Save Account"}
               </Button>
               <Button
                 variant="outlined"
@@ -441,7 +365,6 @@ const EditUser: React.FC<EditUserProps> = ({
               </Button>
             </Grid>
 
-            {/* Delete Account Link */}
             <Grid item xs={12} sx={{ mt: 4, textAlign: "center" }}>
               <Divider sx={{ mb: 2 }} />
               <Button

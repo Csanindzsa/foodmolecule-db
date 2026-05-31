@@ -55,7 +55,11 @@ import { Helmet, HelmetProvider } from "react-helmet-async"; // Updated import
 import MuiAlert from "@mui/material/Alert";
 
 // Add this missing import
-import { API_ENDPOINTS, API_BASE_URL } from "../config/environment";
+import {
+  API_ENDPOINTS,
+  API_BASE_URL,
+  KOFI_SUPPORT_URL,
+} from "../config/environment";
 
 // Import ButtonProps for the type definition
 import { ButtonProps } from "@mui/material/Button";
@@ -201,6 +205,11 @@ const Navbar = ({
     navigate(path);
   };
 
+  const handleKoFiSupport = () => {
+    handleMainMenuClose();
+    window.open(KOFI_SUPPORT_URL, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <AppBar position="static" sx={{ backgroundColor: "#FF8C00" }}>
       <Container maxWidth="lg">
@@ -257,6 +266,11 @@ const Navbar = ({
                     {item.name}
                   </MenuItem>
                 ))}
+
+                <MenuItem onClick={handleKoFiSupport}>
+                  <SupportIcon fontSize="small" sx={{ mr: 1 }} />
+                  Support Nutrii
+                </MenuItem>
 
                 {userData.username ? (
                   [
@@ -327,6 +341,13 @@ const Navbar = ({
                     {item.name}
                   </NavLink>
                 ))}
+                <NavLink
+                  color="inherit"
+                  onClick={handleKoFiSupport}
+                  startIcon={<SupportIcon />}
+                >
+                  Support Nutrii
+                </NavLink>
               </Box>
 
               {/* Login/Register buttons or user info on the right */}
@@ -761,7 +782,17 @@ const App = () => {
   return (
     <HelmetProvider>
       <BackgroundProvider>
-        <div className="App">
+        <Box
+          className="App"
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            maxWidth: "100vw",
+            overflowX: "hidden",
+          }}
+        >
           <Helmet>
             <title>Nutrii - Your Dietary Aid</title>
             <link rel="icon" href="/favicon.ico" />{" "}
@@ -775,26 +806,27 @@ const App = () => {
 
           <Navbar userData={userData} handleLogout={handleLogout} />
 
-          <Routes>
-            {/* Public routes */}
-            <Route
-              path="/"
-              element={
-                <MainPage
-                  foods={foods}
-                  restaurants={restaurants}
-                  ingredients={ingredients}
-                  selectedRestaurants={selectedRestaurants}
-                  setSelectedRestaurants={setSelectedRestaurants}
-                  selectedIngredients={selectedIngredients}
-                  setSelectedIngredients={setSelectedIngredients}
-                  accessToken={accessToken}
-                  setRestaurants={setRestaurants}
-                  setIngredients={setIngredients}
-                  setFoods={setFoods}
-                />
-              }
-            />
+          <Box component="main" sx={{ flex: 1, width: "100%" }}>
+            <Routes>
+              {/* Public routes */}
+              <Route
+                path="/"
+                element={
+                  <MainPage
+                    foods={foods}
+                    restaurants={restaurants}
+                    ingredients={ingredients}
+                    selectedRestaurants={selectedRestaurants}
+                    setSelectedRestaurants={setSelectedRestaurants}
+                    selectedIngredients={selectedIngredients}
+                    setSelectedIngredients={setSelectedIngredients}
+                    accessToken={accessToken}
+                    setRestaurants={setRestaurants}
+                    setIngredients={setIngredients}
+                    setFoods={setFoods}
+                  />
+                }
+              />
             <Route
               path="/foods"
               element={
@@ -1022,22 +1054,45 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-          </Routes>
+            </Routes>
+          </Box>
 
           <Box
             component="footer"
             sx={{
-              py: 3,
+              py: 2.5,
               px: 2,
-              mt: 6,
+              mt: "auto",
               textAlign: "center",
-              borderTop: "1px solid rgba(0,0,0,0.08)",
-              bgcolor: "rgba(255,255,255,0.9)",
+              borderTop: "3px solid #FF8C00",
+              bgcolor: "rgba(255,255,255,0.94)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 -8px 24px rgba(0,0,0,0.06)",
             }}
           >
-            <Typography variant="body2" color="text.secondary">
-              2026 Copyright to Nutrii
-            </Typography>
+            <Box
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 1,
+                px: 2,
+                py: 0.75,
+                borderRadius: 999,
+                bgcolor: "rgba(255,140,0,0.08)",
+                color: "text.secondary",
+              }}
+            >
+              <Typography
+                component="span"
+                sx={{ color: "#FF8C00", fontWeight: 700 }}
+              >
+                Nutrii
+              </Typography>
+              <Typography component="span" variant="body2">
+                © 2026 All rights reserved
+              </Typography>
+            </Box>
           </Box>
 
           {/* Global notification system */}
@@ -1057,7 +1112,7 @@ const App = () => {
               {notificationMessage?.text}
             </MuiAlert>
           </Snackbar>
-        </div>
+        </Box>
       </BackgroundProvider>
     </HelmetProvider>
   );

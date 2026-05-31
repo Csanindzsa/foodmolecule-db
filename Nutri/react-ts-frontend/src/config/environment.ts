@@ -8,6 +8,7 @@
 // Base URLs
 export const API_BASE_URL = "http://localhost:8000";
 export const FRONTEND_BASE_URL = "http://localhost:5173";
+export const KOFI_SUPPORT_URL = "https://ko-fi.com/nutrii";
 
 // API Endpoints - built using the base URL
 export const API_ENDPOINTS = {
@@ -17,6 +18,8 @@ export const API_ENDPOINTS = {
   tokenRefresh: `${API_BASE_URL}/token/refresh/`,
   register: `${API_BASE_URL}/create-user/`,
   confirmEmail: `${API_BASE_URL}/confirm-email/`,
+  oauthStart: (provider: "google" | "apple") => `${API_BASE_URL}/auth/${provider}/start/`,
+  oauthLink: (provider: "google" | "apple" | "kofi") => `${API_BASE_URL}/auth/${provider}/link/`,
   
   // User management
   editUser: `${API_BASE_URL}/users/edit/`,
