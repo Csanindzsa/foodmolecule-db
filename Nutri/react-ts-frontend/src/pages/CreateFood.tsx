@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Restaurant, Food, Ingredient } from "../interfaces";
+import { EntityId, Restaurant, Food, Ingredient } from "../interfaces";
 import {
   Container,
   Typography,
@@ -57,8 +57,8 @@ const CreateFood: React.FC<CreateFoodProps> = ({
   // Form state
   const [formData, setFormData] = useState({
     name: "",
-    restaurant: null as number | null,
-    ingredients: [] as number[],
+    restaurant: null as EntityId | null,
+    ingredients: [] as EntityId[],
     macro_table: {
       energy_kcal: 0,
       fat: 0,
@@ -154,7 +154,7 @@ const CreateFood: React.FC<CreateFoodProps> = ({
   ) => {
     setFormData((prev) => ({
       ...prev,
-      restaurant: event.target.value as number,
+      restaurant: event.target.value as EntityId,
     }));
   };
 
@@ -172,7 +172,7 @@ const CreateFood: React.FC<CreateFoodProps> = ({
     }
   };
 
-  const toggleIngredient = (ingredientId: number) => {
+  const toggleIngredient = (ingredientId: EntityId) => {
     setFormData((prev) => ({
       ...prev,
       ingredients: prev.ingredients.includes(ingredientId)
@@ -278,7 +278,7 @@ const CreateFood: React.FC<CreateFoodProps> = ({
     setErrorMessage(null);
   };
 
-  const getIngredientName = (id: number): string => {
+  const getIngredientName = (id: EntityId): string => {
     const ingredient = ingredients.find((ing) => ing.id === id);
     return ingredient ? ingredient.name : "Unknown";
   };

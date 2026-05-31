@@ -23,7 +23,9 @@ def health_check(request):
 
 
 class FoodListView(generics.ListAPIView):
-    queryset = Food.objects.select_related("category").all()
+    queryset = Food.objects.select_related("category").prefetch_related(
+        Prefetch("foodmolecule_set", queryset=FoodMolecule.objects.select_related("molecule"))
+    ).all()
     serializer_class = serializers.FoodListSerializer
 
     def get_queryset(self):

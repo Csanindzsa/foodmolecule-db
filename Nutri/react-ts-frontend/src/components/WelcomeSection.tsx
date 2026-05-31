@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { Food, Ingredient, Restaurant } from "../interfaces";
+import { EntityId, Food, Ingredient, Restaurant } from "../interfaces";
 import { red } from "@mui/material/colors";
 import { getRestaurantImage } from "../utils/imageUtils";
 
@@ -29,7 +29,7 @@ interface WelcomeSectionProps {
 }
 
 type SearchSuggestion = {
-  id: number;
+  id: EntityId;
   label: string;
   type: "Food" | "Ingredient";
   description?: string | null;
@@ -223,7 +223,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({
   };
 
   // Temporary preview cards use the legacy restaurant-shaped data until backend wiring lands.
-  const handlePreviewClick = (previewId: number) => {
+  const handlePreviewClick = (previewId: EntityId) => {
     navigate(`/food/${previewId}`);
   };
 

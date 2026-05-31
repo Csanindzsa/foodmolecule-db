@@ -24,7 +24,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import { Restaurant, Ingredient, Food, MacroTable } from "../interfaces";
+import { EntityId, Restaurant, Ingredient, Food, MacroTable } from "../interfaces";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -62,9 +62,9 @@ const EditFood: React.FC<EditFoodProps> = ({
 
   // Form state
   const [name, setName] = useState<string>("");
-  const [restaurantId, setRestaurantId] = useState<number | "">("");
+  const [restaurantId, setRestaurantId] = useState<EntityId | "">("");
   const [servingSize, setServingSize] = useState<number>(0);
-  const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
+  const [selectedIngredients, setSelectedIngredients] = useState<EntityId[]>([]);
   const [isOrganic, setIsOrganic] = useState<boolean>(false);
   const [isGlutenFree, setIsGlutenFree] = useState<boolean>(false);
   const [isAlcoholFree, setIsAlcoholFree] = useState<boolean>(false);
@@ -242,7 +242,7 @@ const EditFood: React.FC<EditFoodProps> = ({
   };
 
   // Handle ingredient selection
-  const handleIngredientToggle = (ingredientId: number) => {
+  const handleIngredientToggle = (ingredientId: EntityId) => {
     setSelectedIngredients((prevSelected) =>
       prevSelected.includes(ingredientId)
         ? prevSelected.filter((id) => id !== ingredientId)

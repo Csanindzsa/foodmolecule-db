@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FoodChange, Ingredient } from "../interfaces";
+import { EntityId, FoodChange, Ingredient } from "../interfaces";
 import { renderTable } from "../utils/utils";
 import {API_BASE_URL} from "../config/environment";
 
@@ -26,7 +26,7 @@ const ApproveChange: React.FC<ApproveChangeProps> = ({ change, accessToken, user
   }, [change.new_approved_supervisors, userId]);
 
   // Map ingredient IDs to their names
-  const getIngredientNames = (ingredientIds: number[]): string => {
+  const getIngredientNames = (ingredientIds: EntityId[]): string => {
     return ingredientIds
       .map((id) => {
         const ingredient = ingredients.find((ing) => ing.id === id);

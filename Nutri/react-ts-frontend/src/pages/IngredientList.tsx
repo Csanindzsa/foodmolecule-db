@@ -18,7 +18,7 @@ import {
 import BiotechIcon from "@mui/icons-material/Biotech";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { Food, Ingredient } from "../interfaces";
+import { EntityId, Food, Ingredient } from "../interfaces";
 import HazardLevelIndicator from "../components/HazardLevelIndicator";
 import { getHazardColor, getHazardLabel } from "../utils/hazardUtils";
 
@@ -47,7 +47,7 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
     );
   }, [ingredients, maxHazardLevel, searchTerm]);
 
-  const foodsForIngredient = (ingredientId: number) =>
+  const foodsForIngredient = (ingredientId: EntityId) =>
     foods.filter((food) => food.ingredients.includes(ingredientId));
 
   return (

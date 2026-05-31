@@ -28,7 +28,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { Food, Ingredient } from "../interfaces";
+import { EntityId, Food, Ingredient } from "../interfaces";
 import HazardLevelIndicator from "../components/HazardLevelIndicator";
 import { getHazardColor, getHazardLabel } from "../utils/hazardUtils";
 
@@ -36,8 +36,8 @@ interface FoodListProps {
   accessToken: string | null;
   ingredients: Ingredient[];
   foods: Food[];
-  selectedIngredients: number[];
-  setSelectedIngredients: React.Dispatch<React.SetStateAction<number[]>>;
+  selectedIngredients: EntityId[];
+  setSelectedIngredients: React.Dispatch<React.SetStateAction<EntityId[]>>;
 }
 
 const dietaryOptions = [
@@ -109,7 +109,7 @@ const FoodList: React.FC<FoodListProps> = ({
   const [loading, setLoading] = useState(false);
 
   // Update this handler to navigate to the ViewFood component instead
-  const handleFoodClick = (foodId: number) => {
+  const handleFoodClick = (foodId: EntityId) => {
     navigate(`/food/${foodId}`); // Change from '/approve-food/' to '/food/'
   };
 

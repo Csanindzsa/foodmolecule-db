@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Food, Ingredient, MacroTable } from "../interfaces";
+import { EntityId, Food, Ingredient, MacroTable } from "../interfaces";
 import { useNavigate } from "react-router-dom"; // Add this import
 import {
   Box,
@@ -183,8 +183,8 @@ const ViewFood: React.FC<ViewFoodProps> = ({
 
   // Update this function to return more information about each ingredient
   const getIngredientDetails = (
-    ingredientIds: number[]
-  ): { id: number; name: string; hazardLevel: number }[] => {
+    ingredientIds: EntityId[]
+  ): { id: EntityId; name: string; hazardLevel: number }[] => {
     return ingredientIds.map((id) => {
       const ingredient = ingredients.find((ing) => ing.id === id);
       return {
@@ -195,7 +195,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
     });
   };
 
-  const handleIngredientClick = (ingredientId: number) => {
+  const handleIngredientClick = (ingredientId: EntityId) => {
     navigate(`/ingredient/${ingredientId}`);
   };
 

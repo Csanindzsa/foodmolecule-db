@@ -1,11 +1,11 @@
-import { Food, MacroTable } from "../interfaces";
+import { EntityId, Food, MacroTable } from "../interfaces";
 import { API_BASE_URL, API_ENDPOINTS } from "../config/environment";
 
 interface FoodUpdateData {
   name: string;
   restaurant: number | string;
   serving_size: number;
-  ingredients: number[];
+  ingredients: EntityId[];
   is_organic: boolean;
   is_gluten_free: boolean;
   is_alcohol_free: boolean;
@@ -46,7 +46,7 @@ export async function tryUpdateFood(
       
       // For the propose-change endpoint, include the food_id in the request body
       const requestBody = endpoint === API_ENDPOINTS.proposeChange
-        ? { ...foodData, food_id: parseInt(foodId) } 
+        ? { ...foodData, food_id: foodId }
         : foodData;
       
       // Use PATCH method for /foods/<id>/ endpoint, POST for others

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Food, Ingredient } from "../interfaces";
+import { EntityId, Food, Ingredient } from "../interfaces";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   Container,
@@ -28,7 +28,7 @@ import { API_BASE_URL } from "../config/environment";
 interface ApprovableFoodsProps {
   accessToken: string | null;
   foods: Food[];
-  handleApprove: (foodId: number) => void;
+  handleApprove: (foodId: EntityId) => void;
 }
 
 const ApprovableFoods: React.FC<ApprovableFoodsProps> = ({
@@ -105,7 +105,7 @@ const ApprovableFoods: React.FC<ApprovableFoodsProps> = ({
     fetchApprovableFoods();
   }, [accessToken, location, navigate]);
 
-  const handleApproveClick = async (foodId: number) => {
+  const handleApproveClick = async (foodId: EntityId) => {
     try {
       await handleApprove(foodId);
       // Show success message with our custom UI
@@ -121,7 +121,7 @@ const ApprovableFoods: React.FC<ApprovableFoodsProps> = ({
   };
 
   // Function to handle view details
-  const handleViewDetails = (foodId: number) => {
+  const handleViewDetails = (foodId: EntityId) => {
     navigate(`/approve-food/${foodId}`);
   };
 

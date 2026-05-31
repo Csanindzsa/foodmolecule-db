@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FoodChange, Ingredient, Food, MacroTable } from "../interfaces";
+import { EntityId, FoodChange, Ingredient, Food, MacroTable } from "../interfaces";
 import {
   Box,
   Typography,
@@ -86,7 +86,7 @@ const ApproveUpdates: React.FC<ApproveUpdatesProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
-    changeId: number | null;
+    changeId: EntityId | null;
     action: "approve" | "reject";
   }>({
     open: false,
@@ -171,7 +171,7 @@ const ApproveUpdates: React.FC<ApproveUpdatesProps> = ({
   }, [accessToken, userId, navigate]);
 
   const handleOpenConfirm = (
-    changeId: number,
+    changeId: EntityId,
     action: "approve" | "reject"
   ) => {
     setConfirmDialog({
@@ -188,7 +188,7 @@ const ApproveUpdates: React.FC<ApproveUpdatesProps> = ({
     });
   };
 
-  const handleApproveUpdate = async (changeId: number) => {
+  const handleApproveUpdate = async (changeId: EntityId) => {
     if (!accessToken) {
       setErrorMessage("You need to be logged in to approve updates");
       return;
@@ -218,7 +218,7 @@ const ApproveUpdates: React.FC<ApproveUpdatesProps> = ({
   };
 
   // Note: The backend might not support rejections, consider checking
-  const handleRejectUpdate = async (changeId: number) => {
+  const handleRejectUpdate = async (changeId: EntityId) => {
     if (!accessToken) {
       setErrorMessage("You need to be logged in to reject updates");
       return;
@@ -400,7 +400,7 @@ const ApproveUpdates: React.FC<ApproveUpdatesProps> = ({
     );
   };
 
-  const getIngredientNames = (ingredientIds: number[]): string[] => {
+  const getIngredientNames = (ingredientIds: EntityId[]): string[] => {
     return (
       ingredientIds?.map((id) => {
         const ingredient = ingredients.find((ing) => ing.id === id);

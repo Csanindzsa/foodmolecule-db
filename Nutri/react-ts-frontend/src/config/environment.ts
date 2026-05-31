@@ -7,6 +7,7 @@
 
 // Base URLs
 export const API_BASE_URL = "http://localhost:8000";
+export const API_V1_BASE_URL = `${API_BASE_URL}/api/v1`;
 export const FRONTEND_BASE_URL = "http://localhost:5173";
 export const KOFI_SUPPORT_URL = "https://ko-fi.com/nutrii";
 
@@ -27,22 +28,33 @@ export const API_ENDPOINTS = {
   
   // Basic entities
   restaurants: `${API_BASE_URL}/restaurants/`,
-  foods: `${API_BASE_URL}/foods/`,
-  ingredients: `${API_BASE_URL}/ingredients/`,
+  foods: `${API_V1_BASE_URL}/foods/`,
+  foodDetail: (foodId: number | string) => `${API_V1_BASE_URL}/foods/${foodId}/`,
+  foodHealthIndex: (foodId: number | string) => `${API_V1_BASE_URL}/foods/${foodId}/health-index/`,
+  foodStudies: (foodId: number | string) => `${API_V1_BASE_URL}/foods/${foodId}/studies/`,
+  foodGuide: (foodId: number | string) => `${API_V1_BASE_URL}/foods/${foodId}/guide/`,
+  foodSearch: (query: string) => `${API_V1_BASE_URL}/foods/search/?q=${encodeURIComponent(query)}`,
+  ingredients: `${API_V1_BASE_URL}/molecules/`,
+  ingredientDetail: (ingredientId: number | string) => `${API_V1_BASE_URL}/molecules/${ingredientId}/`,
+  ingredientSearch: (query: string) => `${API_V1_BASE_URL}/molecules/search/?q=${encodeURIComponent(query)}`,
+  categories: `${API_V1_BASE_URL}/categories/`,
+  processingMethods: `${API_V1_BASE_URL}/processing-methods/`,
+  recentStudies: `${API_V1_BASE_URL}/studies/recent/`,
+  stats: `${API_V1_BASE_URL}/stats/`,
   locations: `${API_BASE_URL}/locations/`,
   
   // Food operations
   createFood: `${API_BASE_URL}/foods/create/`,
   approvableFoods: `${API_BASE_URL}/foods/approvable/`,
-  acceptFood: (foodId: number) => `${API_BASE_URL}/food/${foodId}/accept/`,
+  acceptFood: (foodId: number | string) => `${API_BASE_URL}/food/${foodId}/accept/`,
   proposeChange: `${API_BASE_URL}/food-changes/propose-change/`,
-  proposeRemoval: (foodId: number) => `${API_BASE_URL}/food/${foodId}/propose-removal/`,
+  proposeRemoval: (foodId: number | string) => `${API_BASE_URL}/food/${foodId}/propose-removal/`,
   
   // Food change approvals
   foodChangeUpdates: `${API_BASE_URL}/food-changes/updates/`,
   foodChangeDeletions: `${API_BASE_URL}/food-changes/deletions/`,
-  approveChange: (changeId: number) => `${API_BASE_URL}/food-changes/${changeId}/approve-change/`,
-  approveRemoval: (changeId: number) => `${API_BASE_URL}/food-changes/${changeId}/approve-removal/`,
+  approveChange: (changeId: number | string) => `${API_BASE_URL}/food-changes/${changeId}/approve-change/`,
+  approveRemoval: (changeId: number | string) => `${API_BASE_URL}/food-changes/${changeId}/approve-removal/`,
   
   // Frontend URLs for redirects and email links
   frontendConfirmEmail: (token: string) => `${FRONTEND_BASE_URL}/confirm-email/${token}`,

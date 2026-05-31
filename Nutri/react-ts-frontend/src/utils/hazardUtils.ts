@@ -14,7 +14,8 @@ export const getHazardColor = (level: number): string => {
     case 1: return "#8BC34A"; // Light Green
     case 2: return "#FFEB3B"; // Yellow
     case 3: return "#F44336"; // Red
-    case 4: return "#9C27B0"; // Purple
+    case 4: return "#C2185B"; // Magenta
+    case 5: return "#9C27B0"; // Purple
     default: return "#CCCCCC"; // Gray for undefined
   }
 };
@@ -25,7 +26,7 @@ export const getHazardColor = (level: number): string => {
  */
 export const getInterpolatedColor = (level: number): string => {
   // Ensure level is within bounds
-  const clampedLevel = Math.max(0, Math.min(4, level));
+  const clampedLevel = Math.max(0, Math.min(5, level));
   
   // Define color stops for our gradient
   const colorStops = [
@@ -33,12 +34,13 @@ export const getInterpolatedColor = (level: number): string => {
     { level: 1, color: [139, 195, 74] },   // Light Green
     { level: 2, color: [255, 235, 59] },   // Yellow
     { level: 3, color: [244, 67, 54] },    // Red
-    { level: 4, color: [156, 39, 176] }    // Purple
+    { level: 4, color: [194, 24, 91] },    // Magenta
+    { level: 5, color: [156, 39, 176] }    // Purple
   ];
   
   // Find the two color stops we need to interpolate between
   let lowerStop = colorStops[0];
-  let upperStop = colorStops[4];
+  let upperStop = colorStops[5];
   
   for (let i = 0; i < colorStops.length - 1; i++) {
     if (clampedLevel >= colorStops[i].level && clampedLevel <= colorStops[i+1].level) {
@@ -71,6 +73,7 @@ export const getHazardLabel = (level: number): string => {
     case 2: return "Mild Risk";
     case 3: return "Moderate Risk";
     case 4: return "High Risk";
+    case 5: return "Critical Risk";
     default: return "Unknown Risk";
   }
 };
@@ -79,5 +82,5 @@ export const getHazardLabel = (level: number): string => {
  * Get a percentage value (0-100) representing the hazard level
  */
 export const getHazardPercentage = (level: number): number => {
-  return Math.min(100, (level / 4) * 100);
+  return Math.min(100, (level / 5) * 100);
 };

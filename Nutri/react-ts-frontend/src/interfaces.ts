@@ -1,3 +1,5 @@
+export type EntityId = number | string;
+
 export interface User {
     user_id?: number;
     email?: string;
@@ -6,7 +8,7 @@ export interface User {
 }
 
 export interface Restaurant {
-    id: number;
+    id: EntityId;
     name: string;
     foods_on_menu: number;
     description?: string | null;
@@ -22,14 +24,14 @@ export interface Restaurant {
 
 
 export interface Ingredient {
-    id: number;
+    id: EntityId;
     name: string;
     description?: string | null;
-    hazard_level: 0 | 1 | 2 | 3 | 4; // Enum values
+    hazard_level: 0 | 1 | 2 | 3 | 4 | 5; // Enum values
 }
 
 export interface Supervisor {
-    id: number;
+    id: EntityId;
     username: string;
 }
 
@@ -46,9 +48,9 @@ export interface MacroTable {
 }
 
 export interface Food {
-    id: number;
+    id: EntityId;
     // calories: number;
-    restaurant: number;
+    restaurant: EntityId;
     restaurant_name: string;  // Add this field
     name: string;
     serving_size: number;
@@ -57,7 +59,7 @@ export interface Food {
     is_gluten_free: boolean;
     is_alcohol_free: boolean;
     is_lactose_free: boolean;
-    ingredients: number[];
+    ingredients: EntityId[];
     image?: string;
     approved_supervisors_count?: number;
     approved_supervisors?: Supervisor[];
@@ -66,10 +68,10 @@ export interface Food {
 }
 
 export interface FoodChange {
-    id: number;
+    id: EntityId;
     is_deletion: boolean;
-    old_version: number;
-    new_restaurant: number;
+    old_version: EntityId;
+    new_restaurant: EntityId;
     new_restaurant_name: string;  // Add this field
     new_name: string;
     new_serving_size: number;
@@ -78,7 +80,7 @@ export interface FoodChange {
     new_is_gluten_free: boolean;
     new_is_alcohol_free: boolean;
     new_is_lactose_free: boolean;
-    new_ingredients: number[];
+    new_ingredients: EntityId[];
     new_image?: string;
     new_approved_supervisors_count?: number;
     new_approved_supervisors?: number[];
@@ -91,8 +93,8 @@ export interface FoodChange {
 }
 
 export interface Locations{
-    id: number;
+    id: EntityId;
     latitude: number;
     longitude: number;
-    restaurant_id: number;
+    restaurant_id: EntityId;
 }

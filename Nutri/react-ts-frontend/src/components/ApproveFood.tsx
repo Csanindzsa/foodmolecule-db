@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Food, Ingredient, MacroTable } from "../interfaces";
+import { EntityId, Food, Ingredient, MacroTable } from "../interfaces";
 import {
   Box,
   Typography,
@@ -128,7 +128,7 @@ const ApproveFood: React.FC<ApproveFoodProps> = ({
 
   // Update this function to return more information about each ingredient
   const getIngredientDetails = (
-    ingredientIds: number[]
+    ingredientIds: EntityId[]
   ): { name: string; hazardLevel: number }[] => {
     return ingredientIds.map((id) => {
       const ingredient = ingredients.find((ing) => ing.id === id);

@@ -178,9 +178,44 @@ class MoleculeDetailSerializer(serializers.ModelSerializer):
 
 
 class FoodListSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source="category.name", read_only=True, allow_null=True)
+    molecule_ids = serializers.SerializerMethodField()
+    molecule_names = serializers.SerializerMethodField()
+    max_molecule_harm = serializers.SerializerMethodField()
+
+    def _food_molecules(self, obj):
+        return list(obj.foodmolecule_set.all())
+
+    def get_molecule_ids(self, obj):
+        return [str(food_molecule.molecule_id) for food_molecule in self._food_molecules(obj)]
+
+    def get_molecule_names(self, obj):
+        return [food_molecule.molecule.name for food_molecule in self._food_molecules(obj)]
+
+    def get_max_molecule_harm(self, obj):
+        harms = [
+            food_molecule.molecule.harm_level
+            for food_molecule in self._food_molecules(obj)
+            if food_molecule.molecule and food_molecule.molecule.harm_level is not None
+        ]
+        return max(harms) if harms else 0
+
     class Meta:
         model = Food
-        fields = ["id", "name", "category", "overall_safety_score", "health_index", "ban_listed", "image_url"]
+        fields = [
+            "id",
+            "name",
+            "category",
+            "category_name",
+            "overall_safety_score",
+            "health_index",
+            "ban_listed",
+            "image_url",
+            "molecule_ids",
+            "molecule_names",
+            "max_molecule_harm",
+            "metadata",
+        ]
 
 
 class FoodDetailSerializer(serializers.ModelSerializer):

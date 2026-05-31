@@ -13,7 +13,7 @@ import Login from "./Login";
 import ConfirmEmail from "./ConfirmEmail";
 import MainPage from "./MainPage";
 import CreateFood from "./CreateFood";
-import { User, Restaurant, Food, Ingredient } from "../interfaces";
+import { User, Restaurant, Food, Ingredient, EntityId } from "../interfaces";
 import ApprovableFoods from "./ApprovableFoods";
 import ApproveRemovals from "./ApproveRemovals";
 import ApproveUpdates from "./ApproveUpdates";
@@ -60,6 +60,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { Helmet, HelmetProvider } from "react-helmet-async"; // Updated import
 import MuiAlert from "@mui/material/Alert";
+import {
+  loadFoodDetail,
+  loadIngredientDetail,
+  loadPublicCatalog,
+} from "../utils/backendAdapters";
 
 // Add this missing import
 import {
@@ -629,10 +634,10 @@ const App = () => {
   const [restaurants, setRestaurants] = useState<Array<Restaurant>>(demoRestaurants);
   const [ingredients, setIngredients] = useState<Array<Ingredient>>(demoIngredients);
   const [foods, setFoods] = useState<Array<Food>>(demoFoods);
-  const [selectedRestaurants, setSelectedRestaurants] = useState<number[]>(
+  const [selectedRestaurants, setSelectedRestaurants] = useState<EntityId[]>(
     demoRestaurants.map((restaurant) => restaurant.id)
   );
-  const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
+  const [selectedIngredients, setSelectedIngredients] = useState<EntityId[]>([]);
   const isDataLoaded = useRef(false); // Track if data has been loaded
   const navigate = useNavigate();
   const [notificationMessage, setNotificationMessage] = useState<{
@@ -750,33 +755,22 @@ const App = () => {
     if (!isDataLoaded.current) {
       const fetchData = async () => {
         try {
-          const [restaurantsResponse, foodsResponse, ingredientsResponse] =
-            await Promise.all([
-              fetch(API_ENDPOINTS.restaurants),
-              fetch(API_ENDPOINTS.foods),
-              fetch(API_ENDPOINTS.ingredients),
-            ]);
+          const catalog = await loadPublicCatalog();
 
-          if (
-            !restaurantsResponse.ok ||
-            !foodsResponse.ok ||
-            !ingredientsResponse.ok
-          ) {
-            throw new Error("Failed to fetch data");
+          if (catalog.restaurants.length > 0) {
+            setRestaurants(catalog.restaurants);
           }
-
-          const restaurantsData = await restaurantsResponse.json();
-          const foodsData = await foodsResponse.json();
-          const ingredientsData = await ingredientsResponse.json();
-
-          setRestaurants(restaurantsData);
-          setFoods(foodsData);
-          setIngredients(ingredientsData);
+          if (catalog.foods.length > 0) {
+            setFoods(catalog.foods);
+          }
+          if (catalog.ingredients.length > 0) {
+            setIngredients(catalog.ingredients);
+          }
 
           // Initialize selectedRestaurants only if it is empty
           if (selectedRestaurants.length === 0) {
             setSelectedRestaurants(
-              restaurantsData.map((r: Restaurant) => r.id)
+              catalog.restaurants.map((r: Restaurant) => r.id)
             );
           }
 
@@ -790,7 +784,7 @@ const App = () => {
     }
   }, [selectedRestaurants, selectedIngredients]);
 
-  const handleApprove = async (foodId: number) => {
+  const handleApprove = async (foodId: EntityId) => {
     if (!accessToken) {
       setNotificationMessage({
         text: "Please log in to approve foods",
@@ -1204,7 +1198,7 @@ const ApproveFoodPage: React.FC<{
   user: User | undefined;
   ingredients: Ingredient[];
   foods: Food[];
-  handleApprove: (foodId: number) => void;
+  handleApprove: (foodId: EntityId) => void;
   showApproveButton?: boolean;
 }> = ({
   accessToken,
@@ -1237,7 +1231,7 @@ const ApproveFoodPage: React.FC<{
       if (!foodId) return;
 
       // First try to find the food in our existing foods array
-      const existingFood = foods.find((f) => f.id === parseInt(foodId));
+      const existingFood = foods.find((f) => String(f.id) === String(foodId));
 
       if (existingFood) {
         setFood(existingFood);
@@ -1247,13 +1241,7 @@ const ApproveFoodPage: React.FC<{
 
       // If not found, fetch it from the API
       try {
-        const response = await fetch(`${API_BASE_URL}/foods/${foodId}/`);
-        if (response.ok) {
-          const foodData = await response.json();
-          setFood(foodData);
-        } else {
-          setError("Food not found");
-        }
+        setFood(await loadFoodDetail(foodId));
       } catch (error) {
         console.error("Error fetching food details:", error);
         setError("Failed to load food details");
@@ -1313,7 +1301,7 @@ const ViewFoodPage: React.FC<{
       if (!foodId) return;
 
       // First try to find the food in our existing foods array
-      const existingFood = foods.find((f) => f.id === parseInt(foodId));
+      const existingFood = foods.find((f) => String(f.id) === String(foodId));
 
       if (existingFood) {
         setFood(existingFood);
@@ -1323,13 +1311,7 @@ const ViewFoodPage: React.FC<{
 
       // If not found, fetch it from the API
       try {
-        const response = await fetch(`${API_BASE_URL}/foods/${foodId}/`);
-        if (response.ok) {
-          const foodData = await response.json();
-          setFood(foodData);
-        } else {
-          setError("Food not found");
-        }
+        setFood(await loadFoodDetail(foodId));
       } catch (error) {
         console.error("Error fetching food details:", error);
         setError("Failed to load food details");
@@ -1367,12 +1349,52 @@ const IngredientDetailPage: React.FC<{
   foods: Food[];
 }> = ({ ingredients, foods }) => {
   const { ingredientId } = useParams<{ ingredientId: string }>();
-  const ingredient = ingredients.find((item) => item.id === Number(ingredientId));
+  const [ingredient, setIngredient] = useState<Ingredient | null>(
+    ingredients.find((item) => String(item.id) === String(ingredientId)) ?? null
+  );
+  const [loading, setLoading] = useState<boolean>(!ingredient);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!ingredient) {
+  useEffect(() => {
+    const existingIngredient = ingredients.find(
+      (item) => String(item.id) === String(ingredientId)
+    );
+
+    if (existingIngredient) {
+      setIngredient(existingIngredient);
+      setLoading(false);
+      return;
+    }
+
+    if (!ingredientId) return;
+
+    const fetchIngredient = async () => {
+      try {
+        setLoading(true);
+        setIngredient(await loadIngredientDetail(ingredientId));
+      } catch (error) {
+        console.error("Error fetching ingredient details:", error);
+        setError("Ingredient not found");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchIngredient();
+  }, [ingredientId, ingredients]);
+
+  if (loading) {
+    return (
+      <Container sx={{ mt: 4, textAlign: "center" }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  if (error || !ingredient) {
     return (
       <Container sx={{ mt: 4 }}>
-        <Alert severity="error">Ingredient not found</Alert>
+        <Alert severity="error">{error || "Ingredient not found"}</Alert>
       </Container>
     );
   }

@@ -17,7 +17,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { Food, Ingredient } from "../interfaces";
+import { EntityId, Food, Ingredient } from "../interfaces";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Add this missing import
@@ -32,13 +32,13 @@ import {
 import LinearProgress from "@mui/material/LinearProgress";
 
 interface FoodChange {
-  id: number;
+  id: EntityId;
   is_deletion: boolean;
-  old_version: number; // ID of the food being deleted
+  old_version: EntityId; // ID of the food being deleted
   new_name: string; // Original food name
-  new_restaurant: number;
+  new_restaurant: EntityId;
   new_restaurant_name: string;
-  new_ingredients: number[];
+  new_ingredients: EntityId[];
   new_approved_supervisors_count?: number;
   new_approved_supervisors?: number[];
   reason?: string; // Add reason field
@@ -101,7 +101,7 @@ const ApproveRemovals: React.FC<ApproveFoodRemovalsProps> = ({
   }, [accessToken, navigate]);
 
   // Get ingredient names from IDs
-  const getIngredientNames = (ingredientIds: number[]): string[] => {
+  const getIngredientNames = (ingredientIds: EntityId[]): string[] => {
     return ingredientIds.map((id) => {
       const ingredient = ingredients.find((ing) => ing.id === id);
       return ingredient ? ingredient.name : `Unknown Ingredient (ID: ${id})`;
@@ -114,7 +114,7 @@ const ApproveRemovals: React.FC<ApproveFoodRemovalsProps> = ({
   };
 
   // Handle approval
-  const handleApprove = async (changeId: number) => {
+  const handleApprove = async (changeId: EntityId) => {
     if (!accessToken) {
       navigate("/login");
       return;
