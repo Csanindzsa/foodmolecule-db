@@ -24,6 +24,8 @@ cp .env.example .env
 ## Project Structure
 
 See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for the full roadmap.
+For long-running USDA/PubMed/image enrichment on another machine, see
+[docs/overnight_ingestion_runbook.md](docs/overnight_ingestion_runbook.md).
 
 ```
 nutrii/
