@@ -340,7 +340,7 @@ const CreateFood: React.FC<CreateFoodProps> = ({
               Create New Food
             </Typography>
             <Typography variant="subtitle1">
-              Add a new food item to the Nutri database
+              Add a new food item to the Nutrii database
             </Typography>
           </Box>
 

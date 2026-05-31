@@ -108,7 +108,7 @@ const AccountDeleted: React.FC = () => {
             sx={{ maxWidth: 600, mx: "auto", mb: 4 }}
           >
             All personal information, contributions, and preferences have been
-            removed from our database. Thank you for using Nutri.
+            removed from our database. Thank you for using Nutrii.
           </Typography>
 
           <Divider sx={{ my: 4 }} />

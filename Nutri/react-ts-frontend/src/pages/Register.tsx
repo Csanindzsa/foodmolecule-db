@@ -118,7 +118,7 @@ const Register = () => {
           Sign Up
         </Typography>
         <Typography variant="subtitle1">
-          Create an account to use Nutri
+          Create an account to use Nutrii
         </Typography>
       </Box>
 

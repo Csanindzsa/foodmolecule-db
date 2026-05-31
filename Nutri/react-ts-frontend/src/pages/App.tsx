@@ -207,7 +207,7 @@ const Navbar = ({
         <Toolbar disableGutters>
           {/* Fix the logo path */}
           <LogoContainer>
-            <Logo src={logoImage} alt="Nutri Logo" onClick={()=>handleNavigation("/")}/>
+            <Logo src={logoImage} alt="Nutrii Logo" onClick={()=>handleNavigation("/")}/>
           </LogoContainer>
 
           {/* Website Name */}
@@ -223,7 +223,7 @@ const Navbar = ({
             }}
             onClick={()=>handleNavigation("/")}
           >
-            Nutri
+            Nutrii
           </Typography>
 
           {isMobile ? (
@@ -763,12 +763,12 @@ const App = () => {
       <BackgroundProvider>
         <div className="App">
           <Helmet>
-            <title>Nutri - Your Dietary Aid</title>
+            <title>Nutrii - Your Dietary Aid</title>
             <link rel="icon" href="/favicon.ico" />{" "}
             {/* Update this line to use favicon.ico */}
             <meta
               name="description"
-              content="Nutri - Your Dietary Aid Application"
+              content="Nutrii - Your Dietary Aid Application"
             />
             <meta property="og:image" content={logoImage} />
           </Helmet>
@@ -1023,6 +1023,22 @@ const App = () => {
               }
             />
           </Routes>
+
+          <Box
+            component="footer"
+            sx={{
+              py: 3,
+              px: 2,
+              mt: 6,
+              textAlign: "center",
+              borderTop: "1px solid rgba(0,0,0,0.08)",
+              bgcolor: "rgba(255,255,255,0.9)",
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              2026 Copyright to Nutrii
+            </Typography>
+          </Box>
 
           {/* Global notification system */}
           <Snackbar
