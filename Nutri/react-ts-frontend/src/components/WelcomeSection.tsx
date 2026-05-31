@@ -136,9 +136,9 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
     }
   };
 
-  // New handler to navigate to the food list with restaurant filter
-  const handleRestaurantClick = (restaurantId: number) => {
-    navigate(`/foods?restaurant=${restaurantId}`);
+  // Temporary preview cards use the legacy restaurant-shaped data until backend wiring lands.
+  const handlePreviewClick = (previewId: number) => {
+    navigate(`/food/${previewId}`);
   };
 
   return (
@@ -226,7 +226,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
         </Container>
       </Box>
 
-      {/* Wave SVG with "Discover restaurants" overlaid on it */}
+      {/* Wave SVG with the discovery cue overlaid on it */}
       <Box
         sx={{
           position: "relative",
@@ -255,7 +255,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
           ></path>
         </svg>
 
-        {/* "Discover restaurants" section positioned on top of the wave */}
+        {/* Discovery section positioned on top of the wave */}
         <Box
           sx={{
             position: "absolute",
@@ -306,7 +306,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
       {/* Space to ensure proper layout after the wave */}
       <Box sx={{ height: "40px" }} />
 
-      {/* Restaurants List with plenty of space after the wave */}
+      {/* Preview list with plenty of space after the wave */}
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 5, mt: 4 }}>
         <Box sx={{ mb: 10, color: "orange" }}>
           <Typography
@@ -331,7 +331,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
                       transform: "scale(1.03)",
                     },
                   }}
-                  onClick={() => handleRestaurantClick(restaurant.id)} // Add click handler
+                  onClick={() => handlePreviewClick(restaurant.id)}
                 >
                   <CardMedia
                     component="img"
@@ -358,7 +358,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
             <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
               <Button
                 variant="contained"
-                onClick={() => navigate("/restaurants")}
+                onClick={() => navigate("/foods")}
                 sx={{
                   backgroundColor: "#FF8C00",
                   color: "#ffffff",
@@ -369,7 +369,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ restaurants }) => {
                   px: 4,
                 }}
               >
-                View All Restaurants
+                View All Foods
               </Button>
             </Box>
           )}
