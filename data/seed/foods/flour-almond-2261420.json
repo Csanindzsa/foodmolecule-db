@@ -1,0 +1,208 @@
+{
+  "id": "f9c7a0f8-ebdb-45db-8a3c-7ce57449537e",
+  "name": "flour, almond",
+  "aliases": [],
+  "category": "Nut and Seed Products",
+  "origin": "",
+  "overall_safety_score": null,
+  "health_index": null,
+  "ban_listed": false,
+  "image_url": "",
+  "metadata": {
+    "source": "USDA FoodData Central",
+    "usda_fdc_id": 2261420,
+    "data_type": "Foundation",
+    "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2261420/nutrients"
+  },
+  "molecules": [
+    {
+      "molecule_name": "Proximates",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Energy (Atwater General Factors)",
+      "amount_per_100g": 622.042,
+      "unit": "kcal",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Energy (Atwater Specific Factors)",
+      "amount_per_100g": 577.62536,
+      "unit": "kcal",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Protein",
+      "amount_per_100g": 26.24375,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Total lipid (fat)",
+      "amount_per_100g": 50.23,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Carbohydrates",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Carbohydrate, by difference",
+      "amount_per_100g": 16.24925,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Fiber, total dietary",
+      "amount_per_100g": 9.266,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Minerals",
+      "amount_per_100g": null,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Calcium, Ca",
+      "amount_per_100g": 232.3,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Iron, Fe",
+      "amount_per_100g": 3.225,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Magnesium, Mg",
+      "amount_per_100g": 251.1,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Phosphorus, P",
+      "amount_per_100g": 512.1,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Potassium, K",
+      "amount_per_100g": 666.8,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Sodium, Na",
+      "amount_per_100g": 0.8944,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Zinc, Zn",
+      "amount_per_100g": 2.795,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Copper, Cu",
+      "amount_per_100g": 0.9753,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Manganese, Mn",
+      "amount_per_100g": 1.813,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Selenium, Se",
+      "amount_per_100g": 0.7419,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Molybdenum, Mo",
+      "amount_per_100g": 36.13,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamins and Other Components",
+      "amount_per_100g": null,
+      "unit": "g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Thiamin",
+      "amount_per_100g": 0.1125,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Riboflavin",
+      "amount_per_100g": 0.7475,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Niacin",
+      "amount_per_100g": 3.998,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Vitamin B-6",
+      "amount_per_100g": 0.09988,
+      "unit": "mg",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Biotin",
+      "amount_per_100g": 69.09,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    },
+    {
+      "molecule_name": "Folate, total",
+      "amount_per_100g": 37.83,
+      "unit": "\u00b5g",
+      "amount_notes": "Auto-imported from USDA FoodData Central",
+      "is_beneficial": true
+    }
+  ]
+}

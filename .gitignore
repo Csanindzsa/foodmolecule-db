@@ -75,8 +75,9 @@ coverage.xml
 .DS_Store
 *.orig
 
-# Data exports (large files, not for version control)
+# Data exports and runtime logs (large/ephemeral files, not for version control)
 data/exports/
+/logs/
 
 # Mypy
 .mypy_cache/

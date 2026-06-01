@@ -70,7 +70,7 @@ Return ONLY valid JSON:
         food=food,
         guide_markdown=result.markdown_content,
         version=result.version,
-        generated_by=dispatcher.selector.pick_best_model("guide_generation"),
+        generated_by=dispatcher.last_model_used or dispatcher.selector.pick_best_model("guide_generation"),
     )
     print(f"  Updated guide to v{new_guide.version} for {food.name}")
     return new_guide

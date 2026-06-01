@@ -1,285 +1,276 @@
-# Overnight Ingestion Runbook
+# FoodMolecule-DB Overnight Ingestion Runbook
 
-This is the handoff for running the long data jobs on a quieter machine or with a Hermes-style agent. The goal is:
+This document is the operational plan for running the Nutrii / FoodMolecule-DB data injection overnight on this Mac.
 
-1. Generate a larger USDA food seed set.
-2. Insert/update the backend database.
-3. Run PubMed study ingestion.
-4. Run image enrichment in parallel where it is safe.
-5. Optionally run AI study analysis and safety adjustment after studies exist.
+The `.env` file is expected to already exist in the repository root. Do **not** commit `.env`, Supabase service-role keys, API keys, or generated logs.
 
-Do not commit `.env`, API keys, or Supabase service-role secrets.
+## Goal
 
-## 1. Clone And Install
+Run the ingestion in the safest order:
+
+1. Verify environment and database connectivity.
+2. Fetch food records from USDA FoodData Central.
+3. Validate generated food seed JSON.
+4. Insert/update food and molecule records in Supabase/Postgres.
+5. Ingest and link scientific papers from PubMed.
+6. Optionally analyze studies and update safety scores if OpenRouter is configured.
+7. Fetch/upload molecule structure images.
+8. Fetch/upload food images via Brave image search.
+9. Report how many records were added/enriched.
+
+## Existing local setup
+
+Repository:
 
 ```bash
-git clone <repo-url> foodmolecule-db
-cd foodmolecule-db
-python -m venv backend/.venv
-source backend/.venv/bin/activate
+/Users/hatsunemiku/Documents/GitHub/foodmolecule-db
+```
+
+Required local files/tools:
+
+- `.env` in the repo root — already transferred by the user.
+- Python virtualenv at `backend/.venv` — the overnight script creates it if missing.
+- `ffmpeg` — required by image compression.
+- `tmux` — used so the ingestion can keep running outside the Hermes cron tick.
+
+The script intentionally does **not** tell the operator to create Supabase buckets. The user has already handled Supabase/environment setup for this Mac.
+
+## Required environment keys
+
+The script checks/uses these from `.env` without printing their values:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_DB_PASSWORD` or `DATABASE_URL`
+- `USDA_API_KEY`
+- `NCBI_EMAIL`
+- `NCBI_API_KEY`
+- `BRAVE_API_KEY`
+- `SUPABASE_IMAGE_BUCKET`, normally `food-images`
+- `OPENROUTER_API_KEY` / `OPENROUTER_API_KEYS`, optional for AI study summaries and safety adjustments
+- `OPENCODE_GO_API_KEY` / `OPENCODE_GO_API_KEYS`, optional fallback AI keys
+- `OPENCODE_GO_MODEL`, optional fallback model override; defaults to `deepseek/deepseek-v4-flash`
+
+## Main runner
+
+Use the repo script:
+
+```bash
+cd /Users/hatsunemiku/Documents/GitHub/foodmolecule-db
+./scripts/overnight_ingestion.sh
+```
+
+The runner writes logs to:
+
+```bash
+logs/overnight_ingestion_<RUN_ID>/
+```
+
+It also writes:
+
+```bash
+logs/overnight_ingestion_latest
+logs/overnight_ingestion_status.json
+```
+
+## Ordered plan
+
+### 1. Bootstrap and smoke checks
+
+The runner:
+
+```bash
 pip install -r backend/requirements.txt
-```
-
-Fish shell:
-
-```fish
-source backend/.venv/bin/activate.fish
-```
-
-If the frontend also needs to be checked:
-
-```bash
-cd Nutri/react-ts-frontend
-npm install
-npm run build
-cd ../..
-```
-
-## 2. Environment
-
-Create `.env` in the repo root:
-
-```bash
-cp .env.example .env
-```
-
-Required for database and API work:
-
-```env
-DJANGO_SECRET_KEY=...
-DJANGO_DEBUG=True
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
-
-SUPABASE_URL=https://your-project-ref.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=...
-SUPABASE_DB_PASSWORD=...
-
-USDA_API_KEY=...
-NCBI_API_KEY=...
-NCBI_EMAIL=your@email.com
-BRAVE_API_KEY=...
-SUPABASE_IMAGE_BUCKET=food-images
-```
-
-Optional, only needed for AI summaries and score updates:
-
-```env
-OPENROUTER_API_KEY=...
-OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
-```
-
-## 3. Supabase Storage Bucket
-
-A bucket is a named Supabase Storage container for files. Nutrii uses it to store compressed `.webp` food and molecule images.
-
-Create it in Supabase:
-
-1. Open Supabase Dashboard.
-2. Select the Nutrii project.
-3. Go to **Storage**.
-4. Click **New bucket**.
-5. Name it exactly `food-images`.
-6. Set it to **Public**.
-7. Create the bucket.
-
-Keep `SUPABASE_SERVICE_ROLE_KEY` only in `.env` on backend/agent machines. Never expose it in frontend code.
-
-## 4. Smoke Checks
-
-Run these before the overnight work:
-
-```bash
-source backend/.venv/bin/activate
 python backend/manage.py check
-python backend/manage.py migrate
-python scripts/run_pipeline.py --foods data/seed/foods --molecules data/seed/molecules --dry-run
+python backend/manage.py migrate --noinput
+python scripts/report_ingestion_counts.py --label before --output logs/.../counts_before.json
 ```
 
-Check current live DB counts:
+If any of these fail, stop and fix the environment/database before continuing.
 
-```bash
-python backend/manage.py shell -c "from core.models import Food, Molecule, FoodMolecule, Study; print({'foods': Food.objects.count(), 'molecules': Molecule.objects.count(), 'links': FoodMolecule.objects.count(), 'studies': Study.objects.count()})"
-```
+### 2. USDA FoodData Central ingestion
 
-## 5. USDA Gathering
-
-Start with a medium run before 2000:
-
-```bash
-mkdir -p logs
-python scripts/fetchers/fetch_usda_bulk.py \
-  --limit 500 \
-  --page-size 200 \
-  --candidate-multiplier 3 \
-  --output data/seed/foods \
-  2>&1 | tee logs/usda_fetch_500.log
-```
-
-Validate:
-
-```bash
-python scripts/run_pipeline.py --foods data/seed/foods --molecules data/seed/molecules --dry-run \
-  2>&1 | tee logs/pipeline_dry_run.log
-```
-
-Insert/update the database:
-
-```bash
-python scripts/run_pipeline.py --foods data/seed/foods --molecules data/seed/molecules \
-  2>&1 | tee logs/pipeline_insert.log
-```
-
-Then check counts:
-
-```bash
-python backend/manage.py shell -c "from core.models import Food, Molecule, FoodMolecule; print({'foods': Food.objects.count(), 'molecules': Molecule.objects.count(), 'links': FoodMolecule.objects.count()})"
-```
-
-If the 500 run looks good, run a larger one:
+Default command inside the runner:
 
 ```bash
 python scripts/fetchers/fetch_usda_bulk.py \
-  --limit 2000 \
+  --limit 5000 \
   --page-size 200 \
-  --candidate-multiplier 3 \
-  --output data/seed/foods \
-  2>&1 | tee logs/usda_fetch_2000.log
-
-python scripts/run_pipeline.py --foods data/seed/foods --molecules data/seed/molecules \
-  2>&1 | tee logs/pipeline_insert_2000.log
+  --candidate-multiplier 2 \
+  --max-pages-per-query 10 \
+  --detail-batch-size 50 \
+  --output data/seed/foods
 ```
 
-USDA `404` detail records are expected sometimes. The fetcher skips them and over-collects candidates so the final written count can still reach the requested limit where possible.
+Expected warning:
 
-## 6. Parallel Overnight Jobs
+- USDA detail `404`/skips are not automatically fatal; the fetcher over-collects candidates.
 
-Only start these after the USDA data has been inserted into the database.
-
-Recommended terminal layout with `tmux`:
+### 3. Validate before database write
 
 ```bash
-tmux new -s nutrii-ingest
+python scripts/run_pipeline.py \
+  --foods data/seed/foods \
+  --molecules data/seed/molecules \
+  --dry-run
 ```
 
-Pane 1: PubMed watcher:
+If validation fails, do not insert.
+
+### 4. Insert/update database
+
+```bash
+python scripts/run_pipeline.py \
+  --foods data/seed/foods \
+  --molecules data/seed/molecules
+```
+
+This upserts foods, molecules/stub nutrients, and food–molecule links.
+
+### 5. PubMed scientific-paper ingestion and linking
+
+The runner performs three PubMed passes after foods exist:
+
+```bash
+python scripts/pubmed_watcher.py --days 365 --max-results 10
+```
+
+The PubMed watcher preserves the food that produced each query, so new studies are linked through `FoodStudy` when they came from a food query.
+
+Metrics to report:
+
+- `studies`
+- `studies_with_abstracts`
+- `scientific_paper_food_links`
+
+### 6. Optional AI analysis
+
+If any of `OPENROUTER_API_KEY`, `OPENROUTER_API_KEYS`, `OPENCODE_GO_API_KEY`, or `OPENCODE_GO_API_KEYS` is set:
+
+```bash
+python scripts/study_analyzer.py --limit 25
+python scripts/safety_adjuster.py --auto
+```
+
+Metrics to report:
+
+- `studies_analyzed`
+- `safety_revisions`
+
+### 7. Molecule images
+
+Molecule images run before food photos because PubChem structure URLs are more deterministic than web image search:
+
+```bash
+python scripts/fetch_images.py --entity molecule --limit 500
+```
+
+Metric to report:
+
+- `molecules_with_images`
+
+### 8. Food images via Brave
+
+Food images run slowly because Brave can rate-limit and food photo matching is noisier:
+
+```bash
+python scripts/fetch_images.py --entity food --limit 200 --sleep 5
+```
+
+Metric to report:
+
+- `foods_with_images`
+
+Expected warnings:
+
+- Brave `429`: rate limit; increase `--sleep` or lower `FOOD_IMAGE_LIMIT`.
+- `no approved candidate`: all candidate images were rejected by source/prepared-dish filters.
+
+## Runtime knobs
+
+Override defaults per run by exporting environment variables before launching:
+
+```bash
+export USDA_LIMIT=5000
+export USDA_CANDIDATE_MULTIPLIER=2
+export USDA_MAX_PAGES_PER_QUERY=10
+export USDA_DETAIL_BATCH_SIZE=50
+export PUBMED_PASSES=3
+export PUBMED_DAYS=365
+export PUBMED_MAX_RESULTS=10
+export STUDY_ANALYZER_LIMIT=25
+export MOLECULE_IMAGE_LIMIT=500
+export FOOD_IMAGE_LIMIT=200
+export FOOD_IMAGE_SLEEP=5
+./scripts/overnight_ingestion.sh
+```
+
+For a smaller smoke run:
+
+```bash
+USDA_LIMIT=100 PUBMED_PASSES=1 MOLECULE_IMAGE_LIMIT=25 FOOD_IMAGE_LIMIT=25 ./scripts/overnight_ingestion.sh
+```
+
+## Hermes cron setup
+
+Hermes cron should not directly run the full ingestion in-process because cron agent turns are short. Instead, cron starts a `tmux` session and exits quickly. The long job continues inside `tmux`.
+
+Start script:
+
+```bash
+~/.hermes/scripts/start_foodmolecule_overnight.sh
+```
+
+Report script:
+
+```bash
+~/.hermes/scripts/report_foodmolecule_overnight.sh
+```
+
+The reporter should stay silent while the tmux session is still running, then send one final report after completion with deltas from `counts_before.json` to `counts_final.json`.
+
+## Manual monitoring
+
+Check tmux:
+
+```bash
+tmux has-session -t foodmolecule-overnight && tmux capture-pane -t foodmolecule-overnight -p | tail -80
+```
+
+Attach:
+
+```bash
+tmux attach -t foodmolecule-overnight
+```
+
+Check latest logs:
+
+```bash
+cd /Users/hatsunemiku/Documents/GitHub/foodmolecule-db
+RUN_ID=$(cat logs/overnight_ingestion_latest)
+tail -100 logs/overnight_ingestion_${RUN_ID}/main.log
+cat logs/overnight_ingestion_status.json
+```
+
+Generate current report:
 
 ```bash
 source backend/.venv/bin/activate
-mkdir -p logs
-while true; do
-  date
-  python scripts/pubmed_watcher.py --days 365 --max-results 10
-  sleep 900
-done 2>&1 | tee -a logs/pubmed_watcher.log
+python scripts/report_ingestion_counts.py --label current --markdown
 ```
 
-Pane 2: molecule images. This is the safest image job because it uses PubChem structure images when `pubchem_cid` exists:
+## Final report requirements
 
-```bash
-source backend/.venv/bin/activate
-python scripts/fetch_images.py --entity molecule --limit 500 \
-  2>&1 | tee logs/images_molecules.log
-```
+When the run finishes, report at least:
 
-Pane 3: food images. Run slowly because Brave rate-limits and food photo matching is noisier:
-
-```bash
-source backend/.venv/bin/activate
-python scripts/fetch_images.py --entity food --limit 200 --sleep 5 \
-  2>&1 | tee logs/images_foods.log
-```
-
-Pane 4: periodic count checks:
-
-```bash
-source backend/.venv/bin/activate
-while true; do
-  date
-  python backend/manage.py shell -c "from core.models import Food, Molecule, FoodMolecule, Study; print({'foods': Food.objects.count(), 'molecules': Molecule.objects.count(), 'links': FoodMolecule.objects.count(), 'studies': Study.objects.count()})"
-  sleep 1800
-done 2>&1 | tee -a logs/counts.log
-```
-
-Detach from tmux:
-
-```text
-Ctrl-b d
-```
-
-Reattach:
-
-```bash
-tmux attach -t nutrii-ingest
-```
-
-## 7. AI Analysis And Score Updates
-
-Run this only if `OPENROUTER_API_KEY` is set and there are studies in the DB.
-
-Small test:
-
-```bash
-python scripts/study_analyzer.py --limit 5 2>&1 | tee logs/study_analyzer_test.log
-python scripts/safety_adjuster.py --auto 2>&1 | tee logs/safety_adjuster_test.log
-```
-
-Overnight loop:
-
-```bash
-while true; do
-  date
-  python scripts/study_analyzer.py --limit 25
-  python scripts/safety_adjuster.py --auto
-  sleep 1800
-done 2>&1 | tee -a logs/ai_analysis.log
-```
-
-## 8. Expected Warnings
-
-These are not automatically fatal:
-
-- USDA `404`: search returned an FDC ID whose detail endpoint did not resolve. The fetcher skips it.
-- Brave `429`: Brave rate limit. Increase `--sleep` or run fewer food images.
-- `missing PubChem CID`: molecule has no `pubchem_cid`, so the image script cannot use PubChem for that molecule.
-- `no approved candidate`: Brave results were rejected by source or prepared-dish filters.
-
-These are blockers:
-
-- `OperationalError` connecting to Supabase: check `SUPABASE_URL`, `SUPABASE_DB_PASSWORD`, network/DNS.
-- `SUPABASE_SERVICE_ROLE_KEY is required`: needed for image upload.
-- `BRAVE_API_KEY is required`: needed for food image search.
-- Pipeline validation failed: do not insert until the dry-run passes.
-
-## 9. Final Health Check
-
-After the overnight run:
-
-```bash
-python backend/manage.py shell -c "from core.models import Food, Molecule, FoodMolecule, Study; print({'foods': Food.objects.count(), 'molecules': Molecule.objects.count(), 'links': FoodMolecule.objects.count(), 'studies': Study.objects.count()})"
-python scripts/run_pipeline.py --foods data/seed/foods --molecules data/seed/molecules --dry-run
-python backend/manage.py check
-```
-
-If the frontend is on that machine:
-
-```bash
-cd Nutri/react-ts-frontend
-npm run build
-```
-
-## 10. Important Git Note
-
-Generated seed JSON files under `data/seed/foods` can become large. Decide before committing whether the repo should store generated seed data or whether the quiet PC should regenerate it from USDA.
-
-For handoff between machines, the important files to commit are:
-
-- `scripts/fetchers/fetch_usda_bulk.py`
-- `scripts/fetchers/fetch_usda.py`
-- `scripts/fetch_images.py`
-- `backend/requirements.txt`
-- `schema/food.schema.json`
-- `.env.example`
-- this runbook
-
-Do not commit `.env`.
+- Foods total and delta.
+- Foods with images total and delta.
+- Molecules total and delta.
+- Molecules with images total and delta.
+- Food–molecule links total and delta.
+- Scientific papers/studies total and delta.
+- PubMed food-study links total and delta.
+- Studies analyzed total and delta.
+- Safety revisions total and delta.
+- Log directory path.
+- Any fatal step from `overnight_ingestion_status.json` if the run failed.

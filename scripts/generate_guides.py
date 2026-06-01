@@ -28,7 +28,7 @@ from core.models import Food, IngredientAIGuide
 from scripts.pipeline.config import PROJECT_ROOT
 
 
-def generate_guide(food: Food) -> str | None:
+def generate_guide(food: Food) -> tuple[str, str] | None:
     """Generate an agent instruction guide for a specific food."""
     molecules = food.foodmolecule_set.select_related("molecule").all()
     molecule_data = [
@@ -52,7 +52,7 @@ def generate_guide(food: Food) -> str | None:
         print(f"  Failed to generate guide for {food.name}: {exc}")
         return None
 
-    return result.markdown_content
+    return result.markdown_content, dispatcher.last_model_used or "unknown"
 
 
 def save_guide(food: Food, markdown: str, model_used: str) -> IngredientAIGuide:
@@ -76,9 +76,6 @@ def save_guide(food: Food, markdown: str, model_used: str) -> IngredientAIGuide:
 
 def run_generator(food_id: str | None = None) -> dict:
     """Generate guides for one or all foods."""
-    dispatcher = OpenRouterDispatcher()
-    model_used = dispatcher.selector.pick_best_model("guide_generation")
-
     if food_id:
         foods = Food.objects.filter(id=food_id)
     else:
@@ -86,8 +83,9 @@ def run_generator(food_id: str | None = None) -> dict:
 
     created = 0
     for food in foods:
-        markdown = generate_guide(food)
-        if markdown:
+        guide_result = generate_guide(food)
+        if guide_result:
+            markdown, model_used = guide_result
             save_guide(food, markdown, model_used)
             created += 1
             print(f"  Generated guide v1 for {food.name}")

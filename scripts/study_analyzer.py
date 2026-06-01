@@ -80,7 +80,7 @@ def analyze_study(study: Study) -> bool:
         study.ai_safety_impact = result.safety_impact
         study.ai_health_impact = result.health_impact
         study.ai_confidence = result.confidence
-        study.ai_model_used = dispatcher.selector.pick_best_model("study_analysis")
+        study.ai_model_used = dispatcher.last_model_used or dispatcher.selector.pick_best_model("study_analysis")
         study.analyzed_at = datetime.utcnow()
         study.save()
 

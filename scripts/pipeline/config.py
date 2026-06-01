@@ -15,8 +15,24 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
 # ─── API Keys ───────────────────────────────────────────────────────────────
+def _split_env_list(*names: str) -> list[str]:
+    """Read comma/newline separated secret lists from the first set env vars."""
+    values: list[str] = []
+    for name in names:
+        raw = os.getenv(name, "")
+        if not raw:
+            continue
+        for item in raw.replace("\n", ",").split(","):
+            item = item.strip()
+            if item and item not in values:
+                values.append(item)
+    return values
+
+
 USDA_API_KEY = os.getenv("USDA_API_KEY", "DEMO_KEY")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_API_KEYS = _split_env_list("OPENROUTER_API_KEY", "OPENROUTER_API_KEYS")
+OPENCODE_GO_API_KEYS = _split_env_list("OPENCODE_GO_API_KEY", "OPENCODE_GO_API_KEYS")
 NCBI_API_KEY = os.getenv("NCBI_API_KEY", "")
 NCBI_EMAIL = os.getenv("NCBI_EMAIL", "dev@nutrii.app")
 
@@ -36,6 +52,8 @@ PUBCHEM_API_BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
 PUBMED_EUTILS_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 CHEMBL_API_BASE = "https://www.ebi.ac.uk/chembl/api/data"
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+OPENCODE_GO_BASE_URL = os.getenv("OPENCODE_GO_BASE_URL", "https://opencode.ai/zen/go/v1")
+OPENCODE_GO_MODEL = os.getenv("OPENCODE_GO_MODEL", "deepseek/deepseek-v4-flash")
 
 # ─── Paths ──────────────────────────────────────────────────────────────────
 SEED_DIR = PROJECT_ROOT / "data" / "seed"

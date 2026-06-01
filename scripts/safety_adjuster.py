@@ -98,7 +98,7 @@ def propose_adjustment(food: Food, triggering_study: Study) -> SafetyScoreRevisi
         new_health_index=new_health,
         reason=result.reasoning,
         triggering_study=triggering_study,
-        ai_model_used=dispatcher.selector.pick_best_model("safety_adjustment"),
+        ai_model_used=dispatcher.last_model_used or dispatcher.selector.pick_best_model("safety_adjustment"),
     )
     return revision
 

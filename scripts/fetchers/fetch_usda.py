@@ -20,7 +20,7 @@ from scripts.pipeline.models import FoodEntry, FoodMoleculeLink
 USDA_SEARCH_DATA_TYPES = ["Foundation", "SR Legacy"]
 
 
-def search_food(query: str, page_size: int = 5) -> list[dict]:
+def search_food(query: str, page_size: int = 5, page_number: int = 1) -> list[dict]:
     """Search for foods by name."""
     url = f"{USDA_API_BASE}/foods/search"
     foods: list[dict] = []
@@ -32,6 +32,7 @@ def search_food(query: str, page_size: int = 5) -> list[dict]:
                 "query": query,
                 "api_key": USDA_API_KEY,
                 "pageSize": page_size,
+                "pageNumber": page_number,
                 "dataType": data_type,
             }
             resp = client.get(url, params=params, timeout=30)
@@ -45,6 +46,20 @@ def search_food(query: str, page_size: int = 5) -> list[dict]:
                 foods.append(food)
 
     return foods
+
+
+def get_food_details(fdc_ids: list[int]) -> list[dict]:
+    """Get detailed nutrient data for many FDC IDs in one USDA request."""
+    if not fdc_ids:
+        return []
+
+    url = f"{USDA_API_BASE}/foods"
+    params = {"api_key": USDA_API_KEY}
+    payload = {"fdcIds": fdc_ids}
+    with httpx.Client() as client:
+        resp = client.post(url, params=params, json=payload, timeout=60)
+        resp.raise_for_status()
+        return resp.json()
 
 
 def get_food_detail(fdc_id: int) -> dict:

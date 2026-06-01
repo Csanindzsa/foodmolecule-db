@@ -18,6 +18,7 @@ from pathlib import Path
 
 # Django setup
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "backend"))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nutrii.settings")
 
@@ -31,14 +32,21 @@ from core.models import Food, Molecule, Study
 from scripts.fetchers.fetch_pubmed import build_study_entries, search_studies
 
 
-def get_all_search_terms() -> list[str]:
-    """Build PubMed search queries for all tracked foods and molecules."""
-    terms = []
+def get_all_search_terms() -> list[tuple[str, list[Food] | None]]:
+    """Build PubMed search queries and preserve known food links.
+
+    Food searches keep the originating Food object so newly ingested studies can
+    be linked through FoodStudy immediately. Molecule-only searches are still
+    useful for discovery, but they are not linked to foods until AI/fuzzy
+    cross-reference logic exists.
+    """
+    terms: list[tuple[str, list[Food] | None]] = []
     for food in Food.objects.all():
         aliases = " OR ".join(f'"{a}"' for a in [food.name, *food.aliases] if a)
-        terms.append(f"({aliases})[Title/Abstract]")
+        if aliases:
+            terms.append((f"({aliases})[Title/Abstract]", [food]))
     for mol in Molecule.objects.exclude(name=""):
-        terms.append(f'"{mol.name}"[Title/Abstract]')
+        terms.append((f'"{mol.name}"[Title/Abstract]', None))
     return terms
 
 
@@ -77,7 +85,7 @@ def run_watcher(days: int = 1, max_results_per_query: int = 20) -> dict:
     queries_run = 0
 
     # Limit to top 50 terms to avoid NCBI rate limits
-    for term in terms[:50]:
+    for term, linked_foods in terms[:50]:
         pmids = search_studies(term, max_results=max_results_per_query, days=days)
         if not pmids:
             continue
@@ -92,8 +100,6 @@ def run_watcher(days: int = 1, max_results_per_query: int = 20) -> dict:
             continue
 
         entries = build_study_entries(new_pmids)
-        # Link to foods that match this query (best-effort)
-        linked_foods = list(Food.objects.filter(name__in=term.lower().split(" or ")))
         created = ingest_studies(entries, linked_foods=linked_foods)
         total_ingested += len(created)
         queries_run += 1
