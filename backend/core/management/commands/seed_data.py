@@ -129,6 +129,7 @@ class Command(BaseCommand):
             "molecular_formula": "molecular_formula",
             "harm_level": "harm_level",
             "harm_mechanisms": "harm_mechanisms",
+            "classification_reasoning": "classification_reasoning",
             "is_heat_stable": "is_heat_stable",
             "is_neutralizable": "is_neutralizable",
             "structure_image_url": "structure_image_url",

@@ -161,6 +161,11 @@ class Molecule(models.Model):
         default=list,
         help_text="Plain-language harm mechanism tags.",
     )
+    classification_reasoning = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Structured AI rationale for the harm classification.",
+    )
     threshold_concern_mg_per_day = models.DecimalField(
         max_digits=10, decimal_places=4, null=True, blank=True
     )

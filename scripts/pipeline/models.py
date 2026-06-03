@@ -24,6 +24,7 @@ class MoleculeEntry(BaseModel):
     molecular_weight: float | None = None
     harm_level: int = Field(default=0, ge=0, le=5)
     harm_mechanisms: list[str] = Field(default_factory=list)
+    classification_reasoning: dict = Field(default_factory=dict)
     threshold_concern_mg_per_day: float | None = None
     is_heat_stable: bool = True
     is_neutralizable: bool = False

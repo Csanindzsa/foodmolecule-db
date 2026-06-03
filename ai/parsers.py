@@ -60,6 +60,14 @@ class ConflictArbitrationResponse(BaseModel):
     explanation: str = Field(description="How the conflict was resolved")
 
 
+class ClassificationReasoning(BaseModel):
+    """Structured rationale for molecule harm classification."""
+
+    positive: list[str] = Field(default_factory=list, description="Evidence supporting lower risk or benefit")
+    negative: list[str] = Field(default_factory=list, description="Evidence supporting higher risk")
+    explanation: str = Field(description="Longer explanation for the chosen category")
+
+
 class MoleculeClassificationResponse(BaseModel):
     """Structured output from the molecule auto-classifier."""
 
@@ -67,5 +75,12 @@ class MoleculeClassificationResponse(BaseModel):
     harm_mechanisms: list[str] = Field(default_factory=list)
     is_heat_stable: bool = True
     is_neutralizable: bool = False
-    reasoning: str = Field(description="Why this classification was chosen")
+    reasoning: ClassificationReasoning = Field(description="Why this classification was chosen")
     confidence: Literal["high", "medium", "low"]
+
+    @field_validator("reasoning", mode="before")
+    @classmethod
+    def normalize_legacy_reasoning(cls, v):
+        if isinstance(v, str):
+            return {"positive": [], "negative": [], "explanation": v}
+        return v

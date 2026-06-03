@@ -54,6 +54,11 @@ def molecule():
         molecular_weight=Decimal("90.0340"),
         harm_level=3,
         harm_mechanisms=["kidney stones", "mineral absorption blocker"],
+        classification_reasoning={
+            "positive": ["Can be reduced by boiling in some foods."],
+            "negative": ["May raise kidney stone risk in sensitive people."],
+            "explanation": "Classified as moderate because normal dietary exposure can matter for sensitive populations.",
+        },
         threshold_concern_mg_per_day=Decimal("50.0000"),
         is_heat_stable=False,
         is_neutralizable=True,
@@ -256,6 +261,7 @@ def test_molecule_detail_serializer_fields_exist(molecule):
         "molecular_weight",
         "harm_level",
         "harm_mechanisms",
+        "classification_reasoning",
         "threshold_concern_mg_per_day",
         "is_heat_stable",
         "is_neutralizable",
@@ -281,6 +287,9 @@ def test_molecule_detail_serializer_basic_fields(molecule):
     assert data["molecular_weight"] == "90.0340"
     assert data["harm_level"] == 3
     assert data["harm_mechanisms"] == ["kidney stones", "mineral absorption blocker"]
+    assert data["classification_reasoning"]["negative"] == [
+        "May raise kidney stone risk in sensitive people."
+    ]
     assert data["threshold_concern_mg_per_day"] == "50.0000"
     assert data["is_heat_stable"] is False
     assert data["is_neutralizable"] is True

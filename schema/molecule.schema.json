@@ -15,6 +15,15 @@
     "molecular_weight": { "type": ["number", "null"] },
     "harm_level": { "type": "integer", "minimum": 0, "maximum": 5 },
     "harm_mechanisms": { "type": "array", "items": { "type": "string" } },
+    "classification_reasoning": {
+      "type": "object",
+      "properties": {
+        "positive": { "type": "array", "items": { "type": "string" } },
+        "negative": { "type": "array", "items": { "type": "string" } },
+        "explanation": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
     "threshold_concern_mg_per_day": { "type": ["number", "null"] },
     "is_heat_stable": { "type": "boolean", "default": true },
     "is_neutralizable": { "type": "boolean", "default": false },

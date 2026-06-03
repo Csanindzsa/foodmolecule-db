@@ -57,6 +57,7 @@ def upsert_molecule(entry: MoleculeEntry) -> Molecule:
         "molecular_weight": entry.molecular_weight,
         "harm_level": entry.harm_level,
         "harm_mechanisms": entry.harm_mechanisms,
+        "classification_reasoning": entry.classification_reasoning,
         "threshold_concern_mg_per_day": entry.threshold_concern_mg_per_day,
         "is_heat_stable": entry.is_heat_stable,
         "is_neutralizable": entry.is_neutralizable,

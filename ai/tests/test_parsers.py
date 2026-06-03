@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from ai.parsers import (
+    ClassificationReasoning,
     ConflictArbitrationResponse,
     GuideGenerationResponse,
     MoleculeClassificationResponse,
@@ -97,8 +98,26 @@ class TestMoleculeClassificationResponse:
             "harm_mechanisms": ["kidney stone risk"],
             "is_heat_stable": True,
             "is_neutralizable": True,
-            "reasoning": "Oxalates are reduced by boiling.",
+            "reasoning": {
+                "positive": ["Boiling can reduce soluble oxalate load."],
+                "negative": ["Oxalates can increase kidney stone risk."],
+                "explanation": "Oxalates are category 3 because normal dietary intake can matter for sensitive people.",
+            },
             "confidence": "high",
         }
         resp = MoleculeClassificationResponse(**data)
         assert resp.is_neutralizable is True
+        assert resp.reasoning.negative == ["Oxalates can increase kidney stone risk."]
+
+    def test_legacy_string_reasoning_is_supported(self):
+        data = {
+            "harm_level": 3,
+            "harm_mechanisms": ["kidney stone risk"],
+            "is_heat_stable": True,
+            "is_neutralizable": True,
+            "reasoning": "Oxalates are reduced by boiling.",
+            "confidence": "high",
+        }
+        resp = MoleculeClassificationResponse(**data)
+        assert isinstance(resp.reasoning, ClassificationReasoning)
+        assert resp.reasoning.explanation == "Oxalates are reduced by boiling."

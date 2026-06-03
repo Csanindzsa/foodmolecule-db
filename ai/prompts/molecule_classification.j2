@@ -6,7 +6,7 @@ MOLECULAR FORMULA: {{ molecular_formula or "unknown" }}
 KNOWN PROPERTIES: {{ known_properties or "none provided" }}
 
 CLASSIFICATION TASK:
-Assign a harm level (0–5) and provide reasoning.
+Assign a harm level (0–5) and provide structured reasoning.
 
 HARM LEVEL DEFINITIONS:
 0 = none — no known harm at dietary amounts
@@ -22,6 +22,10 @@ Return ONLY valid JSON:
   "harm_mechanisms": ["mechanism 1", "mechanism 2"],
   "is_heat_stable": true,
   "is_neutralizable": false,
-  "reasoning": "string",
+  "reasoning": {
+    "positive": ["bullet point supporting lower risk or benefit"],
+    "negative": ["bullet point supporting higher risk or concern"],
+    "explanation": "longer explanation of why this harm level/category was chosen"
+  },
   "confidence": "medium"
 }
