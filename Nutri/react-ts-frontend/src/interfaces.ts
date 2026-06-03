@@ -28,6 +28,11 @@ export interface Ingredient {
     name: string;
     description?: string | null;
     hazard_level: 0 | 1 | 2 | 3 | 4 | 5; // Enum values
+    classification_reasoning?: {
+        positive?: string[];
+        negative?: string[];
+        explanation?: string;
+    };
 }
 
 export interface Supervisor {

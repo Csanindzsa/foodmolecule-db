@@ -15,6 +15,11 @@ type BackendMolecule = {
   molecular_weight?: string | number | null;
   harm_level?: number | null;
   harm_mechanisms?: string[];
+  classification_reasoning?: {
+    positive?: string[];
+    negative?: string[];
+    explanation?: string;
+  };
   is_heat_stable?: boolean;
   is_neutralizable?: boolean;
   structure_image_url?: string;
@@ -109,6 +114,7 @@ export const mapMoleculeToIngredient = (molecule: BackendMolecule): Ingredient =
         ? details.join(" · ")
         : molecule.iupac_name || "Molecule profile from the Nutrii backend.",
     hazard_level: clampHazard(molecule.harm_level),
+    classification_reasoning: molecule.classification_reasoning ?? {},
   };
 };
 

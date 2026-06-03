@@ -31,6 +31,12 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
   const navigate = useNavigate();
   const linkedFoods = foods.filter((food) => food.ingredients.includes(ingredient.id));
   const baseHazardLevel = ingredient.hazard_level || 0;
+  const reasoning = ingredient.classification_reasoning ?? {};
+  const positiveReasons = reasoning.positive?.filter(Boolean) ?? [];
+  const negativeReasons = reasoning.negative?.filter(Boolean) ?? [];
+  const explanation = reasoning.explanation?.trim();
+  const hasReasoning =
+    positiveReasons.length > 0 || negativeReasons.length > 0 || Boolean(explanation);
   const preparationProfiles = [
     {
       method: "Raw",
@@ -141,6 +147,53 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
                 Dynamic rating area for AI summaries from PubMed and medical
                 literature.
               </Typography>
+              {hasReasoning && (
+                <Box sx={{ mb: 2 }}>
+                  <Grid container spacing={2} sx={{ mb: explanation ? 2 : 0 }}>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+                        Positive factors
+                      </Typography>
+                      {positiveReasons.length > 0 ? (
+                        <Box component="ul" sx={{ pl: 2.5, my: 0 }}>
+                          {positiveReasons.map((reason) => (
+                            <Typography component="li" variant="body2" key={reason}>
+                              {reason}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          No positive factors recorded.
+                        </Typography>
+                      )}
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+                        Negative factors
+                      </Typography>
+                      {negativeReasons.length > 0 ? (
+                        <Box component="ul" sx={{ pl: 2.5, my: 0 }}>
+                          {negativeReasons.map((reason) => (
+                            <Typography component="li" variant="body2" key={reason}>
+                              {reason}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          No negative factors recorded.
+                        </Typography>
+                      )}
+                    </Grid>
+                  </Grid>
+                  {explanation && (
+                    <Typography variant="body2" color="text.secondary">
+                      {explanation}
+                    </Typography>
+                  )}
+                </Box>
+              )}
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                 <Chip label="Evidence summary pending" size="small" variant="outlined" />
                 <Chip label="Mechanism notes" size="small" variant="outlined" />
