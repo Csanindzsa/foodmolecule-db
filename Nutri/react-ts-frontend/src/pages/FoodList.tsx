@@ -4,8 +4,10 @@ import React, {
   useRef,
   useMemo,
   useCallback,
+  useDeferredValue,
 } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { createFilterOptions } from "@mui/material/Autocomplete";
 import {
   Box,
   Autocomplete,
@@ -24,6 +26,7 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
+  LinearProgress,
   Slider,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -31,6 +34,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { EntityId, Food, Ingredient } from "../interfaces";
 import HazardLevelIndicator from "../components/HazardLevelIndicator";
 import { getHazardColor, getHazardLabel } from "../utils/hazardUtils";
+import { loadFoodPage } from "../utils/backendAdapters";
 
 interface FoodListProps {
   accessToken: string | null;
@@ -55,21 +59,13 @@ const dietaryOptions = [
   { value: "high_fiber", label: "High Fiber" },
 ];
 
-const foodHasDietaryPreference = (food: Food, preference: string) => {
-  if (food.dietary_preferences?.includes(preference)) return true;
-
-  const legacyPreferenceMatches: Record<string, boolean> = {
-    organic: food.is_organic,
-    gluten_free: food.is_gluten_free,
-    alcohol_free: food.is_alcohol_free,
-    lactose_free: food.is_lactose_free,
-  };
-
-  return Boolean(legacyPreferenceMatches[preference]);
-};
-
 const hazardSliderGradient =
   "linear-gradient(90deg, #4CAF50 0%, #8BC34A 25%, #FFEB3B 50%, #F44336 75%, #9C27B0 100%)";
+
+const ingredientFilterOptions = createFilterOptions<Ingredient>({
+  limit: 60,
+  stringify: (option) => `${option.name} ${option.description ?? ""}`,
+});
 
 const FoodList: React.FC<FoodListProps> = ({
   accessToken,
@@ -81,11 +77,18 @@ const FoodList: React.FC<FoodListProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const loaderRef = useRef<HTMLDivElement>(null); // Reference for infinite scroll detection
+  const requestIdRef = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
 
   // Add debounced search state
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const deferredSearchTerm = useDeferredValue(debouncedSearchTerm);
+  const normalizedSearchTerm = useMemo(
+    () => deferredSearchTerm.trim().toLowerCase(),
+    [deferredSearchTerm]
+  );
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [selectedDietaryPreferences, setSelectedDietaryPreferences] = useState<string[]>([]);
   const [maxHazardLevel, setMaxHazardLevel] = useState(5);
@@ -104,9 +107,12 @@ const FoodList: React.FC<FoodListProps> = ({
     [selectedDietaryPreferences]
   );
 
-  // Pagination state
-  const [visibleCount, setVisibleCount] = useState(100);
-  const [loading, setLoading] = useState(false);
+  const [foodResults, setFoodResults] = useState<Food[]>(foods);
+  const [totalCount, setTotalCount] = useState(foods.length);
+  const [nextPage, setNextPage] = useState<number | null>(2);
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Update this handler to navigate to the ViewFood component instead
   const handleFoodClick = (foodId: EntityId) => {
@@ -175,71 +181,81 @@ const FoodList: React.FC<FoodListProps> = ({
 
   }, [location.search]);
 
-  // Filter foods based on all criteria - now using debouncedSearchTerm
-  const allFilteredFoods = useMemo(() => {
-    return foods.filter((food) => {
-      // Ingredient filter - food must contain at least one selected ingredient
-      if (
-        selectedIngredients.length > 0 &&
-        !food.ingredients.some((id) => selectedIngredients.includes(id))
-      ) {
-        return false;
+  const loadFoods = useCallback(
+    async (page: number, append = false) => {
+      const requestId = requestIdRef.current + 1;
+      requestIdRef.current = requestId;
+
+      if (!append) {
+        abortRef.current?.abort();
+        abortRef.current = new AbortController();
+        setInitialLoading(true);
+        setFoodResults([]);
+        setTotalCount(0);
+        setNextPage(null);
+      } else {
+        setLoadingMore(true);
       }
 
-      // Search term filter (case insensitive) - using debounced search term
-      if (
-        debouncedSearchTerm.trim() !== "" &&
-        !food.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-      ) {
-        return false;
+      setLoadError(null);
+
+      try {
+        const pageData = await loadFoodPage(
+          {
+            page,
+            pageSize: 50,
+            q: normalizedSearchTerm,
+            maxHazardLevel,
+            ingredients: selectedIngredients,
+            dietaryPreferences: selectedDietaryPreferences,
+          },
+          append ? undefined : abortRef.current?.signal,
+        );
+
+        if (requestId !== requestIdRef.current) return;
+
+        setTotalCount(pageData.count);
+        setNextPage(pageData.next ? page + 1 : null);
+        setFoodResults((current) => {
+          if (!append) return pageData.results;
+
+          const existingIds = new Set(current.map((food) => String(food.id)));
+          const newFoods = pageData.results.filter(
+            (food) => !existingIds.has(String(food.id)),
+          );
+          return [...current, ...newFoods];
+        });
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        console.error("Error loading foods:", error);
+        setLoadError("Could not load foods. Check the backend connection and try again.");
+      } finally {
+        if (requestId === requestIdRef.current) {
+          setInitialLoading(false);
+          setLoadingMore(false);
+        }
       }
+    },
+    [
+      maxHazardLevel,
+      normalizedSearchTerm,
+      selectedDietaryPreferences,
+      selectedIngredients,
+    ],
+  );
 
-      if ((food.hazard_level ?? 0) > maxHazardLevel) return false;
-
-      if (
-        selectedDietaryPreferences.length > 0 &&
-        !selectedDietaryPreferences.every((preference) =>
-          foodHasDietaryPreference(food, preference)
-        )
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [
-    foods,
-    selectedIngredients,
-    debouncedSearchTerm, // Changed from searchTerm to debouncedSearchTerm
-    maxHazardLevel,
-    selectedDietaryPreferences,
-  ]);
-
-  // Visible foods - only show up to the current visibleCount
-  const filteredFoods = useMemo(() => {
-    return allFilteredFoods.slice(0, visibleCount);
-  }, [allFilteredFoods, visibleCount]);
-
-  // Load more foods when user scrolls to bottom
-  const loadMoreFoods = useCallback(() => {
-    if (loading) return;
-
-    setLoading(true);
-    setTimeout(() => {
-      setVisibleCount((prev) => Math.min(prev + 100, allFilteredFoods.length));
-      setLoading(false);
-    }, 300); // Small delay to prevent too many updates
-  }, [allFilteredFoods.length, loading]);
-
-  // Reset visible count when filters change
   useEffect(() => {
-    setVisibleCount(100);
-  }, [
-    debouncedSearchTerm,
-    selectedIngredients,
-    maxHazardLevel,
-    selectedDietaryPreferences,
-  ]); // Updated to use debouncedSearchTerm
+    loadFoods(1, false);
+
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, [loadFoods]);
+
+  const loadMoreFoods = useCallback(() => {
+    if (!nextPage || loadingMore || initialLoading) return;
+    loadFoods(nextPage, true);
+  }, [initialLoading, loadFoods, loadingMore, nextPage]);
 
   // Setup intersection observer for infinite scroll
   useEffect(() => {
@@ -247,7 +263,9 @@ const FoodList: React.FC<FoodListProps> = ({
       (entries) => {
         if (
           entries[0].isIntersecting &&
-          filteredFoods.length < allFilteredFoods.length
+          nextPage &&
+          !loadingMore &&
+          !initialLoading
         ) {
           loadMoreFoods();
         }
@@ -264,7 +282,7 @@ const FoodList: React.FC<FoodListProps> = ({
         observer.unobserve(loaderRef.current);
       }
     };
-  }, [filteredFoods.length, allFilteredFoods.length, loadMoreFoods]);
+  }, [initialLoading, loadingMore, loadMoreFoods, nextPage]);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
@@ -350,6 +368,7 @@ const FoodList: React.FC<FoodListProps> = ({
                 options={ingredients}
                 value={selectedIngredientOptions}
                 onChange={handleIngredientChange}
+                filterOptions={ingredientFilterOptions}
                 getOptionLabel={(option) => option.name}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderOption={(props, option, { selected }) => (
@@ -536,14 +555,28 @@ const FoodList: React.FC<FoodListProps> = ({
           borderRadius: "0 0 10px 10px",
         }}
       >
+        {initialLoading && (
+          <Box sx={{ mb: 3 }}>
+            <LinearProgress />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Loading matching foods
+            </Typography>
+          </Box>
+        )}
+
+        {loadError && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {loadError}
+          </Typography>
+        )}
+
         <Typography variant="h6" gutterBottom>
-          {allFilteredFoods.length} Results Found
-          {allFilteredFoods.length > filteredFoods.length &&
-            ` (Showing ${filteredFoods.length})`}
+          {totalCount} Results Found
+          {totalCount > foodResults.length && ` (Showing ${foodResults.length})`}
         </Typography>
 
         <Grid container spacing={3}>
-          {filteredFoods.map((food) => (
+          {foodResults.map((food) => (
             <Grid item xs={12} sm={6} md={4} key={food.id}>
               {/* Make the entire card clickable by adding onClick */}
               <Card
@@ -664,7 +697,7 @@ const FoodList: React.FC<FoodListProps> = ({
           ))}
 
           {/* Show message if no foods match the filters */}
-          {allFilteredFoods.length === 0 && (
+          {!initialLoading && foodResults.length === 0 && (
             <Box
               sx={{
                 width: "100%",
@@ -684,7 +717,7 @@ const FoodList: React.FC<FoodListProps> = ({
         </Grid>
 
         {/* Loading indicator at bottom for infinite scroll */}
-        {filteredFoods.length < allFilteredFoods.length && (
+        {nextPage && (
           <Box
             ref={loaderRef}
             sx={{
@@ -693,7 +726,7 @@ const FoodList: React.FC<FoodListProps> = ({
               py: 4,
             }}
           >
-            <CircularProgress size={30} />
+            {loadingMore && <CircularProgress size={30} />}
           </Box>
         )}
       </Box>

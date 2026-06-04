@@ -6,7 +6,7 @@ Phase 10 deliverable — fully public, read-only API.
 
 from __future__ import annotations
 
-from django.db.models import Q, Prefetch
+from django.db.models import Max, Q, Prefetch
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -29,19 +29,46 @@ class FoodListView(generics.ListAPIView):
     serializer_class = serializers.FoodListSerializer
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = super().get_queryset().annotate(max_molecule_harm_value=Max("foodmolecule__molecule__harm_level"))
+        q = self.request.query_params.get("q", "").strip()
         category = self.request.query_params.get("category")
         min_score = self.request.query_params.get("min_health_index")
         max_score = self.request.query_params.get("max_health_index")
+        max_hazard = self.request.query_params.get("max_hazard_level")
+        ingredient_ids = [
+            value.strip()
+            for value in self.request.query_params.get("ingredients", "").split(",")
+            if value.strip()
+        ]
+        dietary_preferences = [
+            value.strip()
+            for value in self.request.query_params.get("dietary_preferences", "").split(",")
+            if value.strip()
+        ]
 
+        if q:
+            qs = qs.filter(
+                Q(name__icontains=q)
+                | Q(aliases__icontains=q)
+                | Q(foodmolecule__molecule__name__icontains=q)
+            )
         if category:
             qs = qs.filter(category__name__iexact=category)
         if min_score:
             qs = qs.filter(health_index__gte=int(min_score))
         if max_score:
             qs = qs.filter(health_index__lte=int(max_score))
+        if max_hazard is not None:
+            qs = qs.filter(max_molecule_harm_value__lte=int(max_hazard))
+        if ingredient_ids:
+            qs = qs.filter(molecules__id__in=ingredient_ids)
+        for preference in dietary_preferences:
+            if preference in {"organic", "gluten_free", "alcohol_free", "lactose_free"}:
+                qs = qs.filter(**{f"metadata__is_{preference}": True})
+            else:
+                qs = qs.filter(metadata__dietary_preferences__contains=[preference])
 
-        return qs.order_by("-health_index")
+        return qs.distinct().order_by("-health_index", "name")
 
 
 class FoodDetailView(generics.RetrieveAPIView):

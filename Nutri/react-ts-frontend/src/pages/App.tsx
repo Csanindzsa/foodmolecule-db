@@ -753,6 +753,7 @@ const App = () => {
 
   useEffect(() => {
     if (!isDataLoaded.current) {
+      isDataLoaded.current = true;
       const fetchData = async () => {
         try {
           const catalog = await loadPublicCatalog();
@@ -774,15 +775,15 @@ const App = () => {
             );
           }
 
-          isDataLoaded.current = true; // Mark data as loaded
         } catch (error) {
           console.error("Error fetching data:", error);
+          isDataLoaded.current = false;
         }
       };
 
       fetchData();
     }
-  }, [selectedRestaurants, selectedIngredients]);
+  }, [selectedRestaurants]);
 
   const handleApprove = async (foodId: EntityId) => {
     if (!accessToken) {

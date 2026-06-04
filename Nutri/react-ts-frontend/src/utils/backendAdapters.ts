@@ -1,9 +1,18 @@
 import { API_ENDPOINTS } from "../config/environment";
 import { EntityId, Food, Ingredient, MacroTable, Restaurant } from "../interfaces";
 
-type PaginatedResponse<T> = {
+export type PaginatedResponse<T> = {
+  count?: number;
   results?: T[];
   next?: string | null;
+  previous?: string | null;
+};
+
+export type MappedPage<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 };
 
 type BackendMolecule = {
@@ -81,22 +90,57 @@ const safetyScoreToHazard = (score: unknown) => {
 const extractList = <T>(payload: T[] | PaginatedResponse<T>): T[] =>
   Array.isArray(payload) ? payload : payload.results ?? [];
 
-const fetchAllPages = async <T>(url: string): Promise<T[]> => {
-  const items: T[] = [];
+const fetchJson = async <T>(url: string, signal?: AbortSignal): Promise<T> => {
+  const response = await fetch(url, { signal });
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+  }
+  return (await response.json()) as T;
+};
+
+const fetchPage = async <T, Mapped>(
+  url: string,
+  mapItem: (item: T) => Mapped,
+  signal?: AbortSignal,
+): Promise<MappedPage<Mapped>> => {
+  const payload = await fetchJson<T[] | PaginatedResponse<T>>(url, signal);
+  const results = extractList(payload).map(mapItem);
+
+  return {
+    count: Array.isArray(payload) ? results.length : payload.count ?? results.length,
+    next: Array.isArray(payload) ? null : payload.next ?? null,
+    previous: Array.isArray(payload) ? null : payload.previous ?? null,
+    results,
+  };
+};
+
+const fetchAllPages = async <T, Mapped>(
+  url: string,
+  mapItem: (item: T) => Mapped,
+): Promise<Mapped[]> => {
+  const items: Mapped[] = [];
   let nextUrl: string | null = url;
 
   while (nextUrl) {
-    const response = await fetch(nextUrl);
-    if (!response.ok) {
-      throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-    }
-
-    const payload = (await response.json()) as T[] | PaginatedResponse<T>;
-    items.push(...extractList(payload));
-    nextUrl = Array.isArray(payload) ? null : payload.next ?? null;
+    const nextPageResult: MappedPage<Mapped> = await fetchPage<T, Mapped>(
+      nextUrl,
+      mapItem,
+    );
+    items.push(...nextPageResult.results);
+    nextUrl = nextPageResult.next;
   }
 
   return items;
+};
+
+const buildUrl = (baseUrl: string, params: Record<string, string | number | undefined>) => {
+  const url = new URL(baseUrl);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      url.searchParams.set(key, String(value));
+    }
+  });
+  return url.toString();
 };
 
 export const mapMoleculeToIngredient = (molecule: BackendMolecule): Ingredient => {
@@ -172,14 +216,54 @@ export const makeFeaturedCards = (foods: Food[]): Restaurant[] =>
     hazard_level: food.hazard_level,
   }));
 
+export type FoodPageParams = {
+  page?: number;
+  pageSize?: number;
+  q?: string;
+  maxHazardLevel?: number;
+  ingredients?: EntityId[];
+  dietaryPreferences?: string[];
+};
+
+export const loadFoodPage = async (
+  params: FoodPageParams,
+  signal?: AbortSignal,
+) => {
+  const url = buildUrl(API_ENDPOINTS.foods, {
+    page: params.page,
+    page_size: params.pageSize,
+    q: params.q?.trim(),
+    max_hazard_level: params.maxHazardLevel,
+    ingredients: params.ingredients?.join(","),
+    dietary_preferences: params.dietaryPreferences?.join(","),
+  });
+
+  return fetchPage<BackendFood, Food>(url, mapFoodToFood, signal);
+};
+
+export const loadIngredientPage = async (
+  page = 1,
+  pageSize = 50,
+  signal?: AbortSignal,
+) => {
+  const url = buildUrl(API_ENDPOINTS.ingredients, {
+    page,
+    page_size: pageSize,
+  });
+
+  return fetchPage<BackendMolecule, Ingredient>(url, mapMoleculeToIngredient, signal);
+};
+
 export const loadPublicCatalog = async () => {
-  const [backendFoods, backendMolecules] = await Promise.all([
-    fetchAllPages<BackendFood>(API_ENDPOINTS.foods),
-    fetchAllPages<BackendMolecule>(API_ENDPOINTS.ingredients),
+  const [foodPage, ingredients] = await Promise.all([
+    loadFoodPage({ page: 1, pageSize: 12 }),
+    fetchAllPages<BackendMolecule, Ingredient>(
+      API_ENDPOINTS.ingredients,
+      mapMoleculeToIngredient,
+    ),
   ]);
 
-  const foods = backendFoods.map(mapFoodToFood);
-  const ingredients = backendMolecules.map(mapMoleculeToIngredient);
+  const foods = foodPage.results;
   const restaurants = makeFeaturedCards(foods);
 
   return { foods, ingredients, restaurants };
