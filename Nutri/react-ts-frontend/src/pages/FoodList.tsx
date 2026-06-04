@@ -77,6 +77,14 @@ const foodSortOptions = [
 const hazardSliderGradient =
   "linear-gradient(90deg, #4CAF50 0%, #8BC34A 25%, #FFEB3B 50%, #F44336 75%, #9C27B0 100%)";
 
+const filterPanelSx = {
+  p: 2,
+  height: "100%",
+  borderRadius: 2,
+  border: "1px solid #f0e0cd",
+  background: "#fffaf4",
+};
+
 const ingredientFilterOptions = createFilterOptions<Ingredient>({
   limit: 60,
   stringify: (option) => `${option.name} ${option.description ?? ""}`,
@@ -334,18 +342,12 @@ const FoodList: React.FC<FoodListProps> = ({
           borderBottom: "1px solid #eaeaea",
         }}
       >
-        <Grid container spacing={3}>
+        <Grid container spacing={3} alignItems="stretch">
           {/* Search Box */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={8}>
             <Paper
               elevation={0}
-              sx={{
-                p: 2,
-                height: "100%",
-                borderRadius: 2,
-                border: "1px solid #f0e0cd",
-                background: "#fffaf4",
-              }}
+              sx={filterPanelSx}
             >
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
                 Search
@@ -367,17 +369,55 @@ const FoodList: React.FC<FoodListProps> = ({
             </Paper>
           </Grid>
 
+          <Grid item xs={12} md={4}>
+            <Paper
+              elevation={0}
+              sx={filterPanelSx}
+            >
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
+                Sort
+              </Typography>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<SortIcon />}
+                endIcon={<ArrowDropDownIcon />}
+                onClick={(event) => setSortMenuAnchor(event.currentTarget)}
+                sx={{
+                  justifyContent: "space-between",
+                  minHeight: 56,
+                  textTransform: "none",
+                }}
+              >
+                {activeSortLabel}
+              </Button>
+              <Menu
+                anchorEl={sortMenuAnchor}
+                open={Boolean(sortMenuAnchor)}
+                onClose={() => setSortMenuAnchor(null)}
+                disableScrollLock
+              >
+                {foodSortOptions.map((option) => (
+                  <MenuItem
+                    key={option.value}
+                    selected={option.value === sortBy}
+                    onClick={() => {
+                      setSortBy(option.value);
+                      setSortMenuAnchor(null);
+                    }}
+                  >
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Paper>
+          </Grid>
+
           {/* Ingredient Filter */}
           <Grid item xs={12} md={6}>
             <Paper
               elevation={0}
-              sx={{
-                p: 2,
-                height: "100%",
-                borderRadius: 2,
-                border: "1px solid #f0e0cd",
-                background: "#fffaf4",
-              }}
+              sx={filterPanelSx}
             >
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
                 Ingredients
@@ -423,13 +463,49 @@ const FoodList: React.FC<FoodListProps> = ({
           <Grid item xs={12} md={6}>
             <Paper
               elevation={0}
-              sx={{
-                p: 2,
-                height: "100%",
-                borderRadius: 2,
-                border: "1px solid #f0e0cd",
-                background: "#fffaf4",
-              }}
+              sx={filterPanelSx}
+            >
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
+                Dietary Preferences
+              </Typography>
+              <Autocomplete
+                multiple
+                disableCloseOnSelect
+                options={dietaryOptions}
+                value={selectedDietaryPreferenceOptions}
+                onChange={handleDietaryPreferenceChange}
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+                renderOption={(props, option, { selected }) => (
+                  <Box component="li" {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 1 }} />
+                    <ListItemText primary={option.label} />
+                  </Box>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Dietary Preferences"
+                    placeholder={
+                      selectedDietaryPreferences.length === 0
+                        ? "Type to search preferences"
+                        : ""
+                    }
+                  />
+                )}
+              />
+              {selectedDietaryPreferences.length === 0 && (
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                  All dietary preferences are included until you select one.
+                </Typography>
+              )}
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Paper
+              elevation={0}
+              sx={filterPanelSx}
             >
               <Box
                 sx={{
@@ -513,101 +589,6 @@ const FoodList: React.FC<FoodListProps> = ({
                   },
                 }}
               />
-            </Paper>
-          </Grid>
-
-          {/* Dietary Preferences */}
-          <Grid item xs={12} md={6}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2,
-                height: "100%",
-                borderRadius: 2,
-                border: "1px solid #f0e0cd",
-                background: "#fffaf4",
-              }}
-            >
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-                Dietary Preferences
-              </Typography>
-              <Autocomplete
-                multiple
-                disableCloseOnSelect
-                options={dietaryOptions}
-                value={selectedDietaryPreferenceOptions}
-                onChange={handleDietaryPreferenceChange}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
-                renderOption={(props, option, { selected }) => (
-                  <Box component="li" {...props}>
-                    <Checkbox checked={selected} sx={{ mr: 1 }} />
-                    <ListItemText primary={option.label} />
-                  </Box>
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Dietary Preferences"
-                    placeholder={
-                      selectedDietaryPreferences.length === 0
-                        ? "Type to search preferences"
-                        : ""
-                    }
-                  />
-                )}
-              />
-              {selectedDietaryPreferences.length === 0 && (
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-                  All dietary preferences are included until you select one.
-                </Typography>
-              )}
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2,
-                height: "100%",
-                borderRadius: 2,
-                border: "1px solid #f0e0cd",
-                background: "#fffaf4",
-              }}
-            >
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-                Sort
-              </Typography>
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<SortIcon />}
-                endIcon={<ArrowDropDownIcon />}
-                onClick={(event) => setSortMenuAnchor(event.currentTarget)}
-                sx={{ justifyContent: "space-between", textTransform: "none" }}
-              >
-                {activeSortLabel}
-              </Button>
-              <Menu
-                anchorEl={sortMenuAnchor}
-                open={Boolean(sortMenuAnchor)}
-                onClose={() => setSortMenuAnchor(null)}
-                disableScrollLock
-              >
-                {foodSortOptions.map((option) => (
-                  <MenuItem
-                    key={option.value}
-                    selected={option.value === sortBy}
-                    onClick={() => {
-                      setSortBy(option.value);
-                      setSortMenuAnchor(null);
-                    }}
-                  >
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Menu>
             </Paper>
           </Grid>
         </Grid>
