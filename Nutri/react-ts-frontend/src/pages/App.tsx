@@ -87,6 +87,8 @@ import EditFood from "./EditFood"; // Add this import
 import Support from "./Support"; // Add this import
 import SupportIcon from "@mui/icons-material/Support"; // Add this import
 import KoFiButton from "../components/KoFiButton";
+import LocaleSwitcher from "../components/LocaleSwitcher";
+import { useLocale } from "../localization/useLocale";
 
 // import styled from "styled-components";
 
@@ -134,13 +136,27 @@ const AuthButton = styled(Button)<StyledButtonProps>(({ theme }) => ({
   },
 }));
 
-const mobileMenuIconByName: Record<string, React.ReactElement> = {
-  Home: <HomeIcon fontSize="small" />,
-  Foods: <LocalDiningIcon fontSize="small" />,
-  Ingredients: <BiotechIcon fontSize="small" />,
-  "Download App": <PhoneIphoneIcon fontSize="small" />,
-  "Create Food": <LocalDiningIcon fontSize="small" />,
-  Approvals: <SupportIcon fontSize="small" />,
+type NavItemKey =
+  | "home"
+  | "foods"
+  | "ingredients"
+  | "downloadApp"
+  | "createFood"
+  | "approvals";
+
+type NavItem = {
+  key: NavItemKey;
+  name: string;
+  path: string;
+};
+
+const mobileMenuIconByKey: Record<NavItemKey, React.ReactElement> = {
+  home: <HomeIcon fontSize="small" />,
+  foods: <LocalDiningIcon fontSize="small" />,
+  ingredients: <BiotechIcon fontSize="small" />,
+  downloadApp: <PhoneIphoneIcon fontSize="small" />,
+  createFood: <LocalDiningIcon fontSize="small" />,
+  approvals: <SupportIcon fontSize="small" />,
 };
 
 const mobileMenuItemSx = {
@@ -202,6 +218,7 @@ const Navbar = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { locale } = useLocale();
   const [mainMenuAnchor, setMainMenuAnchor] = useState<null | HTMLElement>(
     null
   );
@@ -227,21 +244,21 @@ const Navbar = ({
   };
 
   // Navigation items with conditional Create Food - only show when logged in
-  const navItems = [
-    { name: "Home", path: "/" },
-    { name: "Foods", path: "/foods" },
-    { name: "Ingredients", path: "/ingredients" },
-    { name: "Download App", path: "/download-app" },
+  const navItems: NavItem[] = [
+    { key: "home", name: locale.nav.home, path: "/" },
+    { key: "foods", name: locale.nav.foods, path: "/foods" },
+    { key: "ingredients", name: locale.nav.ingredients, path: "/ingredients" },
+    { key: "downloadApp", name: locale.nav.downloadApp, path: "/download-app" },
     // Only include Create Food if user is logged in
     ...(userData.username
-      ? [{ name: "Create Food", path: "/create-food" }]
+      ? [{ key: "createFood" as const, name: locale.nav.createFood, path: "/create-food" }]
       : []),
   ];
 
   // Conditional navigation items based on user role
   if (userData.is_supervisor) {
     // Replace the three separate approval links with a single entry
-    navItems.push({ name: "Approvals", path: "/approvals" });
+    navItems.push({ key: "approvals", name: locale.nav.approvals, path: "/approvals" });
   }
 
   // Update the mobile menu navigation logic
@@ -285,6 +302,7 @@ const Navbar = ({
 	            <>
 	              {/* Mobile menu */}
 	              <Box sx={{ flexGrow: 1 }} />
+	              <LocaleSwitcher compact />
 	              <KoFiButton compact onClick={handleKoFiSupport} sx={{ mr: 1 }} />
 	              <IconButton
 	                size="large"
@@ -339,7 +357,7 @@ const Navbar = ({
 	                    sx={mobileMenuItemSx}
 	                  >
 	                    <Box sx={mobileMenuIconSx}>
-	                      {mobileMenuIconByName[item.name]}
+	                      {mobileMenuIconByKey[item.key]}
 	                    </Box>
 	                    {item.name}
 	                  </MenuItem>
@@ -358,7 +376,7 @@ const Navbar = ({
 	                      <Box sx={mobileMenuIconSx}>
 	                        <SupportIcon fontSize="small" />
 	                      </Box>
-	                      Support
+	                      {locale.nav.support}
 	                    </MenuItem>,
                     <MenuItem
                       key="profile"
@@ -371,7 +389,7 @@ const Navbar = ({
 	                      <Box sx={mobileMenuIconSx}>
 	                        <EditIcon fontSize="small" />
 	                      </Box>
-	                      Edit Profile
+	                      {locale.nav.editProfile}
 	                    </MenuItem>,
                     <MenuItem
                       key="logout"
@@ -384,7 +402,7 @@ const Navbar = ({
 	                      <Box sx={mobileMenuIconSx}>
 	                        <ExitToAppIcon fontSize="small" />
 	                      </Box>
-	                      Logout
+	                      {locale.auth.signOut}
 	                    </MenuItem>,
                   ]
                 ) : (
@@ -399,7 +417,7 @@ const Navbar = ({
 	                      <Box sx={mobileMenuIconSx}>
 	                        <LoginIcon fontSize="small" />
 	                      </Box>
-	                      Login
+	                      {locale.nav.login}
 	                    </MenuItem>
 	                    <MenuItem
                       onClick={() => {
@@ -411,7 +429,7 @@ const Navbar = ({
 	                      <Box sx={mobileMenuIconSx}>
 	                        <PersonAddIcon fontSize="small" />
 	                      </Box>
-	                      Register
+	                      {locale.nav.register}
 	                    </MenuItem>
                   </>
                 )}
@@ -436,6 +454,7 @@ const Navbar = ({
 
               {/* Login/Register buttons or user info on the right */}
               <Box sx={{ display: "flex", alignItems: "center" }}>
+                <LocaleSwitcher />
                 {userData.username ? (
                   <>
                     <Box
@@ -487,7 +506,7 @@ const Navbar = ({
                         }}
                       >
                         <SupportIcon fontSize="small" sx={{ mr: 1 }} />
-                        Support
+                        {locale.nav.support}
                       </MenuItem>
                       <MenuItem
                         onClick={() => {
@@ -496,7 +515,7 @@ const Navbar = ({
                         }}
                       >
                         <EditIcon fontSize="small" sx={{ mr: 1 }} />
-                        Edit Profile
+                        {locale.nav.editProfile}
                       </MenuItem>
                     </Menu>
 
@@ -506,7 +525,7 @@ const Navbar = ({
                       onClick={handleLogout}
                       startIcon={<ExitToAppIcon />}
                     >
-                      Logout
+                      {locale.auth.signOut}
                     </AuthButton>
                   </>
                 ) : (
@@ -517,7 +536,7 @@ const Navbar = ({
                       component={Link}
                       to="/login"
                     >
-                      Login
+                      {locale.nav.login}
                     </AuthButton>
                     <AuthButton
                       variant="outlined"
@@ -525,7 +544,7 @@ const Navbar = ({
                       component={Link}
                       to="/register"
                     >
-                      Register
+                      {locale.nav.register}
                     </AuthButton>
                   </>
                 )}
