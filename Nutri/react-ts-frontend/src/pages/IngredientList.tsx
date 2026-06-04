@@ -1,4 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -8,17 +16,23 @@ import {
   CardContent,
   Chip,
   Container,
+  CircularProgress,
   Grid,
   InputAdornment,
+  LinearProgress,
+  Menu,
+  MenuItem,
   Paper,
   Slider,
   TextField,
   Typography,
 } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import BiotechIcon from "@mui/icons-material/Biotech";
 import SearchIcon from "@mui/icons-material/Search";
+import SortIcon from "@mui/icons-material/Sort";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { EntityId, Food, Ingredient } from "../interfaces";
+import { Food, Ingredient } from "../interfaces";
 import HazardLevelIndicator from "../components/HazardLevelIndicator";
 import { getHazardColor, getHazardLabel } from "../utils/hazardUtils";
 
@@ -30,25 +44,116 @@ interface IngredientListProps {
 const hazardSliderGradient =
   "linear-gradient(90deg, #4CAF50 0%, #8BC34A 25%, #FFEB3B 50%, #F44336 75%, #9C27B0 100%)";
 
+const ingredientSortOptions = [
+  { value: "name_asc", label: "Name: A-Z" },
+  { value: "name_desc", label: "Name: Z-A" },
+  { value: "links_desc", label: "Most linked foods" },
+  { value: "links_asc", label: "Fewest linked foods" },
+  { value: "safety_desc", label: "Safety: safest first" },
+  { value: "safety_asc", label: "Safety: riskiest first" },
+];
+
 const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) => {
   const navigate = useNavigate();
+  const loaderRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const deferredSearchTerm = useDeferredValue(searchTerm);
   const [maxHazardLevel, setMaxHazardLevel] = useState(5);
+  const [sortBy, setSortBy] = useState("name_asc");
+  const [sortMenuAnchor, setSortMenuAnchor] = useState<null | HTMLElement>(null);
+  const [visibleCount, setVisibleCount] = useState(48);
+  const [isPending, startTransition] = useTransition();
+  const activeSortLabel =
+    ingredientSortOptions.find((option) => option.value === sortBy)?.label ??
+    "Name: A-Z";
+
+  const foodCountByIngredient = useMemo(() => {
+    const counts = new Map<string, number>();
+
+    foods.forEach((food) => {
+      food.ingredients.forEach((ingredientId) => {
+        const key = String(ingredientId);
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      });
+    });
+
+    return counts;
+  }, [foods]);
+
+  const linkedFoodCount = useCallback(
+    (ingredient: Ingredient) =>
+      ingredient.linked_food_count ?? foodCountByIngredient.get(String(ingredient.id)) ?? 0,
+    [foodCountByIngredient],
+  );
 
   const filteredIngredients = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase();
+    const query = deferredSearchTerm.trim().toLowerCase();
 
-    return ingredients.filter((ingredient) =>
-      ingredient.hazard_level <= maxHazardLevel &&
-      (!query ||
-        [ingredient.name, ingredient.description || ""].some((value) =>
-          value.toLowerCase().includes(query)
-        ))
+    return ingredients
+      .filter((ingredient) =>
+        ingredient.hazard_level <= maxHazardLevel &&
+        (!query ||
+          [ingredient.name, ingredient.description || ""].some((value) =>
+            value.toLowerCase().includes(query)
+          ))
+      )
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "name_desc":
+            return b.name.localeCompare(a.name);
+          case "links_desc":
+            return linkedFoodCount(b) - linkedFoodCount(a) || a.name.localeCompare(b.name);
+          case "links_asc":
+            return linkedFoodCount(a) - linkedFoodCount(b) || a.name.localeCompare(b.name);
+          case "safety_desc":
+            return a.hazard_level - b.hazard_level || a.name.localeCompare(b.name);
+          case "safety_asc":
+            return b.hazard_level - a.hazard_level || a.name.localeCompare(b.name);
+          case "name_asc":
+          default:
+            return a.name.localeCompare(b.name);
+        }
+      });
+  }, [deferredSearchTerm, ingredients, linkedFoodCount, maxHazardLevel, sortBy]);
+
+  const visibleIngredients = useMemo(
+    () => filteredIngredients.slice(0, visibleCount),
+    [filteredIngredients, visibleCount],
+  );
+
+  useEffect(() => {
+    setVisibleCount(48);
+  }, [deferredSearchTerm, maxHazardLevel, sortBy]);
+
+  const loadMoreIngredients = useCallback(() => {
+    setVisibleCount((current) =>
+      Math.min(current + 48, filteredIngredients.length),
     );
-  }, [ingredients, maxHazardLevel, searchTerm]);
+  }, [filteredIngredients.length]);
 
-  const foodsForIngredient = (ingredientId: EntityId) =>
-    foods.filter((food) => food.ingredients.includes(ingredientId));
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          visibleCount < filteredIngredients.length
+        ) {
+          loadMoreIngredients();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [filteredIngredients.length, loadMoreIngredients, visibleCount]);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
@@ -78,7 +183,7 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
         }}
       >
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12}>
+          <Grid item xs={12} md={6}>
             <Paper
               elevation={0}
               sx={{
@@ -105,6 +210,54 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
                   ),
                 }}
               />
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                height: "100%",
+                borderRadius: 2,
+                border: "1px solid #f0e0cd",
+                background: "#fffaf4",
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
+                Sort
+              </Typography>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<SortIcon />}
+                endIcon={<ArrowDropDownIcon />}
+                onClick={(event) => setSortMenuAnchor(event.currentTarget)}
+                sx={{ justifyContent: "space-between", textTransform: "none" }}
+              >
+                {activeSortLabel}
+              </Button>
+              <Menu
+                anchorEl={sortMenuAnchor}
+                open={Boolean(sortMenuAnchor)}
+                onClose={() => setSortMenuAnchor(null)}
+                disableScrollLock
+              >
+                {ingredientSortOptions.map((option) => (
+                  <MenuItem
+                    key={option.value}
+                    selected={option.value === sortBy}
+                    onClick={() => {
+                      startTransition(() => {
+                        setSortBy(option.value);
+                      });
+                      setSortMenuAnchor(null);
+                    }}
+                  >
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Menu>
             </Paper>
           </Grid>
 
@@ -207,11 +360,14 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
 
         <Typography variant="h6" gutterBottom>
           {filteredIngredients.length} Results Found
+          {filteredIngredients.length > visibleIngredients.length &&
+            ` (Showing ${visibleIngredients.length})`}
         </Typography>
+        {isPending && <LinearProgress sx={{ mb: 2 }} />}
 
         <Grid container spacing={3}>
-          {filteredIngredients.map((ingredient) => {
-            const relatedFoods = foodsForIngredient(ingredient.id);
+          {visibleIngredients.map((ingredient) => {
+            const linkedCount = linkedFoodCount(ingredient);
 
             return (
               <Grid item xs={12} sm={6} md={4} key={ingredient.id}>
@@ -250,8 +406,8 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
                     <Box sx={{ mt: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
                       <Chip
                         size="small"
-                        label={`${relatedFoods.length} linked food${
-                          relatedFoods.length === 1 ? "" : "s"
+                        label={`${linkedCount} linked food${
+                          linkedCount === 1 ? "" : "s"
                         }`}
                       />
                       <Chip size="small" label="PubMed evidence placeholder" />
@@ -268,6 +424,15 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
             );
           })}
         </Grid>
+
+        {visibleCount < filteredIngredients.length && (
+          <Box
+            ref={loaderRef}
+            sx={{ display: "flex", justifyContent: "center", py: 4 }}
+          >
+            <CircularProgress size={30} />
+          </Box>
+        )}
       </Paper>
     </Container>
   );

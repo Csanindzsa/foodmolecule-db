@@ -32,6 +32,7 @@ type BackendMolecule = {
   is_heat_stable?: boolean;
   is_neutralizable?: boolean;
   structure_image_url?: string;
+  linked_food_count?: number;
   metadata?: Record<string, unknown>;
 };
 
@@ -158,6 +159,7 @@ export const mapMoleculeToIngredient = (molecule: BackendMolecule): Ingredient =
         ? details.join(" · ")
         : molecule.iupac_name || "Molecule profile from the Nutrii backend.",
     hazard_level: clampHazard(molecule.harm_level),
+    linked_food_count: asNumber(molecule.linked_food_count),
     classification_reasoning: molecule.classification_reasoning ?? {},
   };
 };
@@ -220,6 +222,7 @@ export type FoodPageParams = {
   page?: number;
   pageSize?: number;
   q?: string;
+  sort?: string;
   maxHazardLevel?: number;
   ingredients?: EntityId[];
   dietaryPreferences?: string[];
@@ -233,6 +236,7 @@ export const loadFoodPage = async (
     page: params.page,
     page_size: params.pageSize,
     q: params.q?.trim(),
+    sort: params.sort,
     max_hazard_level: params.maxHazardLevel,
     ingredients: params.ingredients?.join(","),
     dietary_preferences: params.dietaryPreferences?.join(","),
@@ -244,11 +248,17 @@ export const loadFoodPage = async (
 export const loadIngredientPage = async (
   page = 1,
   pageSize = 50,
+  sort = "name_asc",
+  q = "",
+  maxHarmLevel?: number,
   signal?: AbortSignal,
 ) => {
   const url = buildUrl(API_ENDPOINTS.ingredients, {
     page,
     page_size: pageSize,
+    sort,
+    q: q.trim(),
+    max_harm_level: maxHarmLevel,
   });
 
   return fetchPage<BackendMolecule, Ingredient>(url, mapMoleculeToIngredient, signal);

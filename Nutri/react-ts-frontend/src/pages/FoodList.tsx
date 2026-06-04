@@ -23,13 +23,17 @@ import {
   CardMedia,
   CardActions,
   Button,
+  Menu,
+  MenuItem,
   TextField,
   InputAdornment,
   CircularProgress,
   LinearProgress,
   Slider,
 } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SearchIcon from "@mui/icons-material/Search";
+import SortIcon from "@mui/icons-material/Sort";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { EntityId, Food, Ingredient } from "../interfaces";
 import HazardLevelIndicator from "../components/HazardLevelIndicator";
@@ -57,6 +61,17 @@ const dietaryOptions = [
   { value: "low_sugar", label: "Low Sugar" },
   { value: "low_sodium", label: "Low Sodium" },
   { value: "high_fiber", label: "High Fiber" },
+];
+
+const foodSortOptions = [
+  { value: "safety_desc", label: "Safety: highest first" },
+  { value: "safety_asc", label: "Safety: lowest first" },
+  { value: "name_asc", label: "Name: A-Z" },
+  { value: "name_desc", label: "Name: Z-A" },
+  { value: "links_desc", label: "Most linked ingredients" },
+  { value: "links_asc", label: "Fewest linked ingredients" },
+  { value: "hazard_asc", label: "Hazard: low to high" },
+  { value: "hazard_desc", label: "Hazard: high to low" },
 ];
 
 const hazardSliderGradient =
@@ -92,6 +107,11 @@ const FoodList: React.FC<FoodListProps> = ({
 
   const [selectedDietaryPreferences, setSelectedDietaryPreferences] = useState<string[]>([]);
   const [maxHazardLevel, setMaxHazardLevel] = useState(5);
+  const [sortBy, setSortBy] = useState("safety_desc");
+  const [sortMenuAnchor, setSortMenuAnchor] = useState<null | HTMLElement>(null);
+  const activeSortLabel =
+    foodSortOptions.find((option) => option.value === sortBy)?.label ??
+    "Safety: highest first";
   const selectedIngredientOptions = useMemo(
     () =>
       ingredients.filter((ingredient) =>
@@ -190,8 +210,6 @@ const FoodList: React.FC<FoodListProps> = ({
         abortRef.current?.abort();
         abortRef.current = new AbortController();
         setInitialLoading(true);
-        setFoodResults([]);
-        setTotalCount(0);
         setNextPage(null);
       } else {
         setLoadingMore(true);
@@ -205,6 +223,7 @@ const FoodList: React.FC<FoodListProps> = ({
             page,
             pageSize: 50,
             q: normalizedSearchTerm,
+            sort: sortBy,
             maxHazardLevel,
             ingredients: selectedIngredients,
             dietaryPreferences: selectedDietaryPreferences,
@@ -241,6 +260,7 @@ const FoodList: React.FC<FoodListProps> = ({
       normalizedSearchTerm,
       selectedDietaryPreferences,
       selectedIngredients,
+      sortBy,
     ],
   );
 
@@ -542,6 +562,52 @@ const FoodList: React.FC<FoodListProps> = ({
                   All dietary preferences are included until you select one.
                 </Typography>
               )}
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                height: "100%",
+                borderRadius: 2,
+                border: "1px solid #f0e0cd",
+                background: "#fffaf4",
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
+                Sort
+              </Typography>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<SortIcon />}
+                endIcon={<ArrowDropDownIcon />}
+                onClick={(event) => setSortMenuAnchor(event.currentTarget)}
+                sx={{ justifyContent: "space-between", textTransform: "none" }}
+              >
+                {activeSortLabel}
+              </Button>
+              <Menu
+                anchorEl={sortMenuAnchor}
+                open={Boolean(sortMenuAnchor)}
+                onClose={() => setSortMenuAnchor(null)}
+                disableScrollLock
+              >
+                {foodSortOptions.map((option) => (
+                  <MenuItem
+                    key={option.value}
+                    selected={option.value === sortBy}
+                    onClick={() => {
+                      setSortBy(option.value);
+                      setSortMenuAnchor(null);
+                    }}
+                  >
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Menu>
             </Paper>
           </Grid>
         </Grid>

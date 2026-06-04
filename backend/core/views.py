@@ -6,7 +6,7 @@ Phase 10 deliverable — fully public, read-only API.
 
 from __future__ import annotations
 
-from django.db.models import Max, Q, Prefetch
+from django.db.models import Count, Max, Q, Prefetch
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -29,8 +29,12 @@ class FoodListView(generics.ListAPIView):
     serializer_class = serializers.FoodListSerializer
 
     def get_queryset(self):
-        qs = super().get_queryset().annotate(max_molecule_harm_value=Max("foodmolecule__molecule__harm_level"))
+        qs = super().get_queryset().annotate(
+            link_count=Count("foodmolecule", distinct=True),
+            max_molecule_harm_value=Max("foodmolecule__molecule__harm_level"),
+        )
         q = self.request.query_params.get("q", "").strip()
+        sort = self.request.query_params.get("sort", "safety_desc")
         category = self.request.query_params.get("category")
         min_score = self.request.query_params.get("min_health_index")
         max_score = self.request.query_params.get("max_health_index")
@@ -68,7 +72,18 @@ class FoodListView(generics.ListAPIView):
             else:
                 qs = qs.filter(metadata__dietary_preferences__contains=[preference])
 
-        return qs.distinct().order_by("-health_index", "name")
+        sort_fields = {
+            "name_asc": ("name",),
+            "name_desc": ("-name",),
+            "links_desc": ("-link_count", "name"),
+            "links_asc": ("link_count", "name"),
+            "safety_desc": ("-health_index", "name"),
+            "safety_asc": ("health_index", "name"),
+            "hazard_desc": ("-max_molecule_harm_value", "name"),
+            "hazard_asc": ("max_molecule_harm_value", "name"),
+        }
+
+        return qs.distinct().order_by(*sort_fields.get(sort, sort_fields["safety_desc"]))
 
 
 class FoodDetailView(generics.RetrieveAPIView):
@@ -183,11 +198,37 @@ class MoleculeListView(generics.ListAPIView):
     serializer_class = serializers.MoleculeSerializer
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = super().get_queryset().annotate(
+            linked_food_count=Count("foodmolecule", distinct=True)
+        )
+        q = self.request.query_params.get("q", "").strip()
+        sort = self.request.query_params.get("sort", "name_asc")
         harm = self.request.query_params.get("harm_level")
+        max_harm = self.request.query_params.get("max_harm_level")
+        if q:
+            search_filter = (
+                Q(name__icontains=q)
+                | Q(iupac_name__icontains=q)
+                | Q(cas_number__iexact=q)
+            )
+            if q.isdigit():
+                search_filter |= Q(pubchem_cid=q)
+            qs = qs.filter(search_filter)
         if harm is not None:
             qs = qs.filter(harm_level=int(harm))
-        return qs.order_by("name")
+        if max_harm is not None:
+            qs = qs.filter(harm_level__lte=int(max_harm))
+
+        sort_fields = {
+            "name_asc": ("name",),
+            "name_desc": ("-name",),
+            "links_desc": ("-linked_food_count", "name"),
+            "links_asc": ("linked_food_count", "name"),
+            "safety_desc": ("harm_level", "name"),
+            "safety_asc": ("-harm_level", "name"),
+        }
+
+        return qs.order_by(*sort_fields.get(sort, sort_fields["name_asc"]))
 
 
 class MoleculeDetailView(generics.RetrieveAPIView):

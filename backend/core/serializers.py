@@ -29,6 +29,11 @@ class FoodCategorySerializer(serializers.ModelSerializer):
 
 
 class MoleculeSerializer(serializers.ModelSerializer):
+    linked_food_count = serializers.SerializerMethodField()
+
+    def get_linked_food_count(self, obj):
+        return getattr(obj, "linked_food_count", obj.foodmolecule_set.count())
+
     class Meta:
         model = Molecule
         fields = [
@@ -45,6 +50,7 @@ class MoleculeSerializer(serializers.ModelSerializer):
             "is_heat_stable",
             "is_neutralizable",
             "structure_image_url",
+            "linked_food_count",
         ]
 
 
