@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, Tooltip } from "@mui/material";
-import { getHazardLabel } from "../utils/hazardUtils";
+import { useLocale } from "../localization/useLocale";
 
 interface HazardLevelIndicatorProps {
   hazardLevel?: number;
@@ -13,13 +13,15 @@ const HazardLevelIndicator: React.FC<HazardLevelIndicatorProps> = ({
   size = "medium",
   showLabel = true,
 }) => {
+  const { locale } = useLocale();
   // Use the exact hazard level without rounding for more precision
   const level = hazardLevel || 0;
   // Calculate percentage for the gradient position (0-100%)
   const percentage = Math.min(100, (level / 4) * 100);
 
   // Get a descriptive label for the tooltip
-  const label = getHazardLabel(Math.round(level));
+  const roundedLevel = Math.max(0, Math.min(5, Math.round(level))) as 0 | 1 | 2 | 3 | 4 | 5;
+  const label = locale.hazard.levels[roundedLevel];
 
   // Define sizes based on the size prop
   const heights = {
@@ -55,10 +57,10 @@ const HazardLevelIndicator: React.FC<HazardLevelIndicatorProps> = ({
             color: "text.secondary",
           }}
         >
-          Hazard Level
+          {locale.hazard.label}
         </Typography>
       )}
-      <Tooltip title={`${label} (Level ${level.toFixed(1)})`}>
+      <Tooltip title={`${label} (${locale.hazard.label} ${level.toFixed(1)})`}>
         <Box sx={{ position: "relative", mt: dotSize / 4 }}>
           {/* Gradient background bar */}
           <Box

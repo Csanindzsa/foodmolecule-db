@@ -37,8 +37,10 @@ import SortIcon from "@mui/icons-material/Sort";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { EntityId, Food, Ingredient } from "../interfaces";
 import HazardLevelIndicator from "../components/HazardLevelIndicator";
-import { getHazardColor, getHazardLabel } from "../utils/hazardUtils";
+import { getHazardColor } from "../utils/hazardUtils";
 import { loadFoodPage } from "../utils/backendAdapters";
+import { useLocale } from "../localization/useLocale";
+import { LocaleMessages } from "../localization/types";
 
 interface FoodListProps {
   accessToken: string | null;
@@ -48,31 +50,22 @@ interface FoodListProps {
   setSelectedIngredients: React.Dispatch<React.SetStateAction<EntityId[]>>;
 }
 
-const dietaryOptions = [
-  { value: "organic", label: "Organic" },
-  { value: "gluten_free", label: "Gluten Free" },
-  { value: "alcohol_free", label: "Alcohol Free" },
-  { value: "lactose_free", label: "Lactose Free" },
-  { value: "paleo", label: "Paleo" },
-  { value: "keto", label: "Keto" },
-  { value: "vegan", label: "Vegan" },
-  { value: "vegetarian", label: "Vegetarian" },
-  { value: "whole_food", label: "Whole Food" },
-  { value: "low_sugar", label: "Low Sugar" },
-  { value: "low_sodium", label: "Low Sodium" },
-  { value: "high_fiber", label: "High Fiber" },
-];
+type DietaryOption = {
+  value: string;
+  label: string;
+};
 
-const foodSortOptions = [
-  { value: "safety_desc", label: "Safety: highest first" },
-  { value: "safety_asc", label: "Safety: lowest first" },
-  { value: "name_asc", label: "Name: A-Z" },
-  { value: "name_desc", label: "Name: Z-A" },
-  { value: "links_desc", label: "Most linked ingredients" },
-  { value: "links_asc", label: "Fewest linked ingredients" },
-  { value: "hazard_asc", label: "Hazard: low to high" },
-  { value: "hazard_desc", label: "Hazard: high to low" },
-];
+type SortOption = {
+  value: string;
+  label: string;
+};
+
+const hazardLevelKeys = [0, 1, 2, 3, 4, 5] as const;
+
+const getLocalizedHazardLabel = (
+  locale: LocaleMessages,
+  level: number,
+) => locale.hazard.levels[Math.max(0, Math.min(5, Math.round(level))) as 0 | 1 | 2 | 3 | 4 | 5];
 
 const hazardSliderGradient =
   "linear-gradient(90deg, #4CAF50 0%, #8BC34A 25%, #FFEB3B 50%, #F44336 75%, #9C27B0 100%)";
@@ -91,7 +84,6 @@ const ingredientFilterOptions = createFilterOptions<Ingredient>({
 });
 
 const FoodList: React.FC<FoodListProps> = ({
-  accessToken,
   ingredients,
   foods,
   selectedIngredients,
@@ -99,9 +91,44 @@ const FoodList: React.FC<FoodListProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { locale } = useLocale();
   const loaderRef = useRef<HTMLDivElement>(null); // Reference for infinite scroll detection
   const requestIdRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
+  const dietaryOptions = useMemo<DietaryOption[]>(
+    () => [
+      { value: "organic", label: locale.dietary.organic },
+      { value: "gluten_free", label: locale.dietary.glutenFree },
+      { value: "alcohol_free", label: locale.dietary.alcoholFree },
+      { value: "lactose_free", label: locale.dietary.lactoseFree },
+      { value: "paleo", label: locale.dietary.paleo },
+      { value: "keto", label: locale.dietary.keto },
+      { value: "vegan", label: locale.dietary.vegan },
+      { value: "vegetarian", label: locale.dietary.vegetarian },
+      { value: "whole_food", label: locale.dietary.wholeFood },
+      { value: "low_sugar", label: locale.dietary.lowSugar },
+      { value: "low_sodium", label: locale.dietary.lowSodium },
+      { value: "high_fiber", label: locale.dietary.highFiber },
+    ],
+    [locale],
+  );
+  const dietaryLabelByValue = useMemo(
+    () => new Map(dietaryOptions.map((option) => [option.value, option.label])),
+    [dietaryOptions],
+  );
+  const foodSortOptions = useMemo<SortOption[]>(
+    () => [
+      { value: "safety_desc", label: locale.sort.safetyHighestFirst },
+      { value: "safety_asc", label: locale.sort.safetyLowestFirst },
+      { value: "name_asc", label: locale.sort.nameAZ },
+      { value: "name_desc", label: locale.sort.nameZA },
+      { value: "links_desc", label: locale.sort.mostLinkedIngredients },
+      { value: "links_asc", label: locale.sort.fewestLinkedIngredients },
+      { value: "hazard_asc", label: locale.sort.hazardLowHigh },
+      { value: "hazard_desc", label: locale.sort.hazardHighLow },
+    ],
+    [locale],
+  );
 
   // Add debounced search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -119,7 +146,7 @@ const FoodList: React.FC<FoodListProps> = ({
   const [sortMenuAnchor, setSortMenuAnchor] = useState<null | HTMLElement>(null);
   const activeSortLabel =
     foodSortOptions.find((option) => option.value === sortBy)?.label ??
-    "Safety: highest first";
+    locale.sort.safetyHighestFirst;
   const selectedIngredientOptions = useMemo(
     () =>
       ingredients.filter((ingredient) =>
@@ -132,7 +159,7 @@ const FoodList: React.FC<FoodListProps> = ({
       dietaryOptions.filter((option) =>
         selectedDietaryPreferences.includes(option.value)
       ),
-    [selectedDietaryPreferences]
+    [dietaryOptions, selectedDietaryPreferences]
   );
 
   const [foodResults, setFoodResults] = useState<Food[]>(foods);
@@ -178,7 +205,7 @@ const FoodList: React.FC<FoodListProps> = ({
 
   const handleDietaryPreferenceChange = (
     _event: React.SyntheticEvent,
-    value: typeof dietaryOptions
+    value: DietaryOption[]
   ) => {
     setSelectedDietaryPreferences(value.map((option) => option.value));
   };
@@ -255,7 +282,7 @@ const FoodList: React.FC<FoodListProps> = ({
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return;
         console.error("Error loading foods:", error);
-        setLoadError("Could not load foods. Check the backend connection and try again.");
+        setLoadError(`${locale.states.failedToLoad} ${locale.states.checkConnection}`);
       } finally {
         if (requestId === requestIdRef.current) {
           setInitialLoading(false);
@@ -269,6 +296,8 @@ const FoodList: React.FC<FoodListProps> = ({
       selectedDietaryPreferences,
       selectedIngredients,
       sortBy,
+      locale.states.checkConnection,
+      locale.states.failedToLoad,
     ],
   );
 
@@ -301,13 +330,15 @@ const FoodList: React.FC<FoodListProps> = ({
       { threshold: 0.1 }
     );
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
+    const loaderElement = loaderRef.current;
+
+    if (loaderElement) {
+      observer.observe(loaderElement);
     }
 
     return () => {
-      if (loaderRef.current) {
-        observer.unobserve(loaderRef.current);
+      if (loaderElement) {
+        observer.unobserve(loaderElement);
       }
     };
   }, [initialLoading, loadingMore, loadMoreFoods, nextPage]);
@@ -325,11 +356,11 @@ const FoodList: React.FC<FoodListProps> = ({
           color: "white",
         }}
       >
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-          Food Explorer
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+          {locale.foodExplorer.title}
         </Typography>
         <Typography variant="subtitle1">
-          Discover foods that match your dietary preferences
+          {locale.foodExplorer.subtitle}
         </Typography>
       </Box>
 
@@ -350,11 +381,11 @@ const FoodList: React.FC<FoodListProps> = ({
               sx={filterPanelSx}
             >
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-                Search
+                {locale.common.search}
               </Typography>
               <TextField
                 fullWidth
-                label="Search Foods"
+                label={locale.foodExplorer.searchLabel}
                 variant="outlined"
                 value={searchTerm}
                 onChange={handleSearchChange}
@@ -375,7 +406,7 @@ const FoodList: React.FC<FoodListProps> = ({
               sx={filterPanelSx}
             >
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-                Sort
+                {locale.common.sort}
               </Typography>
               <Button
                 fullWidth
@@ -420,7 +451,7 @@ const FoodList: React.FC<FoodListProps> = ({
               sx={filterPanelSx}
             >
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-                Ingredients
+                {locale.foodExplorer.ingredientsLabel}
               </Typography>
               <Autocomplete
                 multiple
@@ -443,10 +474,10 @@ const FoodList: React.FC<FoodListProps> = ({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Ingredients"
+                    label={locale.foodExplorer.ingredientsLabel}
                     placeholder={
                       selectedIngredients.length === 0
-                        ? "Type to search ingredients"
+                        ? locale.foodExplorer.ingredientsPlaceholder
                         : ""
                     }
                   />
@@ -454,7 +485,7 @@ const FoodList: React.FC<FoodListProps> = ({
               />
               {selectedIngredients.length === 0 && (
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-                  All ingredients are included until you select one.
+                  {locale.foodExplorer.allIngredientsIncluded}
                 </Typography>
               )}
             </Paper>
@@ -466,7 +497,7 @@ const FoodList: React.FC<FoodListProps> = ({
               sx={filterPanelSx}
             >
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-                Dietary Preferences
+                {locale.foodExplorer.dietaryPreferencesLabel}
               </Typography>
               <Autocomplete
                 multiple
@@ -485,10 +516,10 @@ const FoodList: React.FC<FoodListProps> = ({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Dietary Preferences"
+                    label={locale.foodExplorer.dietaryPreferencesLabel}
                     placeholder={
                       selectedDietaryPreferences.length === 0
-                        ? "Type to search preferences"
+                        ? locale.foodExplorer.dietaryPreferencesPlaceholder
                         : ""
                     }
                   />
@@ -496,7 +527,7 @@ const FoodList: React.FC<FoodListProps> = ({
               />
               {selectedDietaryPreferences.length === 0 && (
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-                  All dietary preferences are included until you select one.
+                  {locale.foodExplorer.allDietaryPreferencesIncluded}
                 </Typography>
               )}
             </Paper>
@@ -517,14 +548,14 @@ const FoodList: React.FC<FoodListProps> = ({
               >
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                    Max Hazard Level
+                    {locale.foodExplorer.maxHazardLabel}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Show foods at or below this point
+                    {locale.foodExplorer.maxHazardHelp}
                   </Typography>
                 </Box>
                 <Chip
-                  label={`${maxHazardLevel} · ${getHazardLabel(maxHazardLevel)}`}
+                  label={`${maxHazardLevel} · ${getLocalizedHazardLabel(locale, maxHazardLevel)}`}
                   sx={{
                     bgcolor: getHazardColor(maxHazardLevel),
                     color: maxHazardLevel === 2 ? "#333" : "#fff",
@@ -538,12 +569,10 @@ const FoodList: React.FC<FoodListProps> = ({
                 max={5}
                 step={1}
                 marks={[
-                  { value: 0, label: "0" },
-                  { value: 1, label: "1" },
-                  { value: 2, label: "2" },
-                  { value: 3, label: "3" },
-                  { value: 4, label: "4" },
-                  { value: 5, label: "5" },
+                  ...hazardLevelKeys.map((value) => ({
+                    value,
+                    label: String(value),
+                  })),
                 ]}
                 valueLabelDisplay="auto"
                 onChange={(_, value) =>
@@ -606,7 +635,7 @@ const FoodList: React.FC<FoodListProps> = ({
           <Box sx={{ mb: 3 }}>
             <LinearProgress />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Loading matching foods
+              {locale.foodExplorer.loadingMatching}
             </Typography>
           </Box>
         )}
@@ -618,8 +647,9 @@ const FoodList: React.FC<FoodListProps> = ({
         )}
 
         <Typography variant="h6" gutterBottom>
-          {totalCount} Results Found
-          {totalCount > foodResults.length && ` (Showing ${foodResults.length})`}
+          {totalCount} {locale.common.resultsFound}
+          {totalCount > foodResults.length &&
+            ` (${locale.common.showing} ${foodResults.length})`}
         </Typography>
 
         <Grid container spacing={3}>
@@ -664,14 +694,13 @@ const FoodList: React.FC<FoodListProps> = ({
                   </Box>
 
                   <Typography variant="body2" color="text.secondary">
-                    {food.ingredients.length} linked ingredient
-                    {food.ingredients.length === 1 ? "" : "s"}
+                    {food.ingredients.length} {locale.foodExplorer.linkedIngredients}
                   </Typography>
 
                   <Box sx={{ mt: 2 }}>
                     {food.is_organic && (
                       <Chip
-                        label="Organic"
+                        label={dietaryLabelByValue.get("organic") ?? locale.dietary.organic}
                         size="small"
                         color="success"
                         sx={{
@@ -685,7 +714,7 @@ const FoodList: React.FC<FoodListProps> = ({
                     )}
                     {food.is_gluten_free && (
                       <Chip
-                        label="Gluten Free"
+                        label={dietaryLabelByValue.get("gluten_free") ?? locale.dietary.glutenFree}
                         size="small"
                         color="primary"
                         sx={{
@@ -699,7 +728,7 @@ const FoodList: React.FC<FoodListProps> = ({
                     )}
                     {food.is_lactose_free && (
                       <Chip
-                        label="Lactose Free"
+                        label={dietaryLabelByValue.get("lactose_free") ?? locale.dietary.lactoseFree}
                         size="small"
                         color="primary"
                         sx={{
@@ -713,7 +742,7 @@ const FoodList: React.FC<FoodListProps> = ({
                     )}
                     {food.is_alcohol_free && (
                       <Chip
-                        label="Alcohol Free"
+                        label={dietaryLabelByValue.get("alcohol_free") ?? locale.dietary.alcoholFree}
                         size="small"
                         color="primary"
                         sx={{
@@ -736,7 +765,7 @@ const FoodList: React.FC<FoodListProps> = ({
                       handleFoodClick(food.id);
                     }}
                   >
-                    View Details
+                    {locale.common.viewDetails}
                   </Button>
                 </CardActions>
               </Card>
@@ -754,10 +783,10 @@ const FoodList: React.FC<FoodListProps> = ({
               }}
             >
               <Typography variant="h6" color="text.secondary">
-                No foods match your search criteria
+                {locale.foodExplorer.noMatchesTitle}
               </Typography>
               <Typography variant="body2" color="text.secondary" mt={1}>
-                Try adjusting your filters or search term
+                {locale.foodExplorer.noMatchesHelp}
               </Typography>
             </Box>
           )}

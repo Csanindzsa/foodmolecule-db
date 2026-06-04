@@ -34,7 +34,9 @@ import SortIcon from "@mui/icons-material/Sort";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Food, Ingredient } from "../interfaces";
 import HazardLevelIndicator from "../components/HazardLevelIndicator";
-import { getHazardColor, getHazardLabel } from "../utils/hazardUtils";
+import { getHazardColor } from "../utils/hazardUtils";
+import { useLocale } from "../localization/useLocale";
+import { LocaleMessages } from "../localization/types";
 
 interface IngredientListProps {
   ingredients: Ingredient[];
@@ -44,17 +46,21 @@ interface IngredientListProps {
 const hazardSliderGradient =
   "linear-gradient(90deg, #4CAF50 0%, #8BC34A 25%, #FFEB3B 50%, #F44336 75%, #9C27B0 100%)";
 
-const ingredientSortOptions = [
-  { value: "name_asc", label: "Name: A-Z" },
-  { value: "name_desc", label: "Name: Z-A" },
-  { value: "links_desc", label: "Most linked foods" },
-  { value: "links_asc", label: "Fewest linked foods" },
-  { value: "safety_desc", label: "Safety: safest first" },
-  { value: "safety_asc", label: "Safety: riskiest first" },
-];
+type SortOption = {
+  value: string;
+  label: string;
+};
+
+const hazardLevelKeys = [0, 1, 2, 3, 4, 5] as const;
+
+const getLocalizedHazardLabel = (
+  locale: LocaleMessages,
+  level: number,
+) => locale.hazard.levels[Math.max(0, Math.min(5, Math.round(level))) as 0 | 1 | 2 | 3 | 4 | 5];
 
 const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) => {
   const navigate = useNavigate();
+  const { locale } = useLocale();
   const loaderRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const deferredSearchTerm = useDeferredValue(searchTerm);
@@ -63,9 +69,20 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
   const [sortMenuAnchor, setSortMenuAnchor] = useState<null | HTMLElement>(null);
   const [visibleCount, setVisibleCount] = useState(48);
   const [isPending, startTransition] = useTransition();
+  const ingredientSortOptions = useMemo<SortOption[]>(
+    () => [
+      { value: "name_asc", label: locale.sort.nameAZ },
+      { value: "name_desc", label: locale.sort.nameZA },
+      { value: "links_desc", label: locale.sort.mostLinkedFoods },
+      { value: "links_asc", label: locale.sort.fewestLinkedFoods },
+      { value: "safety_desc", label: locale.sort.safestFirst },
+      { value: "safety_asc", label: locale.sort.riskiestFirst },
+    ],
+    [locale],
+  );
   const activeSortLabel =
     ingredientSortOptions.find((option) => option.value === sortBy)?.label ??
-    "Name: A-Z";
+    locale.sort.nameAZ;
 
   const foodCountByIngredient = useMemo(() => {
     const counts = new Map<string, number>();
@@ -144,13 +161,15 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
       { threshold: 0.1 },
     );
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
+    const loaderElement = loaderRef.current;
+
+    if (loaderElement) {
+      observer.observe(loaderElement);
     }
 
     return () => {
-      if (loaderRef.current) {
-        observer.unobserve(loaderRef.current);
+      if (loaderElement) {
+        observer.unobserve(loaderElement);
       }
     };
   }, [filteredIngredients.length, loadMoreIngredients, visibleCount]);
@@ -167,10 +186,10 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
         }}
       >
         <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-          Ingredient Explorer
+          {locale.ingredientExplorer.title}
         </Typography>
         <Typography variant="subtitle1">
-          Browse ingredients and molecules connected to foods
+          {locale.ingredientExplorer.subtitle}
         </Typography>
       </Box>
 
@@ -194,11 +213,11 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
               }}
             >
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-                Search
+                {locale.common.search}
               </Typography>
               <TextField
                 fullWidth
-                label="Search Ingredients"
+                label={locale.ingredientExplorer.searchLabel}
                 variant="outlined"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
@@ -225,7 +244,7 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
               }}
             >
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-                Sort
+                {locale.common.sort}
               </Typography>
               <Button
                 fullWidth
@@ -282,14 +301,14 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
               >
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                    Max Hazard Level
+                    {locale.ingredientExplorer.maxHazardLabel}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Show ingredients at or below this point
+                    {locale.ingredientExplorer.maxHazardHelp}
                   </Typography>
                 </Box>
                 <Chip
-                  label={`${maxHazardLevel} · ${getHazardLabel(maxHazardLevel)}`}
+                  label={`${maxHazardLevel} · ${getLocalizedHazardLabel(locale, maxHazardLevel)}`}
                   sx={{
                     bgcolor: getHazardColor(maxHazardLevel),
                     color: maxHazardLevel === 2 ? "#333" : "#fff",
@@ -303,12 +322,10 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
                 max={5}
                 step={1}
                 marks={[
-                  { value: 0, label: "0" },
-                  { value: 1, label: "1" },
-                  { value: 2, label: "2" },
-                  { value: 3, label: "3" },
-                  { value: 4, label: "4" },
-                  { value: 5, label: "5" },
+                  ...hazardLevelKeys.map((value) => ({
+                    value,
+                    label: String(value),
+                  })),
                 ]}
                 valueLabelDisplay="auto"
                 onChange={(_, value) =>
@@ -359,9 +376,9 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
         </Grid>
 
         <Typography variant="h6" gutterBottom>
-          {filteredIngredients.length} Results Found
+          {filteredIngredients.length} {locale.common.resultsFound}
           {filteredIngredients.length > visibleIngredients.length &&
-            ` (Showing ${visibleIngredients.length})`}
+            ` (${locale.common.showing} ${visibleIngredients.length})`}
         </Typography>
         {isPending && <LinearProgress sx={{ mb: 2 }} />}
 
@@ -400,23 +417,21 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
 
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
                       {ingredient.description ||
-                        "Ingredient profile ready for source-backed details."}
+                        locale.detail.profileReady}
                     </Typography>
 
                     <Box sx={{ mt: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
                       <Chip
                         size="small"
-                        label={`${linkedCount} linked food${
-                          linkedCount === 1 ? "" : "s"
-                        }`}
+                        label={`${linkedCount} ${locale.ingredientExplorer.linkedFoods}`}
                       />
-                      <Chip size="small" label="PubMed evidence placeholder" />
+                      <Chip size="small" label={locale.detail.pubMedEvidencePlaceholder} />
                     </Box>
                   </CardContent>
 
                   <CardActions>
                     <Button size="small" startIcon={<VisibilityIcon />}>
-                      View Details
+                      {locale.common.viewDetails}
                     </Button>
                   </CardActions>
                 </Card>
@@ -424,6 +439,17 @@ const IngredientList: React.FC<IngredientListProps> = ({ ingredients, foods }) =
             );
           })}
         </Grid>
+
+        {!isPending && visibleIngredients.length === 0 && (
+          <Box sx={{ textAlign: "center", py: 8, px: 2 }}>
+            <Typography variant="h6" color="text.secondary">
+              {locale.ingredientExplorer.noMatchesTitle}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" mt={1}>
+              {locale.ingredientExplorer.noMatchesHelp}
+            </Typography>
+          </Box>
+        )}
 
         {visibleCount < filteredIngredients.length && (
           <Box

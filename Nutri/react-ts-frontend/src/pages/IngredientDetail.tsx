@@ -20,15 +20,23 @@ import LocalDiningIcon from "@mui/icons-material/LocalDining";
 import ScienceIcon from "@mui/icons-material/Science";
 import { Food, Ingredient } from "../interfaces";
 import HazardLevelIndicator from "../components/HazardLevelIndicator";
-import { getHazardColor, getHazardLabel } from "../utils/hazardUtils";
+import { getHazardColor } from "../utils/hazardUtils";
+import { useLocale } from "../localization/useLocale";
+import { LocaleMessages } from "../localization/types";
 
 interface IngredientDetailProps {
   ingredient: Ingredient;
   foods: Food[];
 }
 
+const getLocalizedHazardLabel = (
+  locale: LocaleMessages,
+  level: number,
+) => locale.hazard.levels[Math.max(0, Math.min(5, Math.round(level))) as 0 | 1 | 2 | 3 | 4 | 5];
+
 const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }) => {
   const navigate = useNavigate();
+  const { locale } = useLocale();
   const linkedFoods = foods.filter((food) => food.ingredients.includes(ingredient.id));
   const baseHazardLevel = ingredient.hazard_level || 0;
   const reasoning = ingredient.classification_reasoning ?? {};
@@ -81,7 +89,7 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
           <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
             <BiotechIcon sx={{ mr: 1 }} />
             <Typography variant="subtitle1">
-              Ingredient and molecule profile
+              {locale.detail.profileReady}
             </Typography>
           </Box>
         </Box>
@@ -101,15 +109,14 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
               <CardContent>
                 <ScienceIcon sx={{ fontSize: 84, color: "#FF8C00", mb: 2 }} />
                 <Typography variant="h6" gutterBottom>
-                  Safety Snapshot
+                  {locale.detail.safetySnapshot}
                 </Typography>
                 <HazardLevelIndicator
                   hazardLevel={baseHazardLevel}
                   size="large"
                 />
                 <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
-                  {getHazardLabel(baseHazardLevel)}: This placeholder
-                  will become the molecule or ingredient safety summary.
+                  {getLocalizedHazardLabel(locale, baseHazardLevel)}: {locale.detail.profileReady}
                 </Typography>
               </CardContent>
             </Card>
@@ -121,13 +128,13 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
               {ingredient.description ||
-                "This page will explain where the ingredient appears, which molecules matter, and what medical literature supports the current assessment."}
+                locale.detail.profileReady}
             </Typography>
 
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 3 }}>
               <Chip label="Food links" />
               <Chip label="Molecule profile" />
-              <Chip label="PubMed papers" />
+              <Chip label={locale.detail.pubMedEvidencePlaceholder} />
               <Chip label="Health impact notes" />
             </Box>
 
@@ -164,7 +171,7 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
                         </Box>
                       ) : (
                         <Typography variant="body2" color="text.secondary">
-                          No positive factors recorded.
+                          {locale.common.noResultsTitle}
                         </Typography>
                       )}
                     </Grid>
@@ -182,7 +189,7 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
                         </Box>
                       ) : (
                         <Typography variant="body2" color="text.secondary">
-                          No negative factors recorded.
+                          {locale.common.noResultsTitle}
                         </Typography>
                       )}
                     </Grid>
@@ -239,8 +246,9 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
                       {profile.method}
                     </Typography>
                     <Chip
-                      label={`${profile.hazardLevel} · ${getHazardLabel(
-                        profile.hazardLevel
+                      label={`${profile.hazardLevel} · ${getLocalizedHazardLabel(
+                        locale,
+                        profile.hazardLevel,
                       )}`}
                       size="small"
                       sx={{
@@ -258,7 +266,7 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
             </Box>
 
             <Typography variant="h6" gutterBottom>
-              Foods containing this ingredient
+              {locale.ingredientExplorer.linkedFoods}
             </Typography>
             {linkedFoods.length > 0 ? (
               <List dense>
@@ -267,7 +275,7 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
                     key={food.id}
                     secondaryAction={
                       <Button size="small" onClick={() => navigate(`/food/${food.id}`)}>
-                        View Food
+                        {locale.common.viewDetails}
                       </Button>
                     }
                     sx={{
@@ -287,7 +295,7 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
               </List>
             ) : (
               <Typography color="text.secondary">
-                No linked foods yet.
+                {locale.ingredientExplorer.noLinkedFoods}
               </Typography>
             )}
           </Grid>
@@ -295,7 +303,7 @@ const IngredientDetail: React.FC<IngredientDetailProps> = ({ ingredient, foods }
           <Grid item xs={12}>
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6" gutterBottom>
-              PubMed / Medical Papers
+              {locale.detail.pubMedEvidencePlaceholder}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               This section will list the studies connected to this ingredient or
