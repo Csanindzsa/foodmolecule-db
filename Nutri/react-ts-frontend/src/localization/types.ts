@@ -220,6 +220,64 @@ export type LocaleMessages = {
     returnHome: string;
     createNewAccount: string;
   };
+  download: {
+    comingSoon: string;
+    title: string;
+    subtitle: string;
+    iosPlanned: string;
+    androidPlanned: string;
+    ocrScanning: string;
+    scanLabel: string;
+    scanLabelDescription: string;
+    featureOcrTitle: string;
+    featureOcrText: string;
+    featureLookupTitle: string;
+    featureLookupText: string;
+    featureBetaTitle: string;
+    featureBetaText: string;
+    supporterTitle: string;
+    supporterText: string;
+    earlyBuilds: string;
+    betaUpdates: string;
+    supporterAccess: string;
+    releasePathTitle: string;
+    releaseStepDatabase: string;
+    releaseStepOcr: string;
+    releaseStepBeta: string;
+    releaseStepPublic: string;
+    appStoreComingLater: string;
+    googlePlayComingLater: string;
+  };
+  supportPage: {
+    title: string;
+    subtitle: string;
+    intro: string;
+    category: string;
+    subject: string;
+    message: string;
+    email: string;
+    messagePlaceholder: string;
+    emailPlaceholder: string;
+    emailHelper: string;
+    sendMessage: string;
+    sending: string;
+    sendAnother: string;
+    successTitle: string;
+    successMessage: string;
+    successToast: string;
+    requiredFields: string;
+    invalidEmail: string;
+    sendFailed: string;
+    categories: {
+      generalQuestion: string;
+      accountIssues: string;
+      foodDataQuestions: string;
+      restaurantInformation: string;
+      reportBug: string;
+      featureRequest: string;
+      other: string;
+    };
+  };
   states: {
     saving: string;
     saved: string;
@@ -231,7 +289,7 @@ export type LocaleMessages = {
 };
 
 export type LocaleOverride = Partial<
-  Omit<LocaleMessages, "common" | "nav" | "foodExplorer" | "ingredientExplorer" | "sort" | "hazard" | "dietary" | "detail" | "foodDetail" | "auth" | "authPages" | "errors" | "states">
+  Omit<LocaleMessages, "common" | "nav" | "foodExplorer" | "ingredientExplorer" | "sort" | "hazard" | "dietary" | "detail" | "foodDetail" | "auth" | "authPages" | "errors" | "download" | "supportPage" | "states">
 > & {
   common?: Partial<LocaleMessages["common"]>;
   nav?: Partial<LocaleMessages["nav"]>;
@@ -247,5 +305,9 @@ export type LocaleOverride = Partial<
   auth?: Partial<LocaleMessages["auth"]>;
   authPages?: Partial<LocaleMessages["authPages"]>;
   errors?: Partial<LocaleMessages["errors"]>;
+  download?: Partial<LocaleMessages["download"]>;
+  supportPage?: Partial<Omit<LocaleMessages["supportPage"], "categories">> & {
+    categories?: Partial<LocaleMessages["supportPage"]["categories"]>;
+  };
   states?: Partial<LocaleMessages["states"]>;
 };

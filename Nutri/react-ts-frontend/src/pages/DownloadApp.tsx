@@ -19,33 +19,34 @@ import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import ScienceIcon from "@mui/icons-material/Science";
 import KoFiButton from "../components/KoFiButton";
 import { KOFI_SUPPORT_URL } from "../config/environment";
-
-const plannedFeatures = [
-  {
-    title: "OCR label scanning",
-    text: "Scan ingredient labels with your phone camera and match them against Nutrii's ingredient and molecule database.",
-    icon: <DocumentScannerIcon />,
-  },
-  {
-    title: "Food and molecule lookup",
-    text: "Open food, ingredient, molecule, preparation method, and safety pages without needing to sit at a desktop.",
-    icon: <ScienceIcon />,
-  },
-  {
-    title: "Supporter beta access",
-    text: "Ko-fi supporters will get earlier release builds and beta testing access before the wider public rollout.",
-    icon: <CoffeeIcon />,
-  },
-];
-
-const releaseSteps = [
-  "Web database and ingredient pages first",
-  "OCR scanning prototype",
-  "Ko-fi supporter beta",
-  "Public iOS and Android release",
-];
+import { useLocale } from "../localization/useLocale";
 
 const DownloadApp: React.FC = () => {
+  const { locale } = useLocale();
+  const plannedFeatures = [
+    {
+      title: locale.download.featureOcrTitle,
+      text: locale.download.featureOcrText,
+      icon: <DocumentScannerIcon />,
+    },
+    {
+      title: locale.download.featureLookupTitle,
+      text: locale.download.featureLookupText,
+      icon: <ScienceIcon />,
+    },
+    {
+      title: locale.download.featureBetaTitle,
+      text: locale.download.featureBetaText,
+      icon: <CoffeeIcon />,
+    },
+  ];
+  const releaseSteps = [
+    locale.download.releaseStepDatabase,
+    locale.download.releaseStepOcr,
+    locale.download.releaseStepBeta,
+    locale.download.releaseStepPublic,
+  ];
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
       <Box
@@ -63,7 +64,7 @@ const DownloadApp: React.FC = () => {
       >
         <Box>
           <Chip
-            label="Mobile app coming soon"
+            label={locale.download.comingSoon}
             sx={{
               mb: 2,
               bgcolor: "rgba(255,255,255,0.18)",
@@ -72,16 +73,15 @@ const DownloadApp: React.FC = () => {
             }}
           />
           <Typography variant="h3" component="h1" sx={{ fontWeight: 800, mb: 2 }}>
-            Nutrii in your pocket
+            {locale.download.title}
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 400, opacity: 0.95, mb: 3 }}>
-            The mobile app will bring Nutrii's food and ingredient research to
-            real-world shopping, cooking, and label reading.
+            {locale.download.subtitle}
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-            <Chip icon={<AppleIcon />} label="iOS planned" sx={{ bgcolor: "white" }} />
-            <Chip icon={<AndroidIcon />} label="Android planned" sx={{ bgcolor: "white" }} />
-            <Chip icon={<DocumentScannerIcon />} label="OCR scanning" sx={{ bgcolor: "white" }} />
+            <Chip icon={<AppleIcon />} label={locale.download.iosPlanned} sx={{ bgcolor: "white" }} />
+            <Chip icon={<AndroidIcon />} label={locale.download.androidPlanned} sx={{ bgcolor: "white" }} />
+            <Chip icon={<DocumentScannerIcon />} label={locale.download.ocrScanning} sx={{ bgcolor: "white" }} />
           </Box>
         </Box>
 
@@ -117,10 +117,10 @@ const DownloadApp: React.FC = () => {
           >
             <PhoneIphoneIcon sx={{ fontSize: 58, color: "#FF8C00" }} />
             <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-              Scan a label
+              {locale.download.scanLabel}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Identify ingredients, molecules, and preparation notes.
+              {locale.download.scanLabelDescription}
             </Typography>
           </Box>
         </Box>
@@ -163,18 +163,15 @@ const DownloadApp: React.FC = () => {
         <Grid container spacing={4} alignItems="center">
           <Grid item xs={12} md={7}>
             <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
-              Ko-fi supporters get earlier access
+              {locale.download.supporterTitle}
             </Typography>
             <Typography color="text.secondary" sx={{ mb: 2 }}>
-              Nutrii will stay free on the web. Ko-fi support helps fund
-              hosting, database work, AI-assisted paper summaries, and mobile
-              development. Supporters will be first in line for beta builds,
-              testing feedback, and early OCR scanning releases.
+              {locale.download.supporterText}
             </Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              <Chip icon={<RocketLaunchIcon />} label="Early builds" />
-              <Chip icon={<NotificationsActiveIcon />} label="Beta updates" />
-              <Chip icon={<CoffeeIcon />} label="Supporter access" />
+              <Chip icon={<RocketLaunchIcon />} label={locale.download.earlyBuilds} />
+              <Chip icon={<NotificationsActiveIcon />} label={locale.download.betaUpdates} />
+              <Chip icon={<CoffeeIcon />} label={locale.download.supporterAccess} />
             </Box>
           </Grid>
           <Grid item xs={12} md={5}>
@@ -196,7 +193,7 @@ const DownloadApp: React.FC = () => {
         <Divider sx={{ my: 4 }} />
 
         <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
-          Planned release path
+          {locale.download.releasePathTitle}
         </Typography>
         <Grid container spacing={2}>
           {releaseSteps.map((step, index) => (
@@ -223,10 +220,10 @@ const DownloadApp: React.FC = () => {
 
         <Box sx={{ mt: 4, display: "flex", flexWrap: "wrap", gap: 1.5 }}>
           <Button variant="contained" disabled sx={{ bgcolor: "#bbb" }}>
-            App Store coming later
+            {locale.download.appStoreComingLater}
           </Button>
           <Button variant="contained" disabled sx={{ bgcolor: "#bbb" }}>
-            Google Play coming later
+            {locale.download.googlePlayComingLater}
           </Button>
         </Box>
       </Paper>

@@ -20,11 +20,9 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import EmailIcon from "@mui/icons-material/Email";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { sendEmail, EmailData } from "../utils/emailService";
 import { API_BASE_URL } from "../config/environment";
+import { useLocale } from "../localization/useLocale";
 
 interface SupportProps {
   accessToken: string | null;
@@ -37,6 +35,7 @@ interface SupportProps {
 
 const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
   const navigate = useNavigate();
+  const { locale } = useLocale();
   // Form state
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -49,13 +48,13 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
 
   // Support categories
   const supportCategories = [
-    { value: "general_question", label: "General Question" },
-    { value: "account_issues", label: "Account Issues" },
-    { value: "food_data_questions", label: "Food Data Questions" },
-    { value: "restaurant_information", label: "Restaurant Information" },
-    { value: "report_a_bug", label: "Report a Bug" },
-    { value: "feature_request", label: "Feature Request" },
-    { value: "other", label: "Other" },
+    { value: "general_question", label: locale.supportPage.categories.generalQuestion },
+    { value: "account_issues", label: locale.supportPage.categories.accountIssues },
+    { value: "food_data_questions", label: locale.supportPage.categories.foodDataQuestions },
+    { value: "restaurant_information", label: locale.supportPage.categories.restaurantInformation },
+    { value: "report_a_bug", label: locale.supportPage.categories.reportBug },
+    { value: "feature_request", label: locale.supportPage.categories.featureRequest },
+    { value: "other", label: locale.supportPage.categories.other },
   ];
 
   // Fixed handler for Select component - using the correct type
@@ -68,13 +67,13 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
 
     // Basic validation
     if (!subject.trim() || !message.trim() || !userEmail.trim()) {
-      setError("Please fill in all required fields.");
+      setError(locale.supportPage.requiredFields);
       return;
     }
 
     // Email validation
     if (!validateEmail(userEmail)) {
-      setError("Please enter a valid email address.");
+      setError(locale.supportPage.invalidEmail);
       return;
     }
 
@@ -111,7 +110,7 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
     } catch (err) {
       console.error("Error submitting ticket:", err);
       setError(
-        "Failed to send your message. Please try again or contact us directly."
+        locale.supportPage.sendFailed
       );
     }
     
@@ -153,10 +152,10 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
         <HelpOutlineIcon sx={{ fontSize: 36, mr: 2 }} />
         <Box>
           <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-            Support Center
+            {locale.supportPage.title}
           </Typography>
           <Typography variant="subtitle1">
-            How can we help you today?
+            {locale.supportPage.subtitle}
           </Typography>
         </Box>
       </Box>
@@ -182,11 +181,10 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
               <CheckCircleOutlineIcon sx={{ fontSize: 50, color: "white" }} />
             </Avatar>
             <Typography variant="h5" gutterBottom>
-              Message Sent Successfully!
+              {locale.supportPage.successTitle}
             </Typography>
             <Typography variant="body1" paragraph>
-              Thank you for contacting us. We've received your message and will
-              get back to you at {userEmail} as soon as possible.
+              {locale.supportPage.successMessage} {userEmail}
             </Typography>
             <Grid container spacing={3} justifyContent="center">
               <Grid item xs={12} sm={6} md={4}>
@@ -201,7 +199,7 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
                     "&:hover": { bgcolor: "#e67e00" },
                   }}
                 >
-                  Send Another Message
+                  {locale.supportPage.sendAnother}
                 </Button>
               </Grid>
             </Grid>
@@ -215,20 +213,19 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
             )}
 
             <Typography paragraph>
-              Have a question, suggestion, or need assistance? Fill out the form
-              below and we'll get back to you as soon as possible.
+              {locale.supportPage.intro}
             </Typography>
 
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
                   <FormControl fullWidth>
-                    <InputLabel id="category-label">Category</InputLabel>
+                    <InputLabel id="category-label">{locale.supportPage.category}</InputLabel>
                     <Select
                       labelId="category-label"
                       id="category"
                       value={category}
-                      label="Category"
+                      label={locale.supportPage.category}
                       onChange={handleCategoryChange}
                     >
                       {supportCategories.map((cat) => (
@@ -243,7 +240,7 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Subject"
+                    label={locale.supportPage.subject}
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     required
@@ -254,14 +251,14 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Message"
+                    label={locale.supportPage.message}
                     multiline
                     rows={6}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     required
                     variant="outlined"
-                    placeholder="Please describe your issue or question in detail..."
+                    placeholder={locale.supportPage.messagePlaceholder}
                   />
                 </Grid>
 
@@ -269,14 +266,14 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Your Email"
+                    label={locale.supportPage.email}
                     type="email"
                     value={userEmail}
                     onChange={(e) => setUserEmail(e.target.value)}
                     variant="outlined"
-                    placeholder="Enter your email address for a reply"
+                    placeholder={locale.supportPage.emailPlaceholder}
                     required
-                    helperText="We'll use this email to respond to your inquiry"
+                    helperText={locale.supportPage.emailHelper}
                   />
                 </Grid>
 
@@ -301,7 +298,7 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
                       width: { xs: "100%", sm: "auto" },
                     }}
                   >
-                    {loading ? "Sending..." : "Send Message"}
+                    {loading ? locale.supportPage.sending : locale.supportPage.sendMessage}
                   </Button>
                 </Grid>
               </Grid>
@@ -320,7 +317,7 @@ const Support: React.FC<SupportProps> = ({ accessToken, userData }) => {
         <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <CheckCircleOutlineIcon sx={{ mr: 1 }} />
-            <Typography>Message sent successfully!</Typography>
+            <Typography>{locale.supportPage.successToast}</Typography>
           </Box>
         </Alert>
       </Snackbar>

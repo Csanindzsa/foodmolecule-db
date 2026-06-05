@@ -31,5 +31,14 @@ export const createLocale = (override: LocaleOverride): LocaleMessages => ({
   auth: mergeSection(en.auth, override.auth),
   authPages: mergeSection(en.authPages, override.authPages),
   errors: mergeSection(en.errors, override.errors),
+  download: mergeSection(en.download, override.download),
+  supportPage: {
+    ...en.supportPage,
+    ...(override.supportPage ?? {}),
+    categories: {
+      ...en.supportPage.categories,
+      ...(override.supportPage?.categories ?? {}),
+    },
+  },
   states: mergeSection(en.states, override.states),
 });
