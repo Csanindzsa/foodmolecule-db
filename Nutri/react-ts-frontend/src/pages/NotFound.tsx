@@ -7,14 +7,15 @@ import {
   Button,
   Paper,
   Stack,
-  SvgIcon,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { useLocale } from "../localization/useLocale";
 
 const NotFound: React.FC = () => {
   const location = useLocation();
+  const { locale } = useLocale();
 
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
@@ -31,10 +32,10 @@ const NotFound: React.FC = () => {
         }}
       >
         <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-          404 - Page Not Found
+          {locale.errors.notFoundTitle}
         </Typography>
         <Typography variant="subtitle1">
-          The page you're looking for doesn't exist
+          {locale.errors.notFoundSubtitle}
         </Typography>
       </Box>
 
@@ -97,7 +98,7 @@ const NotFound: React.FC = () => {
           </Box>
 
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
-            Oops! This page is on a diet
+            {locale.errors.notFoundHeading}
           </Typography>
 
           <Typography
@@ -105,11 +106,10 @@ const NotFound: React.FC = () => {
             color="text.secondary"
             sx={{ maxWidth: 450, mb: 3, mt: 1 }}
           >
-            We couldn't find the page you're looking for. The URL{" "}
+            {locale.errors.notFoundBody}{" "}
             <Typography component="span" sx={{ fontWeight: "bold" }}>
               {location.pathname}
             </Typography>{" "}
-            doesn't exist on our server.
           </Typography>
 
           <Stack
@@ -130,7 +130,7 @@ const NotFound: React.FC = () => {
                 "&:hover": { bgcolor: "#e67e00" },
               }}
             >
-              Go to Home Page
+              {locale.errors.goHomePage}
             </Button>
             <Button
               component={Link}
@@ -140,7 +140,7 @@ const NotFound: React.FC = () => {
               startIcon={<SearchIcon />}
               sx={{ px: 4, py: 1.2 }}
             >
-              Browse Foods
+              {locale.errors.browseFoods}
             </Button>
           </Stack>
 
@@ -149,7 +149,7 @@ const NotFound: React.FC = () => {
             color="text.secondary"
             sx={{ mt: 8, fontStyle: "italic" }}
           >
-            If you believe this is an error, please contact our support team
+            {locale.errors.contactSupport}
           </Typography>
         </Box>
       </Paper>

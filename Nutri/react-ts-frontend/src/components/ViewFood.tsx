@@ -31,13 +31,22 @@ import DeleteIcon from "@mui/icons-material/Delete"; // Add this import
 import { styled } from "@mui/material/styles";
 import { API_ENDPOINTS } from "../config/environment"; // Add this import
 import HazardLevelIndicator from "./HazardLevelIndicator";
-import { getHazardLabel, getHazardColor } from "../utils/hazardUtils"; // Update import to include getHazardColor
+import { getHazardColor } from "../utils/hazardUtils"; // Update import to include getHazardColor
+import { useLocale } from "../localization/useLocale";
+import { LocaleMessages } from "../localization/types";
 
 interface ViewFoodProps {
   food: Food;
   ingredients: Ingredient[];
   accessToken?: string | null; // Add this prop
 }
+
+const hazardLevelKeys = [0, 1, 2, 3, 4, 5] as const;
+
+const getLocalizedHazardLabel = (
+  locale: LocaleMessages,
+  level: number,
+) => locale.hazard.levels[Math.max(0, Math.min(5, Math.round(level))) as 0 | 1 | 2 | 3 | 4 | 5];
 
 // Styled components for nutrition facts table
 const NutritionFactsContainer = styled(Box)(({ theme }) => ({
@@ -90,6 +99,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
   accessToken,
 }) => {
   const navigate = useNavigate();
+  const { locale } = useLocale();
   // Add state for deletion dialog and feedback
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteReason, setDeleteReason] = useState("");
@@ -118,7 +128,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
     if (!accessToken) {
       // Add specific error message for missing token
       setNotification({
-        message: "You need to be logged in to request deletion",
+        message: locale.foodDetail.loginRequiredForDeletion,
         severity: "error",
       });
       handleCloseDeleteDialog();
@@ -144,23 +154,21 @@ const ViewFood: React.FC<ViewFoodProps> = ({
 
       if (response.ok) {
         setNotification({
-          message:
-            "Deletion request submitted successfully. It will be reviewed by supervisors.",
+          message: locale.foodDetail.deletionRequestSubmitted,
           severity: "success",
         });
         handleCloseDeleteDialog();
       } else if (response.status === 401) {
         // Handle unauthorized specifically
         setNotification({
-          message:
-            "Authentication error: Your session may have expired. Please log in again.",
+          message: locale.foodDetail.authExpired,
           severity: "error",
         });
         handleCloseDeleteDialog();
       } else {
         const errorData = await response.json();
         throw new Error(
-          errorData.detail || "Failed to submit deletion request"
+          errorData.detail || locale.foodDetail.deletionRequestFailed
         );
       }
     } catch (error) {
@@ -169,7 +177,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
         message:
           error instanceof Error
             ? error.message
-            : "Failed to submit deletion request",
+            : locale.foodDetail.deletionRequestFailed,
         severity: "error",
       });
     } finally {
@@ -189,7 +197,9 @@ const ViewFood: React.FC<ViewFoodProps> = ({
       const ingredient = ingredients.find((ing) => ing.id === id);
       return {
         id,
-        name: ingredient ? ingredient.name : `Unknown Ingredient (ID: ${id})`,
+        name: ingredient
+          ? ingredient.name
+          : `${locale.foodExplorer.ingredientsLabel} (ID: ${id})`,
         hazardLevel: ingredient ? ingredient.hazard_level : 0,
       };
     });
@@ -242,7 +252,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
     servingSize?: number
   ) => {
     if (!macros)
-      return <Typography>No nutritional information available</Typography>;
+      return <Typography>{locale.foodDetail.noNutritionInfo}</Typography>;
 
     // Calculate calories from fat
     const caloriesFromFat = macros.fat ? macros.fat * 9 : 0;
@@ -252,28 +262,28 @@ const ViewFood: React.FC<ViewFoodProps> = ({
 
     return (
       <NutritionFactsContainer>
-        <NutritionFactsHeader>Nutrition Facts</NutritionFactsHeader>
+        <NutritionFactsHeader>{locale.foodDetail.nutritionFacts}</NutritionFactsHeader>
 
         <NutritionRow>
-          <Typography>Serving Size</Typography>
+          <Typography>{locale.foodDetail.servingSize}</Typography>
           <Typography>{servingSizeValue}g</Typography>
         </NutritionRow>
 
         <ThickDivider />
 
         <NutritionRow bold>
-          <Typography>Amount Per Serving</Typography>
+          <Typography>{locale.foodDetail.amountPerServing}</Typography>
         </NutritionRow>
 
         <NutritionRow bold>
-          <Typography variant="h6">Calories</Typography>
+          <Typography variant="h6">{locale.foodDetail.calories}</Typography>
           <Typography variant="h6">
             {formatNutritionValue(macros.energy_kcal)}
           </Typography>
         </NutritionRow>
 
         <NutritionRow>
-          <Typography>Calories from Fat</Typography>
+          <Typography>{locale.foodDetail.caloriesFromFat}</Typography>
           <Typography>{Math.round(caloriesFromFat)}</Typography>
         </NutritionRow>
 
@@ -281,52 +291,51 @@ const ViewFood: React.FC<ViewFoodProps> = ({
 
         <NutritionRow noBorder>
           <Typography align="right" variant="caption">
-            % Daily Value*
+            {locale.foodDetail.dailyValue}
           </Typography>
         </NutritionRow>
 
         <NutritionRow bold>
-          <Typography>Total Fat</Typography>
+          <Typography>{locale.foodDetail.totalFat}</Typography>
           <Typography>{formatNutritionValue(macros.fat)}g</Typography>
         </NutritionRow>
 
         <NutritionRow indent>
-          <Typography>Saturated Fat</Typography>
+          <Typography>{locale.foodDetail.saturatedFat}</Typography>
           <Typography>{formatNutritionValue(macros.saturated_fat)}g</Typography>
         </NutritionRow>
 
         <NutritionRow bold>
-          <Typography>Total Carbohydrates</Typography>
+          <Typography>{locale.foodDetail.totalCarbohydrates}</Typography>
           <Typography>{formatNutritionValue(macros.carbohydrates)}g</Typography>
         </NutritionRow>
 
         <NutritionRow indent>
-          <Typography>Dietary Fiber</Typography>
+          <Typography>{locale.foodDetail.dietaryFiber}</Typography>
           <Typography>{formatNutritionValue(macros.fiber)}g</Typography>
         </NutritionRow>
 
         <NutritionRow indent>
-          <Typography>Sugars</Typography>
+          <Typography>{locale.foodDetail.sugars}</Typography>
           <Typography>{formatNutritionValue(macros.sugars)}g</Typography>
         </NutritionRow>
 
         <NutritionRow bold>
-          <Typography>Protein</Typography>
+          <Typography>{locale.foodDetail.protein}</Typography>
           <Typography>{formatNutritionValue(macros.protein)}g</Typography>
         </NutritionRow>
 
         <MediumDivider />
 
         <NutritionRow>
-          <Typography>Salt</Typography>
+          <Typography>{locale.foodDetail.salt}</Typography>
           <Typography>{formatNutritionValue(macros.salt)}g</Typography>
         </NutritionRow>
 
         <ThickDivider />
 
         <Typography variant="caption">
-          * Percent Daily Values are based on a 2,000 calorie diet. Your daily
-          values may be higher or lower depending on your calorie needs.
+          {locale.foodDetail.nutritionFootnote}
         </Typography>
       </NutritionFactsContainer>
     );
@@ -355,7 +364,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
           <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
             <RestaurantIcon sx={{ mr: 1 }} />
             <Typography variant="subtitle1">
-              {food.restaurant_name || "Unknown Restaurant"}
+              {food.restaurant_name || locale.foodDetail.unknownRestaurant}
             </Typography>
           </Box>
         </div>
@@ -376,7 +385,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                 },
               }}
             >
-              Request Deletion
+              {locale.foodDetail.requestDeletion}
             </Button>
 
             <Button
@@ -392,7 +401,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                 },
               }}
             >
-              Edit Food
+              {locale.foodDetail.editFood}
             </Button>
           </Box>
         )}
@@ -457,7 +466,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
               {/* Hazard Level Indicator - Add this section */}
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom>
-                  Hazard Level
+                  {locale.hazard.label}
                 </Typography>
                 <Box sx={{ maxWidth: "300px" }}>
                   <HazardLevelIndicator
@@ -468,8 +477,8 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                     variant="body2"
                     sx={{ mt: 1, color: "text.secondary" }}
                   >
-                    {getHazardLabel(baseHazardLevel)}: This food has been
-                    rated based on its ingredients.
+                    {getLocalizedHazardLabel(locale, baseHazardLevel)}:{" "}
+                    {locale.foodDetail.hazardSummary}
                   </Typography>
                 </Box>
               </Box>
@@ -484,25 +493,24 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                 }}
               >
                 <Typography variant="h6" gutterBottom>
-                  AI Research Rating
+                  {locale.foodDetail.aiResearchRating}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                  Dynamic rating area for the AI summary generated from PubMed and
-                  medical papers.
+                  {locale.foodDetail.aiResearchRatingHelp}
                 </Typography>
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                   <Chip
-                    label="Evidence summary pending"
+                    label={locale.foodDetail.evidenceSummaryPending}
                     size="small"
                     variant="outlined"
                   />
                   <Chip
-                    label="Paper citations"
+                    label={locale.foodDetail.paperCitations}
                     size="small"
                     variant="outlined"
                   />
                   <Chip
-                    label="Confidence score"
+                    label={locale.foodDetail.confidenceScore}
                     size="small"
                     variant="outlined"
                   />
@@ -511,30 +519,30 @@ const ViewFood: React.FC<ViewFoodProps> = ({
 
               {/* Dietary Properties */}
               <Typography variant="h6" gutterBottom>
-                Dietary Information
+                {locale.detail.dietaryInformation}
               </Typography>
               <Box sx={{ mb: 3, display: "flex", flexWrap: "wrap", gap: 1 }}>
                 <Chip
                   icon={food.is_organic ? <CheckIcon /> : <CancelIcon />}
-                  label="Organic"
+                  label={locale.dietary.organic}
                   color={food.is_organic ? "success" : "default"}
                   variant={food.is_organic ? "filled" : "outlined"}
                 />
                 <Chip
                   icon={food.is_gluten_free ? <CheckIcon /> : <CancelIcon />}
-                  label="Gluten Free"
+                  label={locale.dietary.glutenFree}
                   color={food.is_gluten_free ? "primary" : "default"}
                   variant={food.is_gluten_free ? "filled" : "outlined"}
                 />
                 <Chip
                   icon={food.is_alcohol_free ? <CheckIcon /> : <CancelIcon />}
-                  label="Alcohol Free"
+                  label={locale.dietary.alcoholFree}
                   color={food.is_alcohol_free ? "primary" : "default"}
                   variant={food.is_alcohol_free ? "filled" : "outlined"}
                 />
                 <Chip
                   icon={food.is_lactose_free ? <CheckIcon /> : <CancelIcon />}
-                  label="Lactose Free"
+                  label={locale.dietary.lactoseFree}
                   color={food.is_lactose_free ? "primary" : "default"}
                   variant={food.is_lactose_free ? "filled" : "outlined"}
                 />
@@ -543,18 +551,18 @@ const ViewFood: React.FC<ViewFoodProps> = ({
               {/* Serving Size */}
               <Box sx={{ mb: 2 }}>
                 <Typography variant="subtitle1" fontWeight={600}>
-                  Serving Size:
+                  {locale.foodDetail.servingSize}:
                 </Typography>
                 <Typography variant="body1">
                   {food.serving_size
                     ? `${food.serving_size} g`
-                    : "Not specified"}
+                    : locale.foodDetail.notSpecified}
                 </Typography>
               </Box>
 
               {/* Ingredients Section */}
               <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-                Ingredients
+                {locale.foodDetail.ingredients}
               </Typography>
               <Box sx={{ mb: 3 }}>
                 {food.ingredients && food.ingredients.length > 0 ? (
@@ -583,9 +591,10 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                     {getIngredientDetails(food.ingredients).map((ingredient) => (
                       <Tooltip
                         key={ingredient.id}
-                        title={`${getHazardLabel(
-                          ingredient.hazardLevel
-                        )} - open ingredient profile`}
+                        title={`${getLocalizedHazardLabel(
+                          locale,
+                          ingredient.hazardLevel,
+                        )} - ${locale.foodDetail.openIngredientProfile}`}
                       >
                         <Button
                           variant="outlined"
@@ -648,7 +657,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                   </Box>
                 ) : (
                   <Typography color="text.secondary">
-                    No ingredients listed
+                    {locale.detail.noIngredientsListed}
                   </Typography>
                 )}
 
@@ -663,12 +672,12 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                   }}
                 >
                   <Typography variant="subtitle2" gutterBottom>
-                    Ingredient Hazard Level Legend:
+                    {locale.detail.ingredientHazardLegend}:
                   </Typography>
                   <Box
                     sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 1 }}
                   >
-                    {[0, 1, 2, 3, 4].map((level) => (
+                    {hazardLevelKeys.map((level) => (
                       <Box
                         key={level}
                         sx={{ display: "flex", alignItems: "center" }}
@@ -683,7 +692,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                           }}
                         />
                         <Typography variant="caption">
-                          {level}: {getHazardLabel(level)}
+                          {level}: {getLocalizedHazardLabel(locale, level)}
                         </Typography>
                       </Box>
                     ))}
@@ -693,7 +702,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
 
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom>
-                  Preparation Method Ratings
+                  {locale.foodDetail.preparationMethodRatings}
                 </Typography>
                 <Box
                   sx={{
@@ -729,8 +738,9 @@ const ViewFood: React.FC<ViewFoodProps> = ({
                           {profile.method}
                         </Typography>
                         <Chip
-                          label={`${profile.hazardLevel} · ${getHazardLabel(
-                            profile.hazardLevel
+                          label={`${profile.hazardLevel} · ${getLocalizedHazardLabel(
+                            locale,
+                            profile.hazardLevel,
                           )}`}
                           size="small"
                           sx={{
@@ -756,7 +766,7 @@ const ViewFood: React.FC<ViewFoodProps> = ({
           <Grid item xs={12}>
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6" gutterBottom>
-              Nutritional Information
+              {locale.foodDetail.nutritionalInformation}
             </Typography>
             <Box sx={{ mx: "auto", width: "100%" }}>
               {renderMacroTable(food.macro_table, food.serving_size)}
@@ -772,19 +782,17 @@ const ViewFood: React.FC<ViewFoodProps> = ({
         aria-labelledby="delete-dialog-title"
       >
         <DialogTitle id="delete-dialog-title">
-          Request Food Deletion
+          {locale.foodDetail.requestDeletionTitle}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to request deletion of "{food.name}"? Please
-            provide a reason for this request. This will need to be approved by
-            supervisors before the food is removed.
+            {locale.foodDetail.requestDeletionConfirmation}
           </DialogContentText>
           <TextField
             autoFocus
             margin="dense"
             id="reason"
-            label="Reason for deletion"
+            label={locale.foodDetail.reasonForDeletion}
             type="text"
             fullWidth
             variant="outlined"
@@ -799,14 +807,16 @@ const ViewFood: React.FC<ViewFoodProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteDialog} disabled={submitting}>
-            Cancel
+            {locale.foodDetail.cancel}
           </Button>
           <Button
             onClick={handleRequestDeletion}
             color="error"
             disabled={!deleteReason.trim() || submitting}
           >
-            {submitting ? "Submitting..." : "Request Deletion"}
+            {submitting
+              ? locale.foodDetail.submitting
+              : locale.foodDetail.requestDeletion}
           </Button>
         </DialogActions>
       </Dialog>

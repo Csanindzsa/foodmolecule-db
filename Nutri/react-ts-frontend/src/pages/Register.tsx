@@ -2,8 +2,11 @@ import React from "react";
 import { Avatar, Box, Container, Typography } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AuthProviderPanel from "../components/AuthProviderPanel";
+import { useLocale } from "../localization/useLocale";
 
 const Register = () => {
+  const { locale } = useLocale();
+
   return (
     <Container component="main" maxWidth="sm" sx={{ mt: 4, mb: 8 }}>
       <Box
@@ -28,10 +31,10 @@ const Register = () => {
           <PersonAddIcon fontSize="large" />
         </Avatar>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-          Create Account
+          {locale.auth.createAccount}
         </Typography>
         <Typography variant="subtitle1">
-          Start with Google or Apple, then link Ko-fi support later.
+          {locale.authPages.registerSubtitle}
         </Typography>
       </Box>
 

@@ -10,9 +10,11 @@ import {
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import LockIcon from "@mui/icons-material/Lock";
-import BlockIcon from "@mui/icons-material/Block";
+import { useLocale } from "../localization/useLocale";
 
 const Forbidden: React.FC = () => {
+  const { locale } = useLocale();
+
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
       {/* Header with red background for error pages */}
@@ -28,10 +30,10 @@ const Forbidden: React.FC = () => {
         }}
       >
         <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-          403 - Access Denied
+          {locale.errors.forbiddenTitle}
         </Typography>
         <Typography variant="subtitle1">
-          You don't have permission to access this page
+          {locale.errors.forbiddenSubtitle}
         </Typography>
       </Box>
 
@@ -94,7 +96,7 @@ const Forbidden: React.FC = () => {
           </Box>
 
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
-            Access to this page is restricted
+            {locale.errors.forbiddenHeading}
           </Typography>
 
           <Typography
@@ -102,8 +104,7 @@ const Forbidden: React.FC = () => {
             color="text.secondary"
             sx={{ maxWidth: 450, mb: 3, mt: 1 }}
           >
-            This page can only be accessed through proper application flow, not
-            by direct URL navigation.
+            {locale.errors.forbiddenBody}
           </Typography>
 
           <Stack
@@ -122,7 +123,7 @@ const Forbidden: React.FC = () => {
                 py: 1.2,
               }}
             >
-              Go to Home
+              {locale.errors.goHome}
             </Button>
           </Stack>
         </Box>

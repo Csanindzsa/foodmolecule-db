@@ -131,6 +131,46 @@ export type LocaleMessages = {
     noIngredientsListed: string;
     profileReady: string;
   };
+  foodDetail: {
+    unknownRestaurant: string;
+    requestDeletion: string;
+    editFood: string;
+    loginRequiredForDeletion: string;
+    deletionRequestSubmitted: string;
+    authExpired: string;
+    deletionRequestFailed: string;
+    requestDeletionTitle: string;
+    requestDeletionConfirmation: string;
+    reasonForDeletion: string;
+    cancel: string;
+    submitting: string;
+    hazardSummary: string;
+    aiResearchRating: string;
+    aiResearchRatingHelp: string;
+    evidenceSummaryPending: string;
+    paperCitations: string;
+    confidenceScore: string;
+    servingSize: string;
+    notSpecified: string;
+    ingredients: string;
+    openIngredientProfile: string;
+    preparationMethodRatings: string;
+    nutritionalInformation: string;
+    noNutritionInfo: string;
+    nutritionFacts: string;
+    amountPerServing: string;
+    calories: string;
+    caloriesFromFat: string;
+    dailyValue: string;
+    totalFat: string;
+    saturatedFat: string;
+    totalCarbohydrates: string;
+    dietaryFiber: string;
+    sugars: string;
+    protein: string;
+    salt: string;
+    nutritionFootnote: string;
+  };
   auth: {
     email: string;
     password: string;
@@ -139,6 +179,46 @@ export type LocaleMessages = {
     signOut: string;
     createAccount: string;
     forgotPassword: string;
+  };
+  authPages: {
+    loginTitle: string;
+    loginSubtitle: string;
+    registerSubtitle: string;
+    continue: string;
+    continueWithGoogle: string;
+    continueWithApple: string;
+    createAccountWithGoogle: string;
+    createAccountWithApple: string;
+    providerInfo: string;
+    supporterAccess: string;
+    kofiLinkedTitle: string;
+    kofiLinkedDescription: string;
+    accountLinkingModel: string;
+    googleIdentity: string;
+    appleIdentity: string;
+    kofiSupporter: string;
+    oneNutriiUsername: string;
+  };
+  errors: {
+    forbiddenTitle: string;
+    forbiddenSubtitle: string;
+    forbiddenHeading: string;
+    forbiddenBody: string;
+    notFoundTitle: string;
+    notFoundSubtitle: string;
+    notFoundHeading: string;
+    notFoundBody: string;
+    goHome: string;
+    goHomePage: string;
+    browseFoods: string;
+    contactSupport: string;
+    accountDeletedTitle: string;
+    accountDeletedSubtitle: string;
+    accountDeletedHeading: string;
+    accountDeletedBody: string;
+    nextStepPrompt: string;
+    returnHome: string;
+    createNewAccount: string;
   };
   states: {
     saving: string;
@@ -151,7 +231,7 @@ export type LocaleMessages = {
 };
 
 export type LocaleOverride = Partial<
-  Omit<LocaleMessages, "common" | "nav" | "foodExplorer" | "ingredientExplorer" | "sort" | "hazard" | "dietary" | "detail" | "auth" | "states">
+  Omit<LocaleMessages, "common" | "nav" | "foodExplorer" | "ingredientExplorer" | "sort" | "hazard" | "dietary" | "detail" | "foodDetail" | "auth" | "authPages" | "errors" | "states">
 > & {
   common?: Partial<LocaleMessages["common"]>;
   nav?: Partial<LocaleMessages["nav"]>;
@@ -163,6 +243,9 @@ export type LocaleOverride = Partial<
   };
   dietary?: Partial<LocaleMessages["dietary"]>;
   detail?: Partial<LocaleMessages["detail"]>;
+  foodDetail?: Partial<LocaleMessages["foodDetail"]>;
   auth?: Partial<LocaleMessages["auth"]>;
+  authPages?: Partial<LocaleMessages["authPages"]>;
+  errors?: Partial<LocaleMessages["errors"]>;
   states?: Partial<LocaleMessages["states"]>;
 };

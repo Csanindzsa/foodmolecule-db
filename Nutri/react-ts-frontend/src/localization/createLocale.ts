@@ -27,6 +27,9 @@ export const createLocale = (override: LocaleOverride): LocaleMessages => ({
   },
   dietary: mergeSection(en.dietary, override.dietary),
   detail: mergeSection(en.detail, override.detail),
+  foodDetail: mergeSection(en.foodDetail, override.foodDetail),
   auth: mergeSection(en.auth, override.auth),
+  authPages: mergeSection(en.authPages, override.authPages),
+  errors: mergeSection(en.errors, override.errors),
   states: mergeSection(en.states, override.states),
 });
