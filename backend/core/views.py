@@ -13,8 +13,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import serializers
+from .food_deduplication import dedupe_foods_by_molecule_signature, dedupe_foods_by_normalized_name
 from .health_index import compute_health_index
 from .models import BanListEntry, Food, FoodCategory, FoodMolecule, Molecule, ProcessingMethod, Study
+
+
+def _apply_food_dedupe(foods, mode: str):
+    """Apply opt-in backend duplicate filtering to food iterables/querysets."""
+    if mode in {"ingredient_signature", "ingredients", "exact"}:
+        return dedupe_foods_by_molecule_signature(foods, include_amounts=True)
+    if mode in {"molecule_set", "molecules"}:
+        return dedupe_foods_by_molecule_signature(foods, include_amounts=False)
+    if mode in {"normalized_name", "name"}:
+        return dedupe_foods_by_normalized_name(foods)
+    return foods
 
 
 @api_view(["GET"])
@@ -83,7 +95,11 @@ class FoodListView(generics.ListAPIView):
             "hazard_asc": ("max_molecule_harm_value", "name"),
         }
 
-        return qs.distinct().order_by(*sort_fields.get(sort, sort_fields["safety_desc"]))
+        qs = qs.distinct().order_by(*sort_fields.get(sort, sort_fields["safety_desc"]))
+        dedupe = self.request.query_params.get("dedupe", "").strip().lower()
+        if dedupe:
+            return _apply_food_dedupe(qs, dedupe)
+        return qs
 
 
 class FoodDetailView(generics.RetrieveAPIView):
@@ -141,7 +157,12 @@ class FoodSearchView(APIView):
         # Trigram similarity search on name and aliases
         foods = Food.objects.filter(
             Q(name__icontains=q) | Q(aliases__icontains=q)
-        ).select_related("category")[:50]
+        ).select_related("category").prefetch_related(
+            Prefetch("foodmolecule_set", queryset=FoodMolecule.objects.select_related("molecule"))
+        )[:50]
+        dedupe = request.query_params.get("dedupe", "").strip().lower()
+        if dedupe:
+            foods = _apply_food_dedupe(foods, dedupe)
 
         molecules = Molecule.objects.filter(
             Q(name__icontains=q) | Q(iupac_name__icontains=q) | Q(cas_number__iexact=q)
