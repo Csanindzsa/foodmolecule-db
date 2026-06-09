@@ -323,6 +323,11 @@ class FoodCompareView(APIView):
                 {"detail": "All compare IDs must be valid UUIDs."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        if len(set(parsed_ids)) != len(parsed_ids):
+            return Response(
+                {"detail": "Compare IDs must be unique."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         foods_by_id = {
             food.id: food
@@ -364,7 +369,7 @@ class FoodCompareView(APIView):
 
         return Response({
             "foods": comparison,
-            "shared_molecules": list(shared),
+            "shared_molecules": sorted(shared),
             "total_unique_molecules": len(all_molecule_names),
         })
 
