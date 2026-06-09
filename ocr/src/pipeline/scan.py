@@ -61,7 +61,14 @@ class LabelScanner:
 
     @staticmethod
     def _average_confidence(conf_data: dict) -> float:
-        confs = [int(c) for c in conf_data["conf"] if int(c) > 0]
+        confs = []
+        for raw_conf in conf_data.get("conf", []):
+            try:
+                conf = float(raw_conf)
+            except (TypeError, ValueError):
+                continue
+            if conf > 0:
+                confs.append(conf)
         return sum(confs) / len(confs) if confs else 0.0
 
     @staticmethod
