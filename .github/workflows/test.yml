@@ -34,6 +34,12 @@ jobs:
         run: python ../scripts/validate_schema.py ban_list ../ban_list/ban_list.json
       - name: Run core tests
         run: python -m pytest core/tests -q
+      - name: Run AI tests
+        working-directory: .
+        run: python -m pytest ai/tests -q
+      - name: Run OCR tests
+        working-directory: .
+        run: python -m pytest ocr/tests -q
 
   web:
     name: Web tests

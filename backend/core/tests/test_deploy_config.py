@@ -21,6 +21,14 @@ def test_ci_runs_web_tests_and_build():
     assert "bun run build" in workflow
 
 
+def test_ci_runs_backend_ai_and_ocr_tests():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "python -m pytest core/tests -q" in workflow
+    assert "python -m pytest ai/tests -q" in workflow
+    assert "python -m pytest ocr/tests -q" in workflow
+
+
 def test_ci_validates_food_seed_schemas():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 
