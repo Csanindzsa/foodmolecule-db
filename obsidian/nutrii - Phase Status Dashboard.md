@@ -348,7 +348,7 @@ GET /api/v1/stats/
 | SEO optimization | ⬜ Not started | SSR/pre-rendering needed |
 | Sitemap generation | 🟡 Partial | Static route sitemap and robots.txt created; dynamic food/molecule sitemap needs production data |
 | App store listings | ⬜ Not started | Needed |
-| Press kit | ⬜ Not started | Not created |
+| Press kit | 🟡 Partial | Draft press kit created; production screenshots and contact details pending |
 | GitHub ISSUE_TEMPLATE | ✅ Complete | new_food.md, ban_list_nomination.md |
 
 **Notes:** Foundation laid for launch. Analytics are privacy-first (no cookies, IP hashing, daily buckets). Scaling roadmap covers 0 to 1M+ users.

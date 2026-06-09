@@ -42,6 +42,7 @@ def test_current_state_docs_do_not_contain_stale_platform_claims():
         "Phase 13 | ocr/README.md, scan.py | Architecture done, not integrated",
         "`ban_list/conditional_warnings.md` | ⬜ Not started | Not yet written",
         "`ban_list/regulatory_tracker.md` | ⬜ Not started | Not yet written",
+        "Press kit | ⬜ Not started | Not created",
     ]
 
     for claim in stale_claims:
