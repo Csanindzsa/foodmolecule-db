@@ -33,7 +33,7 @@
   - **Mitigation:** Django migrations from the first model. Never use `syncdb`/`migrate --run-syncdb` in production.
 
 - [x] **No indexes on search fields** — Legacy had no indexes on text columns used for filtering.
-  - **Mitigation:** Baseline Django indexes exist on high-traffic food and molecule fields. GIN/trigram indexes remain a launch performance upgrade if `EXPLAIN ANALYZE` shows the need.
+  - **Mitigation:** Baseline btree indexes cover common filters, and PostgreSQL trigram GIN indexes cover `Food.name`, `Molecule.name`, and `Study.title` search paths.
 
 ### API
 
