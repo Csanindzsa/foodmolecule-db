@@ -3,7 +3,7 @@ import json
 import pytest
 
 from core.models import Food, FoodMolecule, Molecule
-from scripts.loaders.bulk_insert import link_food_molecules, load_json_entries
+from scripts.loaders.bulk_insert import link_food_molecules, load_json_entries, validate_entries_or_raise
 from scripts.pipeline.models import FoodEntry, FoodMoleculeLink
 
 
@@ -34,6 +34,19 @@ def test_load_json_entries_reads_json_files_in_deterministic_order(tmp_path):
     entries = load_json_entries(tmp_path, FoodEntry)
 
     assert [entry.name for entry in entries] == ["apple", "banana"]
+
+
+def test_validate_entries_or_raise_accepts_schema_valid_entries():
+    food = FoodEntry(name="Apple", category="Fruit")
+
+    validate_entries_or_raise([food], [])
+
+
+def test_validate_entries_or_raise_rejects_schema_invalid_entries():
+    food = FoodEntry(name="Apple", category="x" * 101)
+
+    with pytest.raises(ValueError, match="Schema validation failed"):
+        validate_entries_or_raise([food], [])
 
 
 @pytest.mark.django_db

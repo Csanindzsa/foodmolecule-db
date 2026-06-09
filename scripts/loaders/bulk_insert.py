@@ -36,6 +36,7 @@ from core.models import (
     Study,
     FoodStudy,
 )
+from scripts.loaders.validate import validate_batch
 from scripts.pipeline.models import FoodEntry, MoleculeEntry, StudyEntry
 from scripts.transformers.normalizer import normalize_name
 
@@ -140,6 +141,20 @@ def load_json_entries(directory: Path, model_class):
     return entries
 
 
+def validate_entries_or_raise(foods: list[FoodEntry], molecules: list[MoleculeEntry]) -> None:
+    """Run JSON Schema validation before direct bulk insert writes."""
+    errors = validate_batch(foods, molecules)
+    if not errors:
+        return
+
+    first_entity, first_errors = next(iter(errors.items()))
+    first_error = first_errors[0] if first_errors else "invalid entry"
+    raise ValueError(
+        f"Schema validation failed for {len(errors)} entr"
+        f"{'y' if len(errors) == 1 else 'ies'}; {first_entity}: {first_error}"
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Bulk insert seed data into nutrii DB")
     parser.add_argument("--foods", type=Path, help="Directory containing food JSON files")
@@ -151,6 +166,11 @@ def main():
     molecules = load_json_entries(args.molecules, MoleculeEntry) if args.molecules else []
 
     print(f"Loaded {len(foods)} food(s) and {len(molecules)} molecule(s)")
+    try:
+        validate_entries_or_raise(foods, molecules)
+    except ValueError as exc:
+        print(f"VALIDATION FAILED — {exc}")
+        sys.exit(1)
 
     if args.dry_run:
         print("Dry run complete — no inserts performed.")

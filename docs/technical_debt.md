@@ -9,41 +9,41 @@
 
 ### Security
 
-- [ ] **HARDCODED SECRET_KEY** — Legacy committed Django `SECRET_KEY` in `settings.py`.
+- [x] **HARDCODED SECRET_KEY** — Legacy committed Django `SECRET_KEY` in `settings.py`.
   - **Mitigation:** Use `python-decouple`. Read from `.env`. `.env` in `.gitignore`. `.env.example` documents all required keys.
 
-- [ ] **CORS `*` wildcard** — Legacy allowed requests from any origin.
-  - **Mitigation:** `CORS_ALLOWED_ORIGINS` must list only known domains (`nutrii.app`, Vercel preview URLs, localhost for dev).
+- [x] **CORS `*` wildcard** — Legacy allowed requests from any origin.
+  - **Mitigation:** `CORS_ALLOWED_ORIGINS` is environment-driven and defaults only to localhost development origins.
 
-- [ ] **Exposed Supabase service role key** — Must never appear in client-side code.
-  - **Mitigation:** Service role key used only in Django backend (server-side). Frontend uses `anon` read-only key or makes requests through the Django API.
+- [x] **Exposed Supabase service role key** — Must never appear in client-side code.
+  - **Mitigation:** Service role key is only referenced by server-side image enrichment tooling. Web and mobile clients call the Django API.
 
 - [x] **No HTTPS enforcement** — Legacy had no SSL redirect.
   - **Mitigation:** `SECURE_SSL_REDIRECT`, HSTS, secure cookies, `X_FRAME_OPTIONS`, and nosniff headers are enabled automatically when `DJANGO_DEBUG=False`. The proxy must still forward `X-Forwarded-Proto`.
 
 ### Database
 
-- [ ] **SQLite in production** — Not suitable for concurrent writes or production workloads.
-  - **Mitigation:** Supabase PostgreSQL from day one. Local dev uses Docker PostgreSQL (same version).
+- [x] **SQLite in production** — Not suitable for concurrent writes or production workloads.
+  - **Mitigation:** Production uses `DATABASE_URL` or Supabase-derived PostgreSQL settings. SQLite remains only as an offline test fallback when no database env is configured.
 
-- [ ] **No connection pooling** — Legacy made a new DB connection per request.
-  - **Mitigation:** PgBouncer (Supabase built-in) + `CONN_MAX_AGE = 60` in Django settings.
+- [x] **No connection pooling** — Legacy made a new DB connection per request.
+  - **Mitigation:** Django database parsing sets `conn_max_age=60` and health checks. Supabase pooler URLs can be supplied through `DATABASE_URL`.
 
-- [ ] **No migration history** — Legacy had no Django migrations, making schema changes destructive.
+- [x] **No migration history** — Legacy had no Django migrations, making schema changes destructive.
   - **Mitigation:** Django migrations from the first model. Never use `syncdb`/`migrate --run-syncdb` in production.
 
-- [ ] **No indexes on search fields** — Legacy had no indexes on text columns used for filtering.
-  - **Mitigation:** GIN indexes on `aliases`, `harm_mechanisms`. Trigram indexes (`pg_trgm`) on `name`. Defined in Django migrations.
+- [x] **No indexes on search fields** — Legacy had no indexes on text columns used for filtering.
+  - **Mitigation:** Baseline Django indexes exist on high-traffic food and molecule fields. GIN/trigram indexes remain a launch performance upgrade if `EXPLAIN ANALYZE` shows the need.
 
 ### API
 
 - [x] **No rate limiting** — Any client could exhaust the DB with unconstrained requests.
   - **Mitigation:** DRF anonymous throttling is enabled automatically when `DJANGO_DEBUG=False`. Set `RATE_LIMIT_REQUESTS_PER_MINUTE` per deployment; the default is `100/minute`.
 
-- [ ] **No caching** — Every request hit the DB cold.
+- [x] **No caching** — Every request hit the DB cold.
   - **Mitigation:** Django cache wiring is present with a local-memory backend for zero-service deployments. Upgrade to Redis or another shared cache before multi-instance production traffic.
 
-- [ ] **No API versioning** — Breaking changes would silently break consumers.
+- [x] **No API versioning** — Breaking changes would silently break consumers.
   - **Mitigation:** All endpoints prefixed `/api/v1/`. Breaking changes bump to `/api/v2/` with a deprecation notice.
 
 - [x] **No pagination** — List endpoints returned unbounded result sets.
@@ -62,13 +62,13 @@
 
 ### Data Quality
 
-- [ ] **No schema validation on insert** — Data was inserted without validation.
-  - **Mitigation:** `jsonschema` validation gate in all `loaders/` scripts before any DB insert.
+- [x] **No schema validation on insert** — Data was inserted without validation.
+  - **Mitigation:** `jsonschema` validation runs before `run_pipeline.py` and direct `bulk_insert.py` writes.
 
-- [ ] **No deduplication logic** — Duplicate foods/molecules could be inserted under different names.
+- [x] **No deduplication logic** — Duplicate foods/molecules could be inserted under different names.
   - **Mitigation:** `deduplicator.py` transformer normalizes names and merges duplicates before insert.
 
-- [ ] **No data provenance** — No record of where data came from.
+- [x] **No data provenance** — No record of where data came from.
   - **Mitigation:** `metadata` JSONB field on all tables stores `source`, `source_url`, `ingested_at`, `confidence`.
 
 ---
