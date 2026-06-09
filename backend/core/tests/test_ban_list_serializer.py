@@ -102,6 +102,7 @@ class TestBanListEntrySerializer:
         assert data["food"]["name"] == "Batrachotoxin"
         assert data["food"]["category"] == "Toxins"
         assert data["food"]["health_index"] == 0
+        assert data["lethal_dose_mg"] == "0.0020"
 
     def test_food_field_is_read_only(self):
         """Attempting to write the nested food object must be ignored."""

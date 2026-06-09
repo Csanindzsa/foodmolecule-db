@@ -98,7 +98,7 @@ export interface BanListEntry {
     health_index: number | null;
   } | null;
   reason: string;
-  lethal_dose_mg: number | null;
+  lethal_dose_mg: string | null;
   is_conditionally_safe: boolean;
   safe_condition: string;
   regulatory_status: Record<string, unknown>;

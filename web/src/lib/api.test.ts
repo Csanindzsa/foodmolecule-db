@@ -126,7 +126,7 @@ describe("api", () => {
               health_index: 5,
             },
             reason: "Too dangerous",
-            lethal_dose_mg: 100,
+            lethal_dose_mg: "100.0000",
             is_conditionally_safe: false,
             safe_condition: "None",
             regulatory_status: {},

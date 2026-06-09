@@ -59,7 +59,7 @@ const mockEntries = [
     id: "3",
     food: null,
     reason: "Banned substance",
-    lethal_dose_mg: 500,
+    lethal_dose_mg: "500.0000",
     is_conditionally_safe: false,
     safe_condition: "",
     regulatory_status: {},
@@ -257,7 +257,7 @@ describe("BanList page", () => {
     expect(absoluteBadges.length).toBeGreaterThanOrEqual(1);
   });
 
-  test("shows lethal dose as '500 mg' when present", () => {
+  test("formats lethal dose decimal string when present", () => {
     mockUseBanList.mockReturnValue({
       data: mockEntries,
       isLoading: false,
@@ -428,6 +428,45 @@ describe("BanList page", () => {
     const foodSortArrow = buttons[0].querySelector("span:last-child");
     expect(foodSortArrow).not.toBeNull();
     expect(foodSortArrow!.textContent).toBe("↕");
+  });
+
+  test("lethal dose sort compares decimal strings numerically", () => {
+    const lethalDoseEntries = [
+      {
+        id: "low",
+        food: { id: "low-food", name: "low dose", category: "Test", health_index: 10 },
+        reason: "Lower value",
+        lethal_dose_mg: "2.5000",
+        is_conditionally_safe: false,
+        safe_condition: "",
+        regulatory_status: {},
+      },
+      {
+        id: "high",
+        food: { id: "high-food", name: "high dose", category: "Test", health_index: 10 },
+        reason: "Higher value",
+        lethal_dose_mg: "10.0000",
+        is_conditionally_safe: false,
+        safe_condition: "",
+        regulatory_status: {},
+      },
+    ];
+
+    mockUseBanList.mockReturnValue({
+      data: lethalDoseEntries,
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<BanList />);
+    const lethalDoseHeader = container.querySelectorAll("th button")[4];
+
+    fireEvent.click(lethalDoseHeader);
+
+    const rows = Array.from(container.querySelectorAll("tbody tr"));
+    expect(rows[0].textContent).toContain("low dose");
+    expect(rows[1].textContent).toContain("high dose");
   });
 
   // ─── F) Null/undefined guard ───

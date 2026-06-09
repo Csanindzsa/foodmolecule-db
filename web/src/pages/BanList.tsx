@@ -5,6 +5,18 @@ import type { BanListEntry } from "../types";
 
 type SortKey = "food_name" | "category" | "health_index" | "reason" | "lethal_dose" | "status";
 
+function lethalDoseSortValue(value: string | null): number {
+  if (value == null) return -1;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : -1;
+}
+
+function formatLethalDose(value: string): string {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return value;
+  return String(parsed);
+}
+
 function SortIcon({ column, activeColumn, activeDirection }: { column: SortKey; activeColumn: SortKey; activeDirection: "asc" | "desc" }) {
   if (activeColumn !== column) return <span className="text-gray-300 dark:text-gray-600 ml-1">&#8597;</span>;
   return <span className="text-gray-700 dark:text-gray-300 ml-1">{activeDirection === "asc" ? "↑" : "↓"}</span>;
@@ -57,8 +69,8 @@ export default function BanList() {
         bVal = b.reason.toLowerCase();
         break;
       case "lethal_dose":
-        aVal = a.lethal_dose_mg ?? -1;
-        bVal = b.lethal_dose_mg ?? -1;
+        aVal = lethalDoseSortValue(a.lethal_dose_mg);
+        bVal = lethalDoseSortValue(b.lethal_dose_mg);
         break;
       case "status":
         aVal = a.is_conditionally_safe ? "conditional" : "absolute";
@@ -150,7 +162,7 @@ export default function BanList() {
                     <div className="line-clamp-2">{entry.reason}</div>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                    {entry.lethal_dose_mg != null ? `${entry.lethal_dose_mg} mg` : <span className="text-gray-300 dark:text-gray-600">—</span>}
+                    {entry.lethal_dose_mg != null ? `${formatLethalDose(entry.lethal_dose_mg)} mg` : <span className="text-gray-300 dark:text-gray-600">—</span>}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {entry.is_conditionally_safe ? (
