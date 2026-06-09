@@ -43,6 +43,13 @@ from core.models import Food, Molecule
 BRAVE_IMAGE_SEARCH_URL = "https://api.search.brave.com/res/v1/images/search"
 DEFAULT_BUCKET = os.getenv("SUPABASE_IMAGE_BUCKET", "food-images")
 DEFAULT_MAX_BYTES = 200 * 1024
+MAX_SOURCE_IMAGE_BYTES = 10 * 1024 * 1024
+ALLOWED_SOURCE_IMAGE_CONTENT_TYPES = frozenset({
+    "image/gif",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+})
 FOOD_ALLOWED_DOMAINS = (
     "commons.wikimedia.org",
     "upload.wikimedia.org",
@@ -157,10 +164,15 @@ def download_image(candidate: CandidateImage, output_dir: Path) -> Path:
         response.raise_for_status()
         content_type = response.headers.get("content-type", "").split(";")[0].strip()
 
-    suffix = mimetypes.guess_extension(content_type) or Path(urlparse(candidate.image_url).path).suffix
-    if suffix.lower() not in {".jpg", ".jpeg", ".png", ".webp", ".gif"}:
-        suffix = ".img"
+    if content_type.lower() not in ALLOWED_SOURCE_IMAGE_CONTENT_TYPES:
+        raise ValueError(f"Unsupported image content type: {content_type or 'unknown'}")
+    if len(response.content) > MAX_SOURCE_IMAGE_BYTES:
+        raise ValueError(
+            f"Source image is too large: {len(response.content)} bytes "
+            f"(max {MAX_SOURCE_IMAGE_BYTES})"
+        )
 
+    suffix = mimetypes.guess_extension(content_type) or Path(urlparse(candidate.image_url).path).suffix
     raw_path = output_dir / f"raw{suffix}"
     raw_path.write_bytes(response.content)
     return raw_path
