@@ -3,6 +3,7 @@ Validate one or more JSON files against nutrii JSON Schemas.
 
 Usage:
     python scripts/validate_schema.py food data/seed/foods/example.json
+    python scripts/validate_schema.py food data/seed/foods
 """
 
 from __future__ import annotations
@@ -35,6 +36,16 @@ def _load_json(path: Path) -> object:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def expand_json_paths(paths: list[Path]) -> list[Path]:
+    expanded: list[Path] = []
+    for path in paths:
+        if path.is_dir():
+            expanded.extend(sorted(path.rglob("*.json")))
+        else:
+            expanded.append(path)
+    return expanded
+
+
 def validate_files(entity: str, paths: list[Path]) -> dict[Path, list[str]]:
     schema = _load_schema(entity)
     validator = Draft7Validator(schema)
@@ -63,13 +74,18 @@ def validate_files(entity: str, paths: list[Path]) -> dict[Path, list[str]]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate nutrii JSON files against repository schemas")
     parser.add_argument("entity", choices=sorted(SCHEMA_FILES), help="Schema entity to validate against")
-    parser.add_argument("paths", nargs="+", type=Path, help="JSON file(s) to validate")
+    parser.add_argument("paths", nargs="+", type=Path, help="JSON file(s) or directories to validate")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    failures = validate_files(args.entity, args.paths)
+    paths = expand_json_paths(args.paths)
+    if not paths:
+        print("No JSON files matched.", file=sys.stderr)
+        return 1
+
+    failures = validate_files(args.entity, paths)
 
     if failures:
         print(f"Validation failed for {len(failures)} file(s):", file=sys.stderr)
@@ -81,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  - ... and {len(errors) - 10} more", file=sys.stderr)
         return 1
 
-    print(f"Validation passed for {len(args.paths)} {args.entity} file(s).")
+    print(f"Validation passed for {len(paths)} {args.entity} file(s).")
     return 0
 
 
