@@ -23,4 +23,4 @@ labels: new-food, needs-review
 - Other: 
 
 ## Did you validate against the schema?
-- [ ] `schema/food.schema.json` validated (use https://www.jsonschemavalidator.net/)
+- [ ] `python scripts/validate_schema.py food path/to/food.json` passes locally
