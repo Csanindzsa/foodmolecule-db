@@ -47,6 +47,25 @@ def test_download_image_writes_supported_image_content(monkeypatch, tmp_path):
     assert path.read_bytes() == image_bytes
 
 
+def test_download_image_rejects_non_https_url(monkeypatch, tmp_path):
+    response = _response("http://upload.wikimedia.org/example.jpg", "image/jpeg", b"fake")
+    monkeypatch.setattr(fetch_images.httpx, "Client", lambda **kwargs: FakeClient(response))
+
+    with pytest.raises(ValueError, match="Image URL must use HTTPS"):
+        fetch_images.download_image(_candidate("http://upload.wikimedia.org/example.jpg"), tmp_path)
+
+
+def test_download_image_handles_uppercase_content_type(monkeypatch, tmp_path):
+    image_bytes = b"\xff\xd8fakejpeg"
+    response = _response("https://upload.wikimedia.org/example.jpg", "IMAGE/JPEG; charset=binary", image_bytes)
+    monkeypatch.setattr(fetch_images.httpx, "Client", lambda **kwargs: FakeClient(response))
+
+    path = fetch_images.download_image(_candidate(), tmp_path)
+
+    assert path.suffix in {".jpg", ".jpe", ".jpeg"}
+    assert path.read_bytes() == image_bytes
+
+
 def test_download_image_rejects_html_response(monkeypatch, tmp_path):
     response = _response("https://upload.wikimedia.org/example.jpg", "text/html", b"<html></html>")
     monkeypatch.setattr(fetch_images.httpx, "Client", lambda **kwargs: FakeClient(response))

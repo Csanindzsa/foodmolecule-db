@@ -159,10 +159,14 @@ def brave_food_candidate(food: Food) -> CandidateImage | None:
 
 
 def download_image(candidate: CandidateImage, output_dir: Path) -> Path:
+    parsed_url = urlparse(candidate.image_url)
+    if parsed_url.scheme.lower() != "https":
+        raise ValueError(f"Image URL must use HTTPS: {candidate.image_url}")
+
     with httpx.Client(timeout=60, follow_redirects=True) as client:
         response = client.get(candidate.image_url)
         response.raise_for_status()
-        content_type = response.headers.get("content-type", "").split(";")[0].strip()
+        content_type = response.headers.get("content-type", "").split(";")[0].strip().lower()
 
     if content_type.lower() not in ALLOWED_SOURCE_IMAGE_CONTENT_TYPES:
         raise ValueError(f"Unsupported image content type: {content_type or 'unknown'}")
@@ -172,7 +176,7 @@ def download_image(candidate: CandidateImage, output_dir: Path) -> Path:
             f"(max {MAX_SOURCE_IMAGE_BYTES})"
         )
 
-    suffix = mimetypes.guess_extension(content_type) or Path(urlparse(candidate.image_url).path).suffix
+    suffix = mimetypes.guess_extension(content_type) or Path(parsed_url.path).suffix
     raw_path = output_dir / f"raw{suffix}"
     raw_path.write_bytes(response.content)
     return raw_path
