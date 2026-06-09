@@ -17,11 +17,12 @@
 - [ ] Verify OpenRouter API key has sufficient quota for launch traffic
 
 ### Frontend
-- [ ] Build web (`cd web && npm run build`) and verify no Vite errors
+- [ ] Install web dependencies with `cd web && bun install --frozen-lockfile`
+- [ ] Build web (`cd web && bun run build`) and verify no Vite errors
 - [ ] Point `nutrii.fit` DNS to the production frontend host
 - [ ] Deploy to Vercel/Netlify with `VITE_API_URL` pointing to the production backend API
 - [ ] Run Lighthouse audit: target >90 on Performance, Accessibility, SEO
-- [ ] Test all routes: `/`, `/search`, `/food/:id`, `/molecule/:id`, `/compare`, `/ban-list`
+- [ ] Test all routes: `/`, `/search`, `/foods/:id`, `/molecules/:id`, `/compare`, `/ban-list`
 
 ### Mobile
 - [ ] Build Expo app (`cd mobile && npx expo prebuild`)
@@ -36,9 +37,9 @@
 - [ ] Confirm ban list entries are surfaced correctly in UI
 
 ### Analytics (Phase 14)
-- [ ] Add lightweight analytics: Plausible or privacy-focused alternative
-- [ ] Track: searches, food detail views, scans, comparisons
-- [ ] No user-identifiable data — aggregate only
+- [ ] Verify privacy-preserving backend analytics logs are captured by production logging
+- [ ] Verify aggregate events are emitted for searches, food detail views, scans, and comparisons
+- [ ] Confirm analytics metadata remains aggregate-only and contains no raw queries, labels, IP addresses, or user identifiers
 
 ## Post-Launch
 - [ ] Monitor OpenRouter costs daily for first 2 weeks
