@@ -90,7 +90,15 @@ export default function ScanScreen({ navigation }: Props) {
 
           {!!scanResult.raw_text && (
             <>
-              <Text style={styles.sectionTitle}>Raw OCR</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, styles.sectionTitleInline]}>
+                  Raw OCR{scanResult.raw_text_truncated ? " preview" : ""}
+                </Text>
+                {scanResult.raw_text_truncated && <Text style={styles.badge}>Truncated</Text>}
+              </View>
+              {scanResult.raw_text_truncated && (
+                <Text style={styles.meta}>The full OCR text was longer than the API response limit.</Text>
+              )}
               <Text style={styles.rawText}>{scanResult.raw_text}</Text>
             </>
           )}
@@ -107,8 +115,20 @@ const styles = StyleSheet.create({
   status: { marginTop: 16, color: "#475569" },
   error: { color: "#b91c1c" },
   resultPanel: { marginTop: 20, gap: 12 },
+  sectionHeader: { marginTop: 8, flexDirection: "row", alignItems: "center", gap: 8 },
   sectionTitle: { marginTop: 8, fontSize: 18, fontWeight: "700" },
+  sectionTitleInline: { marginTop: 0 },
   meta: { color: "#64748b" },
+  badge: {
+    borderWidth: 1,
+    borderColor: "#f59e0b",
+    borderRadius: 999,
+    color: "#92400e",
+    fontSize: 12,
+    fontWeight: "700",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
   chipWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
   matchItem: { borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 8, padding: 12, backgroundColor: "#fff" },
