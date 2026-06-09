@@ -27,6 +27,15 @@ from .models import BanListEntry, Food, FoodCategory, FoodMolecule, Molecule, Pr
 
 MAX_SCAN_IMAGE_BYTES = 8 * 1024 * 1024
 OCR_SCANNER_PATH = Path(__file__).resolve().parents[2] / "ocr" / "src" / "pipeline" / "scan.py"
+FOOD_DEDUPE_MODES = frozenset({
+    "ingredient_signature",
+    "ingredients",
+    "exact",
+    "molecule_set",
+    "molecules",
+    "normalized_name",
+    "name",
+})
 
 
 def _build_label_scanner():
@@ -82,6 +91,41 @@ def _parse_int_query_param(request, name: str):
         raise ValueError(f"Query parameter '{name}' must be an integer.")
 
 
+def _parse_choice_query_param(request, name: str, choices, default=None):
+    raw_value = request.query_params.get(name)
+    if raw_value in (None, ""):
+        return default
+    value = raw_value.strip().lower()
+    if value not in choices:
+        allowed = ", ".join(sorted(choices))
+        raise ValueError(f"Query parameter '{name}' must be one of: {allowed}.")
+    return value
+
+
+def _parse_bool_query_param(request, name: str):
+    raw_value = request.query_params.get(name)
+    if raw_value in (None, ""):
+        return None
+    value = raw_value.strip().lower()
+    if value in {"true", "1", "yes"}:
+        return True
+    if value in {"false", "0", "no"}:
+        return False
+    raise ValueError(f"Query parameter '{name}' must be true or false.")
+
+
+def _parse_uuid_csv_query_param(request, name: str):
+    raw_value = request.query_params.get(name, "")
+    values = [value.strip() for value in raw_value.split(",") if value.strip()]
+    parsed = []
+    for value in values:
+        try:
+            parsed.append(uuid.UUID(value))
+        except ValueError:
+            raise ValueError(f"Query parameter '{name}' must contain valid UUIDs.")
+    return parsed
+
+
 @api_view(["GET"])
 def health_check(request):
     return Response({"status": "ok", "service": "nutrii-api"})
@@ -105,18 +149,25 @@ class FoodListView(generics.ListAPIView):
             max_molecule_harm_value=Max("foodmolecule__molecule__harm_level"),
         )
         q = self.request.query_params.get("q", "").strip()
-        sort = self.request.query_params.get("sort", "safety_desc")
         category = self.request.query_params.get("category")
-        ingredient_ids = [
-            value.strip()
-            for value in self.request.query_params.get("ingredients", "").split(",")
-            if value.strip()
-        ]
         dietary_preferences = [
             value.strip()
             for value in self.request.query_params.get("dietary_preferences", "").split(",")
             if value.strip()
         ]
+        sort_fields = {
+            "name_asc": ("name",),
+            "name_desc": ("-name",),
+            "links_desc": ("-link_count", "name"),
+            "links_asc": ("link_count", "name"),
+            "safety_desc": ("-health_index", "name"),
+            "safety_asc": ("health_index", "name"),
+            "hazard_desc": ("-max_molecule_harm_value", "name"),
+            "hazard_asc": ("max_molecule_harm_value", "name"),
+        }
+        sort = _parse_choice_query_param(self.request, "sort", sort_fields.keys(), default="safety_desc")
+        dedupe = _parse_choice_query_param(self.request, "dedupe", FOOD_DEDUPE_MODES, default="")
+        ingredient_ids = _parse_uuid_csv_query_param(self.request, "ingredients")
 
         if q:
             qs = qs.filter(
@@ -143,19 +194,7 @@ class FoodListView(generics.ListAPIView):
             else:
                 qs = qs.filter(metadata__dietary_preferences__contains=[preference])
 
-        sort_fields = {
-            "name_asc": ("name",),
-            "name_desc": ("-name",),
-            "links_desc": ("-link_count", "name"),
-            "links_asc": ("link_count", "name"),
-            "safety_desc": ("-health_index", "name"),
-            "safety_asc": ("health_index", "name"),
-            "hazard_desc": ("-max_molecule_harm_value", "name"),
-            "hazard_asc": ("max_molecule_harm_value", "name"),
-        }
-
-        qs = qs.distinct().order_by(*sort_fields.get(sort, sort_fields["safety_desc"]))
-        dedupe = self.request.query_params.get("dedupe", "").strip().lower()
+        qs = qs.distinct().order_by(*sort_fields[sort])
         if dedupe:
             return _apply_food_dedupe(qs, dedupe)
         return qs
@@ -218,6 +257,10 @@ class FoodSearchView(APIView):
         q = request.query_params.get("q", "").strip().lower()
         if not q:
             return Response({"results": [], "count": 0})
+        try:
+            dedupe = _parse_choice_query_param(request, "dedupe", FOOD_DEDUPE_MODES, default="")
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
         # Trigram similarity search on name and aliases
         foods = Food.objects.filter(
@@ -225,7 +268,6 @@ class FoodSearchView(APIView):
         ).select_related("category").prefetch_related(
             Prefetch("foodmolecule_set", queryset=FoodMolecule.objects.select_related("molecule"))
         )[:50]
-        dedupe = request.query_params.get("dedupe", "").strip().lower()
         if dedupe:
             foods = _apply_food_dedupe(foods, dedupe)
 
@@ -334,7 +376,15 @@ class MoleculeListView(generics.ListAPIView):
             linked_food_count=Count("foodmolecule", distinct=True)
         )
         q = self.request.query_params.get("q", "").strip()
-        sort = self.request.query_params.get("sort", "name_asc")
+        sort_fields = {
+            "name_asc": ("name",),
+            "name_desc": ("-name",),
+            "links_desc": ("-linked_food_count", "name"),
+            "links_asc": ("linked_food_count", "name"),
+            "safety_desc": ("harm_level", "name"),
+            "safety_asc": ("-harm_level", "name"),
+        }
+        sort = _parse_choice_query_param(self.request, "sort", sort_fields.keys(), default="name_asc")
         if q:
             search_filter = (
                 Q(name__icontains=q)
@@ -351,16 +401,7 @@ class MoleculeListView(generics.ListAPIView):
         if max_harm_value is not None:
             qs = qs.filter(harm_level__lte=max_harm_value)
 
-        sort_fields = {
-            "name_asc": ("name",),
-            "name_desc": ("-name",),
-            "links_desc": ("-linked_food_count", "name"),
-            "links_asc": ("linked_food_count", "name"),
-            "safety_desc": ("harm_level", "name"),
-            "safety_asc": ("-harm_level", "name"),
-        }
-
-        return qs.order_by(*sort_fields.get(sort, sort_fields["name_asc"]))
+        return qs.order_by(*sort_fields[sort])
 
 
 class MoleculeDetailView(generics.RetrieveAPIView):
@@ -395,14 +436,20 @@ class RecentStudiesView(generics.ListAPIView):
 
 
 class BanListView(generics.ListAPIView):
-    queryset = BanListEntry.objects.select_related("food").all()
+    queryset = BanListEntry.objects.select_related("food").order_by("food__name", "id")
     serializer_class = serializers.BanListEntrySerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
     def get_queryset(self):
         qs = super().get_queryset()
-        conditional = self.request.query_params.get("conditional")
+        conditional = _parse_bool_query_param(self.request, "conditional")
         if conditional is not None:
-            qs = qs.filter(is_conditionally_safe=conditional.lower() == "true")
+            qs = qs.filter(is_conditionally_safe=conditional)
         return qs
 
 
