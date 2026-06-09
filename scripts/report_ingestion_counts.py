@@ -43,7 +43,7 @@ def collect_counts() -> dict[str, int | str]:
         "food_molecule_links": FoodMolecule.objects.count(),
         "studies": Study.objects.count(),
         "studies_with_abstracts": Study.objects.exclude(abstract="").count(),
-        "studies_analyzed": Study.objects.exclude(ai_summary="").count(),
+        "studies_analyzed": Study.objects.filter(ai_summary__isnull=False).exclude(ai_summary="").count(),
         "scientific_paper_food_links": FoodStudy.objects.count(),
         "ingredient_ai_guides": IngredientAIGuide.objects.count(),
         "safety_revisions": SafetyScoreRevision.objects.count(),
