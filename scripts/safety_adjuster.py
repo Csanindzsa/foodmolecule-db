@@ -36,6 +36,10 @@ from core.models import Food, IngredientAIGuide, SafetyScoreRevision, Study
 MAX_DELTA = 15
 
 
+def score_or_default(value: int | None, default: int = 50) -> int:
+    return default if value is None else value
+
+
 def get_guide(food: Food) -> str:
     """Fetch the latest agent instruction guide for a food."""
     guide = food.ai_guides.first()
@@ -68,8 +72,8 @@ def propose_adjustment(food: Food, triggering_study: Study) -> SafetyScoreRevisi
             "safety_adjustment",
             template_vars={
                 "agent_guide_markdown": guide,
-                "current_safety_score": food.overall_safety_score or 50,
-                "current_health_index": food.health_index or 50,
+                "current_safety_score": score_or_default(food.overall_safety_score),
+                "current_health_index": score_or_default(food.health_index),
                 "current_harm_level": 0,  # Could compute from molecules
                 "study_summary": triggering_study.ai_summary or triggering_study.abstract or "",
                 "recent_studies": recent_study_data,
@@ -79,8 +83,8 @@ def propose_adjustment(food: Food, triggering_study: Study) -> SafetyScoreRevisi
         print(f"  OpenRouter adjustment failed for {food.name}: {exc}")
         return None
 
-    old_safety = food.overall_safety_score or 50
-    old_health = food.health_index or 50
+    old_safety = score_or_default(food.overall_safety_score)
+    old_health = score_or_default(food.health_index)
 
     # Enforce delta cap
     new_safety = max(0, min(100, result.new_safety_score))
