@@ -11,6 +11,10 @@ const localApiUrl = Platform.OS === "android"
 
 const API_BASE = (configuredApiUrl || localApiUrl).replace(/\/$/, "");
 
+function pathId(id: string): string {
+  return encodeURIComponent(id);
+}
+
 export type FoodListItem = {
   id: string;
   name: string;
@@ -86,7 +90,7 @@ export const api = {
   search: (query: string) => request<SearchResponse>(
     `/foods/search/?q=${encodeURIComponent(query)}&dedupe=ingredient_signature`,
   ),
-  food: (id: string) => request<FoodDetail>(`/foods/${id}/`),
+  food: (id: string) => request<FoodDetail>(`/foods/${pathId(id)}/`),
   scanImage: (uri: string) => {
     const body = new FormData();
     body.append("image", {

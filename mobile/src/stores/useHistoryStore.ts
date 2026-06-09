@@ -14,19 +14,39 @@ interface HistoryState {
   load: () => Promise<void>;
 }
 
+const STORAGE_KEY = "nutrii_history";
+
+function normalizeHistory(raw: string | null): HistoryItem[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((item): item is HistoryItem =>
+        typeof item?.id === "string" &&
+        typeof item?.name === "string" &&
+        typeof item?.scannedAt === "string",
+      )
+      .slice(0, 50);
+  } catch {
+    return [];
+  }
+}
+
 export const useHistoryStore = create<HistoryState>((set, get) => ({
   history: [],
   add: (item) => {
-    const next = [item, ...get().history].slice(0, 50);
+    const deduped = get().history.filter((existing) => existing.id !== item.id);
+    const next = [item, ...deduped].slice(0, 50);
     set({ history: next });
-    AsyncStorage.setItem("nutrii_history", JSON.stringify(next));
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => undefined);
   },
   clear: () => {
     set({ history: [] });
-    AsyncStorage.removeItem("nutrii_history");
+    AsyncStorage.removeItem(STORAGE_KEY).catch(() => undefined);
   },
   load: async () => {
-    const raw = await AsyncStorage.getItem("nutrii_history");
-    if (raw) set({ history: JSON.parse(raw) });
+    const raw = await AsyncStorage.getItem(STORAGE_KEY).catch(() => null);
+    set({ history: normalizeHistory(raw) });
   },
 }));
