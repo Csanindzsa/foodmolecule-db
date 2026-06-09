@@ -15,6 +15,23 @@ export default function ScanScreen({ navigation }: Props) {
   const [error, setError] = useState<string | null>(null);
   const addHistory = useHistoryStore((state) => state.add);
 
+  function firstAssetUri(result: ImagePicker.ImagePickerResult): string | null {
+    if (result.canceled) return null;
+    return result.assets[0]?.uri ?? null;
+  }
+
+  async function scanPickerResult(result: ImagePicker.ImagePickerResult) {
+    const uri = firstAssetUri(result);
+    if (!uri) {
+      if (!result.canceled) {
+        setScanResult(null);
+        setError("No image was selected.");
+      }
+      return;
+    }
+    await scanUri(uri);
+  }
+
   async function scanUri(uri: string) {
     setIsScanning(true);
     setError(null);
@@ -33,20 +50,30 @@ export default function ScanScreen({ navigation }: Props) {
   }
 
   async function takePictureAndScan() {
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: false,
-      quality: 0.85,
-    });
-    if (!result.canceled) await scanUri(result.assets[0].uri);
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: false,
+        quality: 0.85,
+      });
+      await scanPickerResult(result);
+    } catch (err) {
+      setScanResult(null);
+      setError(err instanceof Error ? err.message : "Camera scan failed");
+    }
   }
 
   async function pickImageAndScan() {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: false,
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.85,
-    });
-    if (!result.canceled) await scanUri(result.assets[0].uri);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: false,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.85,
+      });
+      await scanPickerResult(result);
+    } catch (err) {
+      setScanResult(null);
+      setError(err instanceof Error ? err.message : "Image selection failed");
+    }
   }
 
   return (
