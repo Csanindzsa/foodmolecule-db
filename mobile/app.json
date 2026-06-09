@@ -13,7 +13,11 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow nutrii to access your camera to scan ingredient labels.",
+        "NSPhotoLibraryUsageDescription": "Allow nutrii to choose label photos from your library for ingredient scanning."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +26,8 @@
       }
     },
     "plugins": [
-      ["expo-camera", { "cameraPermission": "Allow nutrii to access your camera to scan ingredient labels." }]
+      ["expo-camera", { "cameraPermission": "Allow nutrii to access your camera to scan ingredient labels." }],
+      ["expo-image-picker", { "photosPermission": "Allow nutrii to choose label photos from your library for ingredient scanning." }]
     ]
   }
 }
