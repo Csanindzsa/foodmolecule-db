@@ -52,9 +52,10 @@ def parse_ingredients_text(raw_text: str, limit: int = 50) -> list[str]:
 
 
 def _normalize_text(raw_text: str) -> str:
-    text = raw_text.replace("\r", "\n")
+    text = raw_text.replace("\r\n", "\n").replace("\r", "\n")
     text = re.sub(r"[•·|]+", ",", text)
-    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\s*\n+\s*", ", ", text)
+    text = re.sub(r"[ \t\f\v]+", " ", text)
     return text.strip()
 
 

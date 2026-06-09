@@ -58,3 +58,30 @@ def test_parse_removes_duplicate_noise_and_may_contain_terms():
         "cocoa powder",
         "soy lecithin",
     ]
+
+
+def test_parse_line_separated_ingredients():
+    raw_text = """
+    INGREDIENTS:
+    Water
+    Tomato paste
+    Sea salt
+    Nutrition Facts
+    Serving size 125g
+    """
+
+    assert parse_ingredients_text(raw_text) == [
+        "water",
+        "tomato paste",
+        "sea salt",
+    ]
+
+
+def test_parse_windows_newline_separated_ingredients():
+    raw_text = "Ingredients:\r\nOats\r\nRaisins\r\nCinnamon\r\nBest before 2027"
+
+    assert parse_ingredients_text(raw_text) == [
+        "oats",
+        "raisins",
+        "cinnamon",
+    ]
