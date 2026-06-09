@@ -320,39 +320,39 @@ describe("api", () => {
       expect(url.length).toBeGreaterThan(10000);
     });
 
-    test("food passes path traversal in ID unsanitized", async () => {
+    test("food encodes path traversal in ID", async () => {
       const malicious = "../../etc/passwd";
       await api.food(malicious);
       const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/foods/../../etc/passwd/");
+      expect(url).toBe("/api/v1/foods/..%2F..%2Fetc%2Fpasswd/");
     });
 
-    test("molecule passes path traversal in ID unsanitized", async () => {
+    test("molecule encodes path traversal in ID", async () => {
       const malicious = "../../../admin";
       await api.molecule(malicious);
       const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/molecules/../../../admin/");
+      expect(url).toBe("/api/v1/molecules/..%2F..%2F..%2Fadmin/");
     });
 
-    test("guide passes path traversal in ID unsanitized", async () => {
+    test("guide encodes path traversal in ID", async () => {
       const malicious = "..%2f..%2fsecret";
       await api.guide(malicious);
       const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/foods/..%2f..%2fsecret/guide/");
+      expect(url).toBe("/api/v1/foods/..%252f..%252fsecret/guide/");
     });
 
-    test("foodHealthIndex passes path traversal in ID unsanitized", async () => {
+    test("foodHealthIndex encodes path traversal in ID", async () => {
       const malicious = "../../api/v1/stats/";
       await api.foodHealthIndex(malicious);
       const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/foods/../../api/v1/stats//health-index/");
+      expect(url).toBe("/api/v1/foods/..%2F..%2Fapi%2Fv1%2Fstats%2F/health-index/");
     });
 
-    test("foodStudies passes path traversal in ID unsanitized", async () => {
+    test("foodStudies encodes path traversal in ID", async () => {
       const malicious = "../../api/v1/ban-list/";
       await api.foodStudies(malicious);
       const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/foods/../../api/v1/ban-list//studies/");
+      expect(url).toBe("/api/v1/foods/..%2F..%2Fapi%2Fv1%2Fban-list%2F/studies/");
     });
 
     test("food handles empty string ID", async () => {
@@ -386,7 +386,7 @@ describe("api", () => {
     test("compare handles path traversal in individual IDs", async () => {
       await api.compare(["../../admin", "normal-id", "../../../etc/passwd"]);
       const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/foods/compare/?ids=../../admin,normal-id,../../../etc/passwd");
+      expect(url).toBe("/api/v1/foods/compare/?ids=..%2F..%2Fadmin,normal-id,..%2F..%2F..%2Fetc%2Fpasswd");
     });
 
     test("compare handles empty string IDs in array", async () => {
@@ -398,7 +398,7 @@ describe("api", () => {
     test("compare handles IDs with special characters", async () => {
       await api.compare(["id&foo=bar", "id?baz=qux", "id#frag"]);
       const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/foods/compare/?ids=id&foo=bar,id?baz=qux,id#frag");
+      expect(url).toBe("/api/v1/foods/compare/?ids=id%26foo%3Dbar,id%3Fbaz%3Dqux,id%23frag");
     });
 
     test("banList is not injectable via current signature", async () => {

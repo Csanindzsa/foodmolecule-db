@@ -8,21 +8,25 @@ async function fetcher<T>(path: string): Promise<T> {
   return resp.json() as Promise<T>;
 }
 
+function pathId(id: string): string {
+  return encodeURIComponent(id);
+}
+
 export const api = {
   foods: () => fetcher<{ results: Food[] }>("/foods/"),
-  food: (id: string) => fetcher<Food>(`/foods/${id}/`),
-  foodHealthIndex: (id: string) => fetcher<HealthIndexBreakdown>(`/foods/${id}/health-index/`),
-  foodStudies: (id: string) => fetcher<{ results: Study[] }>(`/foods/${id}/studies/`),
+  food: (id: string) => fetcher<Food>(`/foods/${pathId(id)}/`),
+  foodHealthIndex: (id: string) => fetcher<HealthIndexBreakdown>(`/foods/${pathId(id)}/health-index/`),
+  foodStudies: (id: string) => fetcher<{ results: Study[] }>(`/foods/${pathId(id)}/studies/`),
   search: (q: string) => fetcher<{ foods: Food[]; molecules: Molecule[] }>(`/foods/search/?q=${encodeURIComponent(q)}`),
   molecules: () => fetcher<{ results: Molecule[] }>("/molecules/"),
-  molecule: (id: string) => fetcher<Molecule>(`/molecules/${id}/`),
+  molecule: (id: string) => fetcher<Molecule>(`/molecules/${pathId(id)}/`),
   stats: () => fetcher<Record<string, number>>("/stats/"),
   banList: () => fetcher<{ results: BanListEntry[] }>("/ban-list/"),
   compare: (ids: string[]) => {
     if (ids.length === 0) throw new Error("compare requires at least one food ID");
-    return fetcher<FoodCompareResult>("/foods/compare/?ids=" + ids.join(","));
+    return fetcher<FoodCompareResult>("/foods/compare/?ids=" + ids.map(encodeURIComponent).join(","));
   },
-  guide: (id: string) => fetcher<{ food_id: string; guide: string | null; version: number; generated_by: string; generated_at: string }>(`/foods/${id}/guide/`),
+  guide: (id: string) => fetcher<{ food_id: string; guide: string | null; version: number; generated_by: string; generated_at: string }>(`/foods/${pathId(id)}/guide/`),
 };
 
 export type Food = import("../types").Food;
