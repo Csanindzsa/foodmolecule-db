@@ -195,6 +195,14 @@ RATE_LIMIT_REQUESTS_PER_MINUTE = config(
     "RATE_LIMIT_REQUESTS_PER_MINUTE", default=100, cast=int
 )
 
+if not DEBUG:
+    REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = [
+        "rest_framework.throttling.AnonRateThrottle",
+    ]
+    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {
+        "anon": f"{RATE_LIMIT_REQUESTS_PER_MINUTE}/minute",
+    }
+
 # ─── Security headers (production only) ─────────────────────────────────────
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
