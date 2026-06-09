@@ -5,8 +5,9 @@ import FoodDetailScreen from "./src/screens/FoodDetailScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import ScanScreen from "./src/screens/ScanScreen";
 import SearchScreen from "./src/screens/SearchScreen";
+import type { RootStackParamList } from "./src/navigation/types";
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (

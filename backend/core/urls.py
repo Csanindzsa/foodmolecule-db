@@ -38,6 +38,9 @@ urlpatterns = [
     # Processing methods
     path("processing-methods/", views.ProcessingMethodListView.as_view(), name="processing-method-list"),
 
+    # OCR scan
+    path("scan/", views.IngredientScanView.as_view(), name="ingredient-scan"),
+
     # Stats
     path("stats/", views.PlatformStatsView.as_view(), name="platform-stats"),
 ]

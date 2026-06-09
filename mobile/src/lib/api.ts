@@ -1,0 +1,103 @@
+import { Platform } from "react-native";
+
+type ExpoProcess = {
+  env?: Record<string, string | undefined>;
+};
+
+const configuredApiUrl = (globalThis as { process?: ExpoProcess }).process?.env?.EXPO_PUBLIC_API_URL;
+const localApiUrl = Platform.OS === "android"
+  ? "http://10.0.2.2:8000/api/v1"
+  : "http://localhost:8000/api/v1";
+
+const API_BASE = (configuredApiUrl || localApiUrl).replace(/\/$/, "");
+
+export type FoodListItem = {
+  id: string;
+  name: string;
+  category?: string | null;
+  category_name?: string | null;
+  overall_safety_score?: number | null;
+  health_index?: number | null;
+  ban_listed?: boolean;
+  image_url?: string;
+  molecule_names?: string[];
+  max_molecule_harm?: number;
+};
+
+export type Molecule = {
+  id: string;
+  name: string;
+  harm_level?: number;
+  molecular_formula?: string;
+  linked_food_count?: number;
+};
+
+export type FoodDetail = FoodListItem & {
+  aliases: string[];
+  origin: string;
+  molecules: Array<{
+    molecule: Molecule;
+    amount_per_100g: string | null;
+    unit: string;
+    is_beneficial: boolean;
+  }>;
+};
+
+export type SearchResponse = {
+  foods: FoodListItem[];
+  molecules: Molecule[];
+  count: number;
+};
+
+export type ScanResponse = SearchResponse & {
+  ingredients: string[];
+  confidence: number;
+  raw_text: string;
+};
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, init);
+  if (!response.ok) {
+    let detail = `API error: ${response.status}`;
+    try {
+      const body = await response.json();
+      if (typeof body.detail === "string") detail = body.detail;
+    } catch {
+      // Ignore invalid JSON error bodies.
+    }
+    throw new Error(detail);
+  }
+  return response.json() as Promise<T>;
+}
+
+function imageName(uri: string): string {
+  const name = uri.split("/").pop();
+  return name && name.includes(".") ? name : "ingredient-label.jpg";
+}
+
+function imageType(uri: string): string {
+  const lower = uri.toLowerCase();
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".webp")) return "image/webp";
+  return "image/jpeg";
+}
+
+export const api = {
+  search: (query: string) => request<SearchResponse>(
+    `/foods/search/?q=${encodeURIComponent(query)}&dedupe=ingredient_signature`,
+  ),
+  food: (id: string) => request<FoodDetail>(`/foods/${id}/`),
+  scanImage: (uri: string) => {
+    const body = new FormData();
+    body.append("image", {
+      uri,
+      name: imageName(uri),
+      type: imageType(uri),
+    } as unknown as Blob);
+
+    return request<ScanResponse>("/scan/", {
+      method: "POST",
+      body,
+    });
+  },
+};

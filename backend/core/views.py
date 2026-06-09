@@ -6,8 +6,12 @@ Phase 10 deliverable — fully public, read-only API.
 
 from __future__ import annotations
 
+import importlib.util
+import sys
+from pathlib import Path
+
 from django.db.models import Count, Max, Q, Prefetch
-from rest_framework import generics, status
+from rest_framework import generics, parsers, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -16,6 +20,22 @@ from . import serializers
 from .food_deduplication import dedupe_foods_by_molecule_signature, dedupe_foods_by_normalized_name
 from .health_index import compute_health_index
 from .models import BanListEntry, Food, FoodCategory, FoodMolecule, Molecule, ProcessingMethod, Study
+
+
+MAX_SCAN_IMAGE_BYTES = 8 * 1024 * 1024
+OCR_SCANNER_PATH = Path(__file__).resolve().parents[2] / "ocr" / "src" / "pipeline" / "scan.py"
+
+
+def _build_label_scanner():
+    spec = importlib.util.spec_from_file_location("nutrii_ocr_scan", OCR_SCANNER_PATH)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Could not load OCR scanner from {OCR_SCANNER_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    LabelScanner = module.LabelScanner
+
+    return LabelScanner()
 
 
 def _apply_food_dedupe(foods, mode: str):
@@ -27,6 +47,26 @@ def _apply_food_dedupe(foods, mode: str):
     if mode in {"normalized_name", "name"}:
         return dedupe_foods_by_normalized_name(foods)
     return foods
+
+
+def _ingredient_query(ingredients: list[str]) -> Q:
+    query = Q()
+    for ingredient in ingredients:
+        cleaned = ingredient.strip()
+        if len(cleaned) < 3:
+            continue
+        query |= Q(name__icontains=cleaned) | Q(aliases__icontains=cleaned)
+    return query
+
+
+def _molecule_query(ingredients: list[str]) -> Q:
+    query = Q()
+    for ingredient in ingredients:
+        cleaned = ingredient.strip()
+        if len(cleaned) < 3:
+            continue
+        query |= Q(name__icontains=cleaned) | Q(iupac_name__icontains=cleaned) | Q(cas_number__iexact=cleaned)
+    return query
 
 
 @api_view(["GET"])
@@ -312,4 +352,58 @@ class PlatformStatsView(APIView):
             "studies": Study.objects.count(),
             "studies_analyzed": Study.objects.exclude(ai_summary="").count(),
             "ban_list_entries": BanListEntry.objects.count(),
+        })
+
+
+class IngredientScanView(APIView):
+    """OCR scan endpoint for mobile label photos."""
+
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+
+    def post(self, request):
+        image = request.FILES.get("image")
+        if image is None:
+            return Response(
+                {"detail": "Upload an image file in the multipart field named 'image'."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if image.size > MAX_SCAN_IMAGE_BYTES:
+            return Response(
+                {"detail": "Image is too large. Maximum size is 8 MB."},
+                status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            )
+
+        try:
+            scan_result = _build_label_scanner().scan(image.read())
+        except ImportError as exc:
+            return Response(
+                {"detail": "OCR dependencies are not installed.", "error": str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except Exception as exc:
+            return Response(
+                {"detail": "OCR scan failed.", "error": str(exc)},
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+
+        ingredients = scan_result.ingredients[:30]
+        food_query = _ingredient_query(ingredients)
+        molecule_query = _molecule_query(ingredients)
+
+        foods = Food.objects.none()
+        molecules = Molecule.objects.none()
+        if food_query:
+            foods = Food.objects.filter(food_query).select_related("category").prefetch_related(
+                Prefetch("foodmolecule_set", queryset=FoodMolecule.objects.select_related("molecule"))
+            ).distinct()[:20]
+        if molecule_query:
+            molecules = Molecule.objects.filter(molecule_query).distinct()[:20]
+
+        return Response({
+            "ingredients": ingredients,
+            "confidence": scan_result.confidence,
+            "raw_text": scan_result.raw_text,
+            "foods": serializers.FoodListSerializer(foods, many=True).data,
+            "molecules": serializers.MoleculeSerializer(molecules, many=True).data,
+            "count": len(foods) + len(molecules),
         })

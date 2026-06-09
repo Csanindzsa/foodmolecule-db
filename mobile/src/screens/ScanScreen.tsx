@@ -1,25 +1,117 @@
-import { Button, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
+import * as ImagePicker from "expo-image-picker";
+import { ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export default function ScanScreen() {
-  const [ocrResult, setOcrResult] = useState<string | null>(null);
+import { api, type ScanResponse } from "../lib/api";
+import type { RootStackParamList } from "../navigation/types";
+import { useHistoryStore } from "../stores/useHistoryStore";
+
+type Props = NativeStackScreenProps<RootStackParamList, "Scan">;
+
+export default function ScanScreen({ navigation }: Props) {
+  const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const addHistory = useHistoryStore((state) => state.add);
+
+  async function scanUri(uri: string) {
+    setIsScanning(true);
+    setError(null);
+    try {
+      const response = await api.scanImage(uri);
+      setScanResult(response);
+      for (const food of response.foods.slice(0, 5)) {
+        addHistory({ id: food.id, name: food.name, scannedAt: new Date().toISOString() });
+      }
+    } catch (err) {
+      setScanResult(null);
+      setError(err instanceof Error ? err.message : "Scan failed");
+    } finally {
+      setIsScanning(false);
+    }
+  }
 
   async function takePictureAndScan() {
-    // TODO: integrate expo-camera + OCR pipeline
-    setOcrResult("Placeholder OCR result");
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: false,
+      quality: 0.85,
+    });
+    if (!result.canceled) await scanUri(result.assets[0].uri);
+  }
+
+  async function pickImageAndScan() {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: false,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.85,
+    });
+    if (!result.canceled) await scanUri(result.assets[0].uri);
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Scan Ingredient Label</Text>
-      <Button title="Capture & Analyze" onPress={takePictureAndScan} />
-      {ocrResult && <Text style={styles.result}>{ocrResult}</Text>}
-    </View>
+      <View style={styles.actions}>
+        <Button title="Take Photo" onPress={takePictureAndScan} disabled={isScanning} />
+        <Button title="Choose Image" onPress={pickImageAndScan} disabled={isScanning} />
+      </View>
+      {isScanning && <ActivityIndicator style={styles.status} />}
+      {error && <Text style={[styles.status, styles.error]}>{error}</Text>}
+      {scanResult && (
+        <View style={styles.resultPanel}>
+          <Text style={styles.sectionTitle}>Detected ingredients</Text>
+          <Text style={styles.meta}>OCR confidence {Math.round(scanResult.confidence)}%</Text>
+          {scanResult.ingredients.length > 0 ? (
+            <View style={styles.chipWrap}>
+              {scanResult.ingredients.slice(0, 16).map((ingredient) => (
+                <Text key={ingredient} style={styles.chip}>{ingredient}</Text>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.meta}>No ingredient terms detected.</Text>
+          )}
+
+          <Text style={styles.sectionTitle}>Matched foods</Text>
+          {scanResult.foods.length > 0 ? scanResult.foods.map((food) => (
+            <Pressable
+              key={food.id}
+              style={styles.matchItem}
+              onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
+            >
+              <Text style={styles.matchTitle}>{food.name}</Text>
+              <Text style={styles.meta}>
+                Health {food.health_index ?? "unknown"} · Hazard {food.max_molecule_harm ?? "unknown"}
+              </Text>
+            </Pressable>
+          )) : (
+            <Text style={styles.meta}>No food matches found.</Text>
+          )}
+
+          {!!scanResult.raw_text && (
+            <>
+              <Text style={styles.sectionTitle}>Raw OCR</Text>
+              <Text style={styles.rawText}>{scanResult.raw_text}</Text>
+            </>
+          )}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
+  container: { flexGrow: 1, padding: 20 },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 16 },
-  result: { marginTop: 20, fontSize: 16, color: "#333" },
+  actions: { gap: 12 },
+  status: { marginTop: 16, color: "#475569" },
+  error: { color: "#b91c1c" },
+  resultPanel: { marginTop: 20, gap: 12 },
+  sectionTitle: { marginTop: 8, fontSize: 18, fontWeight: "700" },
+  meta: { color: "#64748b" },
+  chipWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  chip: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
+  matchItem: { borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 8, padding: 12, backgroundColor: "#fff" },
+  matchTitle: { fontSize: 17, fontWeight: "700", textTransform: "capitalize" },
+  rawText: { color: "#334155", lineHeight: 20 },
 });
