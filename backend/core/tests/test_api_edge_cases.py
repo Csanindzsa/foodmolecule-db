@@ -1,9 +1,10 @@
 import uuid
+from datetime import datetime, timezone as dt_timezone
 
 import pytest
 from rest_framework.test import APIRequestFactory
 
-from core.models import Food, Molecule
+from core.models import Food, FoodStudy, Molecule, Study
 from core.views import (
     BanListView,
     FoodGuideView,
@@ -13,6 +14,7 @@ from core.views import (
     FoodStudiesView,
     MoleculeListView,
     MoleculeSearchView,
+    RecentStudiesView,
 )
 
 
@@ -149,3 +151,55 @@ def test_food_guide_existing_food_without_guide_returns_404_payload():
 
     assert response.status_code == 404
     assert response.data == {"food_id": str(food.id), "guide": None}
+
+
+@pytest.mark.django_db
+def test_recent_studies_orders_analyzed_items_before_undated_summaries():
+    undated = Study.objects.create(pmid="990001", title="Undated summary", publication_year=2026, ai_summary="done")
+    older = Study.objects.create(
+        pmid="990002",
+        title="Older summary",
+        publication_year=2024,
+        ai_summary="done",
+        analyzed_at=datetime(2025, 1, 1, tzinfo=dt_timezone.utc),
+    )
+    newer = Study.objects.create(
+        pmid="990003",
+        title="Newer summary",
+        publication_year=2023,
+        ai_summary="done",
+        analyzed_at=datetime(2026, 1, 1, tzinfo=dt_timezone.utc),
+    )
+    Study.objects.create(pmid="990004", title="Blank summary", ai_summary="")
+
+    response = _get(RecentStudiesView, "/api/v1/studies/recent/")
+    results = response.data["results"] if isinstance(response.data, dict) else response.data
+
+    assert response.status_code == 200
+    assert [item["id"] for item in results] == [str(newer.id), str(older.id), str(undated.id)]
+
+
+@pytest.mark.django_db
+def test_food_studies_orders_analyzed_links_before_undated_links():
+    food = Food.objects.create(name="study food")
+    undated = Study.objects.create(pmid="990011", title="Undated linked", publication_year=2026)
+    older = Study.objects.create(
+        pmid="990012",
+        title="Older linked",
+        publication_year=2024,
+        analyzed_at=datetime(2025, 1, 1, tzinfo=dt_timezone.utc),
+    )
+    newer = Study.objects.create(
+        pmid="990013",
+        title="Newer linked",
+        publication_year=2023,
+        analyzed_at=datetime(2026, 1, 1, tzinfo=dt_timezone.utc),
+    )
+    for study in (undated, older, newer):
+        FoodStudy.objects.create(food=food, study=study)
+
+    response = _get(FoodStudiesView, f"/api/v1/foods/{food.id}/studies/", {"pk": food.id})
+    results = response.data["results"] if isinstance(response.data, dict) else response.data
+
+    assert response.status_code == 200
+    assert [item["study"]["id"] for item in results] == [str(newer.id), str(older.id), str(undated.id)]

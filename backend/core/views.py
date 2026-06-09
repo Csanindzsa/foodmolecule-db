@@ -13,7 +13,7 @@ import uuid
 from pathlib import Path
 
 from django.shortcuts import get_object_or_404
-from django.db.models import Count, Max, Q, Prefetch
+from django.db.models import Count, F, Max, Q, Prefetch
 from rest_framework import generics, parsers, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -249,7 +249,11 @@ class FoodStudiesView(generics.ListAPIView):
     def get_queryset(self):
         food_id = self.kwargs["pk"]
         food = get_object_or_404(Food, pk=food_id)
-        return food.foodstudy_set.select_related("study").order_by("-study__analyzed_at")
+        return food.foodstudy_set.select_related("study").order_by(
+            F("study__analyzed_at").desc(nulls_last=True),
+            "-study__publication_year",
+            "study__title",
+        )
 
 
 class FoodGuideView(APIView):
@@ -451,8 +455,14 @@ class MoleculeSearchView(APIView):
 
 
 class RecentStudiesView(generics.ListAPIView):
-    queryset = Study.objects.filter(ai_summary__isnull=False).exclude(ai_summary="").order_by("-analyzed_at")[:50]
     serializer_class = serializers.StudySerializer
+
+    def get_queryset(self):
+        return Study.objects.filter(ai_summary__isnull=False).exclude(ai_summary="").order_by(
+            F("analyzed_at").desc(nulls_last=True),
+            "-publication_year",
+            "title",
+        )[:50]
 
 
 class BanListView(generics.ListAPIView):
