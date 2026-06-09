@@ -27,6 +27,14 @@ def test_current_state_docs_do_not_contain_stale_platform_claims():
         "| **Search** | MeiliSearch |",
         "| **OCR** | Google Vision API + ML Kit |",
         "| **Cache** | Redis |",
+        "Molecule detail page | ⬜ Not started | Missing",
+        "Compare page | ⬜ Not started | Missing",
+        "Ban list page | ⬜ Not started | Missing",
+        "SearchScreen | ✅ Complete | Text input + result list (API not wired)",
+        "FoodDetailScreen | ✅ Complete | Shows food ID (placeholder content)",
+        "ScanScreen | ✅ Complete | Camera button (placeholder, no API)",
+        "Camera/OCR integration not implemented",
+        "No API calls wired up yet",
     ]
 
     for claim in stale_claims:

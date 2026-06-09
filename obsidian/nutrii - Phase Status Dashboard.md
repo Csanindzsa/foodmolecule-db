@@ -217,6 +217,7 @@
 | `ban_list/conditional_warnings.md` | ⬜ Not started | Not yet written |
 | `ban_list/regulatory_tracker.md` | ⬜ Not started | Not yet written |
 | BanListEntry Django model | ✅ Complete | Full model with regulatory JSONB |
+| Ban list API + web page | ✅ Complete | `/api/v1/ban-list/` and `web/src/pages/BanList.tsx` implemented with tests |
 
 **Notes:** Ban criteria documented (4 criteria for automatic entry). Conditional warnings framework defined. The `BanListEntry` model supports per-jurisdiction regulatory JSONB.
 
@@ -279,15 +280,15 @@ GET /api/v1/stats/
 | FoodDetail page | ✅ Complete | Full detail view with molecules, health index, studies |
 | API client (`lib/api.ts`) | ✅ Complete | 8 API functions |
 | TypeScript types | ✅ Complete | Food, Molecule, Study, HealthIndex |
-| Molecule detail page | ⬜ Not started | Missing |
-| Compare page | ⬜ Not started | Missing |
-| Ban list page | ⬜ Not started | Missing |
-| Health index chart | ⬜ Not started | Planned Recharts integration |
-| Dark mode | ⬜ Not started | Planned |
+| Molecule detail page | ✅ Complete | `web/src/pages/MoleculeDetail.tsx` implemented with tests |
+| Compare page | ✅ Complete | `web/src/pages/Compare.tsx` implemented with tests |
+| Ban list page | ✅ Complete | `web/src/pages/BanList.tsx` implemented with tests |
+| Health index display | ✅ Complete | Numeric health/safety/bioavailability display implemented; charting can remain future polish |
+| Dark mode | ✅ Complete | Zustand theme store and dark classes implemented |
 | E2E tests (Playwright) | ⬜ Not started | Not configured |
-| Hooks directory | ⬜ Empty | Directory exists, no files |
+| Hooks directory | ✅ Complete | `web/src/hooks/useApi.ts` implemented with tests |
 
-**Notes:** Web app is functional with 3 pages. Tailwind styling applied with nutrii green theme. Responsive grid layout. Missing pages (molecule detail, compare, ban list) need implementation.
+**Notes:** Web app is functional with routed home, search, food detail, molecule detail, compare, ban list, and not-found pages. Local JS build verification still requires installing web dependencies.
 
 ---
 
@@ -302,16 +303,16 @@ GET /api/v1/stats/
 | Expo project setup | ✅ Complete | SDK 52, TypeScript, React Navigation |
 | App.tsx navigation | ✅ Complete | Stack navigator with 4 screens |
 | HomeScreen | ✅ Complete | Title, subtitle, navigation buttons |
-| SearchScreen | ✅ Complete | Text input + result list (API not wired) |
-| FoodDetailScreen | ✅ Complete | Shows food ID (placeholder content) |
-| ScanScreen | ✅ Complete | Camera button (placeholder, no API) |
+| SearchScreen | ✅ Complete | API-backed search results and navigation |
+| FoodDetailScreen | ✅ Complete | API-backed detail screen with molecules |
+| ScanScreen | ✅ Complete | Camera/gallery image scan posts to backend `/scan/` |
 | History store (`useHistoryStore.ts`) | ✅ Complete | Zustand + AsyncStorage |
 | iOS build | ⬜ Not started | Not configured |
 | Android build | ⬜ Not started | Not configured |
 | Components directory | ⬜ Empty | Directory exists, no files |
 | Hooks directory | ⬜ Not started | Missing |
 
-**Notes:** Mobile app is scaffolded with navigation structure. All screens exist but most use placeholder content. Camera/OCR integration not implemented. No API calls wired up yet.
+**Notes:** Mobile app has API-backed search/detail and OCR scan flows. Native build, physical-device permission testing, and real-label OCR validation remain open.
 
 ---
 
