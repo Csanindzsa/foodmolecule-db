@@ -4,7 +4,14 @@ import pytest
 from rest_framework.test import APIRequestFactory
 
 from core.models import Food, Molecule
-from core.views import FoodGuideView, FoodHealthIndexView, FoodStudiesView, MoleculeSearchView
+from core.views import (
+    FoodGuideView,
+    FoodHealthIndexView,
+    FoodListView,
+    FoodStudiesView,
+    MoleculeListView,
+    MoleculeSearchView,
+)
 
 
 def _get(view, path: str, kwargs=None):
@@ -33,6 +40,24 @@ def test_molecule_search_matches_numeric_pubchem_cid():
     assert response.status_code == 200
     assert response.data["count"] == 1
     assert response.data["results"][0]["id"] == str(molecule.id)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("param", ["min_health_index", "max_health_index", "max_hazard_level"])
+def test_food_list_rejects_invalid_integer_filters(param):
+    response = _get(FoodListView, f"/api/v1/foods/?{param}=bad")
+
+    assert response.status_code == 400
+    assert response.data["detail"] == f"Query parameter '{param}' must be an integer."
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("param", ["harm_level", "max_harm_level"])
+def test_molecule_list_rejects_invalid_integer_filters(param):
+    response = _get(MoleculeListView, f"/api/v1/molecules/?{param}=bad")
+
+    assert response.status_code == 400
+    assert response.data["detail"] == f"Query parameter '{param}' must be an integer."
 
 
 @pytest.mark.django_db

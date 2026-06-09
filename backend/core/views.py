@@ -72,6 +72,16 @@ def _molecule_query(ingredients: list[str]) -> Q:
     return query
 
 
+def _parse_int_query_param(request, name: str):
+    raw_value = request.query_params.get(name)
+    if raw_value in (None, ""):
+        return None
+    try:
+        return int(raw_value)
+    except ValueError:
+        raise ValueError(f"Query parameter '{name}' must be an integer.")
+
+
 @api_view(["GET"])
 def health_check(request):
     return Response({"status": "ok", "service": "nutrii-api"})
@@ -83,6 +93,12 @@ class FoodListView(generics.ListAPIView):
     ).all()
     serializer_class = serializers.FoodListSerializer
 
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
     def get_queryset(self):
         qs = super().get_queryset().annotate(
             link_count=Count("foodmolecule", distinct=True),
@@ -91,9 +107,6 @@ class FoodListView(generics.ListAPIView):
         q = self.request.query_params.get("q", "").strip()
         sort = self.request.query_params.get("sort", "safety_desc")
         category = self.request.query_params.get("category")
-        min_score = self.request.query_params.get("min_health_index")
-        max_score = self.request.query_params.get("max_health_index")
-        max_hazard = self.request.query_params.get("max_hazard_level")
         ingredient_ids = [
             value.strip()
             for value in self.request.query_params.get("ingredients", "").split(",")
@@ -113,12 +126,15 @@ class FoodListView(generics.ListAPIView):
             )
         if category:
             qs = qs.filter(category__name__iexact=category)
-        if min_score:
-            qs = qs.filter(health_index__gte=int(min_score))
-        if max_score:
-            qs = qs.filter(health_index__lte=int(max_score))
-        if max_hazard is not None:
-            qs = qs.filter(max_molecule_harm_value__lte=int(max_hazard))
+        min_score_value = _parse_int_query_param(self.request, "min_health_index")
+        max_score_value = _parse_int_query_param(self.request, "max_health_index")
+        max_hazard_value = _parse_int_query_param(self.request, "max_hazard_level")
+        if min_score_value is not None:
+            qs = qs.filter(health_index__gte=min_score_value)
+        if max_score_value is not None:
+            qs = qs.filter(health_index__lte=max_score_value)
+        if max_hazard_value is not None:
+            qs = qs.filter(max_molecule_harm_value__lte=max_hazard_value)
         if ingredient_ids:
             qs = qs.filter(molecules__id__in=ingredient_ids)
         for preference in dietary_preferences:
@@ -307,14 +323,18 @@ class MoleculeListView(generics.ListAPIView):
     queryset = Molecule.objects.all()
     serializer_class = serializers.MoleculeSerializer
 
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
     def get_queryset(self):
         qs = super().get_queryset().annotate(
             linked_food_count=Count("foodmolecule", distinct=True)
         )
         q = self.request.query_params.get("q", "").strip()
         sort = self.request.query_params.get("sort", "name_asc")
-        harm = self.request.query_params.get("harm_level")
-        max_harm = self.request.query_params.get("max_harm_level")
         if q:
             search_filter = (
                 Q(name__icontains=q)
@@ -324,10 +344,12 @@ class MoleculeListView(generics.ListAPIView):
             if q.isdigit():
                 search_filter |= Q(pubchem_cid=q)
             qs = qs.filter(search_filter)
-        if harm is not None:
-            qs = qs.filter(harm_level=int(harm))
-        if max_harm is not None:
-            qs = qs.filter(harm_level__lte=int(max_harm))
+        harm_value = _parse_int_query_param(self.request, "harm_level")
+        max_harm_value = _parse_int_query_param(self.request, "max_harm_level")
+        if harm_value is not None:
+            qs = qs.filter(harm_level=harm_value)
+        if max_harm_value is not None:
+            qs = qs.filter(harm_level__lte=max_harm_value)
 
         sort_fields = {
             "name_asc": ("name",),
