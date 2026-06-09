@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import sys
+import uuid
 from pathlib import Path
 
 from django.db.models import Count, Max, Q, Prefetch
@@ -247,13 +248,25 @@ class FoodCompareView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        foods = Food.objects.prefetch_related("foodmolecule_set__molecule").filter(id__in=ids)
-        if len(foods) != len(ids):
+        try:
+            parsed_ids = [uuid.UUID(value) for value in ids]
+        except ValueError:
+            return Response(
+                {"detail": "All compare IDs must be valid UUIDs."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        foods_by_id = {
+            food.id: food
+            for food in Food.objects.prefetch_related("foodmolecule_set__molecule").filter(id__in=parsed_ids)
+        }
+        if len(foods_by_id) != len(parsed_ids):
             return Response({"detail": "One or more food IDs not found"}, status=status.HTTP_404_NOT_FOUND)
 
         comparison = []
         all_molecule_names = set()
-        for food in foods:
+        for food_id in parsed_ids:
+            food = foods_by_id[food_id]
             molecules = {fm.molecule.name: fm.molecule.harm_level for fm in food.foodmolecule_set.all()}
             all_molecule_names.update(molecules.keys())
             result = compute_health_index(food)
