@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nutrii.app/schema/food.schema.json",
+  "$id": "https://nutrii.fit/schema/food.schema.json",
   "title": "Food",
   "description": "A food ingredient in the nutrii database",
   "type": "object",

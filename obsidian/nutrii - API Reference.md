@@ -8,7 +8,7 @@
 
 ```
 http://localhost:8000/api/v1/     (development)
-https://nutrii.app/api/v1/         (production)
+https://nutrii.fit/api/v1/         (production)
 ```
 
 ## Authentication

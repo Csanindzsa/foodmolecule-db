@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nutrii.app/schema/study.schema.json",
+  "$id": "https://nutrii.fit/schema/study.schema.json",
   "title": "Study",
   "description": "A PubMed study ingested and analyzed by the nutrii AI pipeline",
   "type": "object",

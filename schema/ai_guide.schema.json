@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nutrii.app/schema/ai_guide.schema.json",
+  "$id": "https://nutrii.fit/schema/ai_guide.schema.json",
   "title": "IngredientAIGuide",
   "description": "An AI agent instruction guide for a specific food ingredient or molecule",
   "type": "object",

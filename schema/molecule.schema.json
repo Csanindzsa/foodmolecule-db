@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nutrii.app/schema/molecule.schema.json",
+  "$id": "https://nutrii.fit/schema/molecule.schema.json",
   "title": "Molecule",
   "description": "A chemical molecule or compound in the nutrii database",
   "type": "object",

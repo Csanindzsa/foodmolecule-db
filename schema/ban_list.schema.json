@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nutrii.app/schema/ban_list.schema.json",
+  "$id": "https://nutrii.fit/schema/ban_list.schema.json",
   "title": "BanListEntry",
   "description": "An entry on the nutrii ban list",
   "type": "object",

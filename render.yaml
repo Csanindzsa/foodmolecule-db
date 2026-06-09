@@ -15,13 +15,13 @@ services:
       - key: DJANGO_DEBUG
         value: "False"
       - key: DJANGO_ALLOWED_HOSTS
-        value: "nutrii-api.onrender.com,localhost,127.0.0.1"
+        value: "api.nutrii.fit,nutrii-api.onrender.com,localhost,127.0.0.1"
       - key: DATABASE_URL
         sync: false  # Set manually, or leave empty to use SUPABASE_URL + SUPABASE_DB_PASSWORD
       - key: OPENROUTER_API_KEY
         sync: false
       - key: CORS_ALLOWED_ORIGINS
-        value: "https://nutrii.app,https://www.nutrii.app,http://localhost:5173"
+        value: "https://nutrii.fit,https://www.nutrii.fit,http://localhost:5173"
       - key: PYTHON_VERSION
         value: "3.10"
     healthCheckPath: /api/v1/health/

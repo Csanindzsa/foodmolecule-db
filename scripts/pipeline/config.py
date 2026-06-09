@@ -34,7 +34,7 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_API_KEYS = _split_env_list("OPENROUTER_API_KEY", "OPENROUTER_API_KEYS")
 OPENCODE_GO_API_KEYS = _split_env_list("OPENCODE_GO_API_KEY", "OPENCODE_GO_API_KEYS")
 NCBI_API_KEY = os.getenv("NCBI_API_KEY", "")
-NCBI_EMAIL = os.getenv("NCBI_EMAIL", "dev@nutrii.app")
+NCBI_EMAIL = os.getenv("NCBI_EMAIL", "dev@nutrii.fit")
 
 # ─── Rate Limits ────────────────────────────────────────────────────────────
 # Requests per second per source

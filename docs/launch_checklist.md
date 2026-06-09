@@ -10,7 +10,7 @@
 - [ ] Verify all 16 API endpoints respond <200ms with `EXPLAIN ANALYZE`
 - [x] Add GIN indexes on `Food.name`, `Molecule.name`, `Study.title` if not present (`backend/core/migrations/0003_postgres_trigram_search_indexes.py`)
 - [ ] Configure Render/Fly.io `DATABASE_URL`; add `REDIS_URL` only if switching from local-memory cache to a shared cache
-- [ ] Set `DEBUG=False`, configure `ALLOWED_HOSTS`
+- [x] Set `DEBUG=False`, configure `ALLOWED_HOSTS` (`render.yaml`, `backend/core/tests/test_deploy_config.py`)
 - [x] Verify production security settings with `python manage.py check --deploy`
 - [x] Verify production throttling with `RATE_LIMIT_REQUESTS_PER_MINUTE` set for launch traffic (`backend/core/tests/test_production_settings.py`)
 - [ ] Set up Logtail / Sentry for error tracking
