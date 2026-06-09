@@ -18,6 +18,8 @@ import json
 import sys
 from pathlib import Path
 
+from django.db import transaction
+
 # Ensure project root is on path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -67,14 +69,15 @@ def run_pipeline(
         print("[5/5] DRY RUN — skipping database insert")
         return {"status": "dry_run", "foods": len(foods), "molecules": len(molecules)}
 
-    for mol in molecules:
-        upsert_molecule(mol)
-    print(f"[5/5] Inserted {len(molecules)} molecule(s)")
+    with transaction.atomic():
+        for mol in molecules:
+            upsert_molecule(mol)
+        print(f"[5/5] Inserted {len(molecules)} molecule(s)")
 
-    for food in foods:
-        obj = upsert_food(food)
-        link_food_molecules(obj, food.molecules)
-    print(f"[5/5] Inserted {len(foods)} food(s)")
+        for food in foods:
+            obj = upsert_food(food)
+            link_food_molecules(obj, food.molecules)
+        print(f"[5/5] Inserted {len(foods)} food(s)")
 
     return {"status": "success", "foods": len(foods), "molecules": len(molecules)}
 
