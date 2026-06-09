@@ -11,6 +11,7 @@ import sys
 import uuid
 from pathlib import Path
 
+from django.shortcuts import get_object_or_404
 from django.db.models import Count, Max, Q, Prefetch
 from rest_framework import generics, parsers, status
 from rest_framework.decorators import api_view
@@ -160,7 +161,7 @@ class FoodDetailView(generics.RetrieveAPIView):
 
 class FoodHealthIndexView(APIView):
     def get(self, request, pk):
-        food = Food.objects.prefetch_related("foodmolecule_set__molecule").get(pk=pk)
+        food = get_object_or_404(Food.objects.prefetch_related("foodmolecule_set__molecule"), pk=pk)
         result = compute_health_index(food)
         return Response({
             "food_id": str(pk),
@@ -177,12 +178,13 @@ class FoodStudiesView(generics.ListAPIView):
 
     def get_queryset(self):
         food_id = self.kwargs["pk"]
-        return Food.objects.get(pk=food_id).foodstudy_set.select_related("study").order_by("-study__analyzed_at")
+        food = get_object_or_404(Food, pk=food_id)
+        return food.foodstudy_set.select_related("study").order_by("-study__analyzed_at")
 
 
 class FoodGuideView(APIView):
     def get(self, request, pk):
-        food = Food.objects.get(pk=pk)
+        food = get_object_or_404(Food, pk=pk)
         guide = food.ai_guides.first()
         if not guide:
             return Response({"food_id": str(pk), "guide": None}, status=status.HTTP_404_NOT_FOUND)
@@ -353,9 +355,10 @@ class MoleculeSearchView(APIView):
         if not q:
             return Response({"results": [], "count": 0})
 
-        results = Molecule.objects.filter(
-            Q(name__icontains=q) | Q(cas_number__iexact=q) | Q(pubchem_cid=q if q.isdigit() else None)
-        )[:20]
+        filters = Q(name__icontains=q) | Q(cas_number__iexact=q)
+        if q.isdigit():
+            filters |= Q(pubchem_cid=int(q))
+        results = Molecule.objects.filter(filters)[:20]
 
         return Response({
             "query": q,
