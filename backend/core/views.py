@@ -7,6 +7,7 @@ Phase 10 deliverable — fully public, read-only API.
 from __future__ import annotations
 
 import importlib.util
+import logging
 import sys
 import uuid
 from pathlib import Path
@@ -27,6 +28,7 @@ from .models import BanListEntry, Food, FoodCategory, FoodMolecule, Molecule, Pr
 
 MAX_SCAN_IMAGE_BYTES = 8 * 1024 * 1024
 OCR_SCANNER_PATH = Path(__file__).resolve().parents[2] / "ocr" / "src" / "pipeline" / "scan.py"
+SCAN_IMAGE_CONTENT_TYPES = frozenset({"image/jpeg", "image/jpg", "image/png", "image/webp"})
 FOOD_DEDUPE_MODES = frozenset({
     "ingredient_signature",
     "ingredients",
@@ -36,6 +38,7 @@ FOOD_DEDUPE_MODES = frozenset({
     "normalized_name",
     "name",
 })
+logger = logging.getLogger(__name__)
 
 
 def _build_label_scanner():
@@ -124,6 +127,11 @@ def _parse_uuid_csv_query_param(request, name: str):
         except ValueError:
             raise ValueError(f"Query parameter '{name}' must contain valid UUIDs.")
     return parsed
+
+
+def _is_supported_scan_image(image) -> bool:
+    content_type = (getattr(image, "content_type", "") or "").split(";")[0].strip().lower()
+    return content_type in SCAN_IMAGE_CONTENT_TYPES
 
 
 @api_view(["GET"])
@@ -491,17 +499,24 @@ class IngredientScanView(APIView):
                 {"detail": "Image is too large. Maximum size is 8 MB."},
                 status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             )
+        if not _is_supported_scan_image(image):
+            return Response(
+                {"detail": "Upload a JPEG, PNG, or WebP image.", "code": "unsupported_image_type"},
+                status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            )
 
         try:
             scan_result = _build_label_scanner().scan(image.read())
         except ImportError as exc:
+            logger.warning("OCR scanner dependency error: %s", exc)
             return Response(
-                {"detail": "OCR dependencies are not installed.", "error": str(exc)},
+                {"detail": "OCR dependencies are not installed.", "code": "ocr_unavailable"},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
-        except Exception as exc:
+        except Exception:
+            logger.exception("OCR scan failed")
             return Response(
-                {"detail": "OCR scan failed.", "error": str(exc)},
+                {"detail": "OCR scan failed.", "code": "ocr_scan_failed"},
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
 

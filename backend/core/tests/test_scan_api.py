@@ -24,6 +24,11 @@ class FakeScanner:
         )
 
 
+class FailingScanner:
+    def scan(self, image_bytes: bytes) -> FakeScanResult:
+        raise RuntimeError("internal scanner path /tmp/secret")
+
+
 class FakeQuerySet(list):
     def select_related(self, *args):
         return self
@@ -81,6 +86,53 @@ def test_scan_rejects_oversized_images():
 
     assert response.status_code == 413
     assert "too large" in response.data["detail"]
+
+
+def test_scan_rejects_unsupported_upload_type():
+    upload = SimpleUploadedFile(
+        "label.txt",
+        b"not-an-image",
+        content_type="text/plain",
+    )
+
+    response = _scan_request(upload)
+
+    assert response.status_code == 415
+    assert response.data == {
+        "detail": "Upload a JPEG, PNG, or WebP image.",
+        "code": "unsupported_image_type",
+    }
+
+
+def test_scan_dependency_failure_is_sanitized(monkeypatch):
+    def raise_import_error():
+        raise ImportError("missing local package at /private/path")
+
+    monkeypatch.setattr("core.views._build_label_scanner", raise_import_error)
+    image = SimpleUploadedFile("label.jpg", b"image-bytes", content_type="image/jpeg")
+
+    response = _scan_request(image)
+
+    assert response.status_code == 503
+    assert response.data == {
+        "detail": "OCR dependencies are not installed.",
+        "code": "ocr_unavailable",
+    }
+    assert "private" not in str(response.data)
+
+
+def test_scan_runtime_failure_is_sanitized(monkeypatch):
+    monkeypatch.setattr("core.views._build_label_scanner", lambda: FailingScanner())
+    image = SimpleUploadedFile("label.jpg", b"image-bytes", content_type="image/jpeg")
+
+    response = _scan_request(image)
+
+    assert response.status_code == 422
+    assert response.data == {
+        "detail": "OCR scan failed.",
+        "code": "ocr_scan_failed",
+    }
+    assert "secret" not in str(response.data)
 
 
 def test_scan_returns_ocr_result_and_database_matches(monkeypatch):
