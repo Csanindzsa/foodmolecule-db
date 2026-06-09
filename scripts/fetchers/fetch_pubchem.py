@@ -18,21 +18,44 @@ from scripts.pipeline.config import MAX_RETRIES, PUBCHEM_API_BASE, RATE_LIMITS
 from scripts.pipeline.models import MoleculeEntry
 
 
+def _is_retryable_status(status_code: int) -> bool:
+    return status_code == 429 or 500 <= status_code < 600
+
+
+def _request_with_retries(client: httpx.Client, url: str, **kwargs) -> httpx.Response:
+    last_exc: httpx.HTTPError | None = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = client.get(url, **kwargs)
+            response.raise_for_status()
+            return response
+        except httpx.HTTPStatusError as exc:
+            last_exc = exc
+            if not _is_retryable_status(exc.response.status_code) or attempt == MAX_RETRIES:
+                raise
+        except httpx.HTTPError as exc:
+            last_exc = exc
+            if attempt == MAX_RETRIES:
+                raise
+        time.sleep((1 / RATE_LIMITS["pubchem"]) * attempt)
+
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("PubChem request failed without an exception")
+
+
 def get_cid_by_name(name: str) -> int | None:
     """Resolve compound name to PubChem CID."""
     url = f"{PUBCHEM_API_BASE}/compound/name/{name}/cids/JSON"
     with httpx.Client() as client:
-        for attempt in range(MAX_RETRIES):
-            resp = client.get(url, timeout=30)
-            if resp.status_code == 404:
+        try:
+            resp = _request_with_retries(client, url, timeout=30)
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
                 return None
-            if resp.status_code == 429:
-                time.sleep(2 ** attempt)
-                continue
-            resp.raise_for_status()
+            raise
             cids = resp.json().get("IdentifierList", {}).get("CID", [])
             return cids[0] if cids else None
-    return None
 
 
 def get_compound_properties(cid: int) -> dict:
@@ -40,8 +63,7 @@ def get_compound_properties(cid: int) -> dict:
     props = "MolecularFormula,MolecularWeight,IUPACName,CanonicalSMILES"
     url = f"{PUBCHEM_API_BASE}/compound/cid/{cid}/property/{props}/JSON"
     with httpx.Client() as client:
-        resp = client.get(url, timeout=30)
-        resp.raise_for_status()
+        resp = _request_with_retries(client, url, timeout=30)
         props_list = resp.json().get("PropertyTable", {}).get("Properties", [])
         return props_list[0] if props_list else {}
 
