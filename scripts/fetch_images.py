@@ -27,6 +27,8 @@ from urllib.parse import quote, urlparse
 import httpx
 from dotenv import load_dotenv
 
+from scripts.pipeline.config import MAX_RETRIES
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
@@ -79,6 +81,32 @@ class CandidateImage:
     provider: str
 
 
+def _is_retryable_status(status_code: int) -> bool:
+    return status_code == 429 or 500 <= status_code < 600
+
+
+def _request_with_retries(client: httpx.Client, method: str, url: str, **kwargs) -> httpx.Response:
+    last_exc: httpx.HTTPError | None = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = getattr(client, method)(url, **kwargs)
+            response.raise_for_status()
+            return response
+        except httpx.HTTPStatusError as exc:
+            last_exc = exc
+            if not _is_retryable_status(exc.response.status_code) or attempt == MAX_RETRIES:
+                raise
+        except httpx.HTTPError as exc:
+            last_exc = exc
+            if attempt == MAX_RETRIES:
+                raise
+        time.sleep(attempt)
+
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("Image request failed without an exception")
+
+
 def slugify(value: str) -> str:
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", value.strip().lower()).strip("-")
     return slug[:90] or "image"
@@ -124,8 +152,13 @@ def brave_food_candidate(food: Food) -> CandidateImage | None:
     }
 
     with httpx.Client(timeout=30, follow_redirects=True) as client:
-        response = client.get(BRAVE_IMAGE_SEARCH_URL, headers=headers, params=params)
-        response.raise_for_status()
+        response = _request_with_retries(
+            client,
+            "get",
+            BRAVE_IMAGE_SEARCH_URL,
+            headers=headers,
+            params=params,
+        )
         payload = response.json()
 
     for result in payload.get("results", []):
@@ -164,8 +197,7 @@ def download_image(candidate: CandidateImage, output_dir: Path) -> Path:
         raise ValueError(f"Image URL must use HTTPS: {candidate.image_url}")
 
     with httpx.Client(timeout=60, follow_redirects=True) as client:
-        response = client.get(candidate.image_url)
-        response.raise_for_status()
+        response = _request_with_retries(client, "get", candidate.image_url)
         content_type = response.headers.get("content-type", "").split(";")[0].strip().lower()
 
     if content_type.lower() not in ALLOWED_SOURCE_IMAGE_CONTENT_TYPES:
@@ -236,8 +268,13 @@ def upload_to_supabase(local_path: Path, object_path: str, bucket: str) -> str:
     }
 
     with httpx.Client(timeout=60) as client:
-        response = client.post(upload_url, headers=headers, content=local_path.read_bytes())
-        response.raise_for_status()
+        _request_with_retries(
+            client,
+            "post",
+            upload_url,
+            headers=headers,
+            content=local_path.read_bytes(),
+        )
 
     return f"{supabase_url}/storage/v1/object/public/{bucket}/{encoded_path}"
 
