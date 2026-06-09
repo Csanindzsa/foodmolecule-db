@@ -20,7 +20,7 @@
 - [ ] Install web dependencies with `cd web && bun install --frozen-lockfile`
 - [ ] Build web (`cd web && bun run build`) and verify no Vite errors
 - [ ] Point `nutrii.fit` DNS to the production frontend host
-- [ ] Deploy to Vercel/Netlify with `VITE_API_URL` pointing to the production backend API
+- [ ] Deploy to Vercel/Netlify with `VITE_API_URL` pointing to the production backend API; SPA fallback config is present in `web/vercel.json` and `web/public/_redirects`
 - [ ] Run Lighthouse audit: target >90 on Performance, Accessibility, SEO
 - [ ] Test all routes: `/`, `/search`, `/foods/:id`, `/molecules/:id`, `/compare`, `/ban-list`
 
