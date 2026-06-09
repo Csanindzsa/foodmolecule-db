@@ -1,7 +1,20 @@
+from types import SimpleNamespace
+
 import pytest
 
 from core.models import Food, IngredientAIGuide
 from scripts import generate_guides
+
+
+class FakeGuideDispatcher:
+    last_model_used = "test-model"
+
+    def __init__(self, calls):
+        self.calls = calls
+
+    def dispatch(self, task_type, template_vars):
+        self.calls.append((task_type, template_vars))
+        return SimpleNamespace(markdown_content="generated guide")
 
 
 @pytest.mark.django_db
@@ -64,3 +77,39 @@ def test_run_generator_creates_initial_guides_for_foods_without_guides(monkeypat
     assert result == {"created": 1}
     assert guide.version == 1
     assert guide.generated_by == "test-model"
+
+
+@pytest.mark.django_db
+def test_generate_guide_preserves_zero_scores_in_prompt(monkeypatch):
+    calls = []
+    food = Food.objects.create(name="high risk food", overall_safety_score=0, health_index=0)
+
+    monkeypatch.setattr(
+        generate_guides,
+        "OpenRouterDispatcher",
+        lambda: FakeGuideDispatcher(calls),
+    )
+
+    result = generate_guides.generate_guide(food)
+
+    assert result == ("generated guide", "test-model")
+    assert calls[0][1]["safety_score"] == 0
+    assert calls[0][1]["health_index"] == 0
+
+
+@pytest.mark.django_db
+def test_generate_guide_defaults_missing_scores_to_neutral(monkeypatch):
+    calls = []
+    food = Food.objects.create(name="unscored food", overall_safety_score=None, health_index=None)
+
+    monkeypatch.setattr(
+        generate_guides,
+        "OpenRouterDispatcher",
+        lambda: FakeGuideDispatcher(calls),
+    )
+
+    result = generate_guides.generate_guide(food)
+
+    assert result == ("generated guide", "test-model")
+    assert calls[0][1]["safety_score"] == 50
+    assert calls[0][1]["health_index"] == 50

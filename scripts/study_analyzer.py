@@ -32,6 +32,10 @@ from ai.dispatcher import OpenRouterDispatcher
 from core.models import Food, Molecule, Study
 
 
+def score_or_default(value: int | None, default: int = 50) -> int:
+    return default if value is None else value
+
+
 def _contains_term(text: str, term: str) -> bool:
     """Return True when a food or molecule name appears as a bounded phrase."""
     normalized = term.strip().lower()
@@ -76,8 +80,8 @@ def analyze_study(study: Study) -> bool:
             template_vars={
                 "ingredient_name": ingredient_name,
                 "known_molecules": known_molecules,
-                "current_safety_score": getattr(ingredient, "overall_safety_score", None) or 50,
-                "current_health_index": getattr(ingredient, "health_index", None) or 50,
+                "current_safety_score": score_or_default(getattr(ingredient, "overall_safety_score", None)),
+                "current_health_index": score_or_default(getattr(ingredient, "health_index", None)),
                 "study_title": study.title,
                 "study_abstract": study.abstract or "",
                 "journal": study.journal,

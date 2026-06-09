@@ -40,6 +40,10 @@ def next_guide_version(food: Food) -> int:
     return latest.version + 1 if latest else 1
 
 
+def score_or_default(value: int | None, default: int = 50) -> int:
+    return default if value is None else value
+
+
 def generate_guide(food: Food) -> tuple[str, str] | None:
     """Generate an agent instruction guide for a specific food."""
     molecules = food.foodmolecule_set.select_related("molecule").all()
@@ -56,8 +60,8 @@ def generate_guide(food: Food) -> tuple[str, str] | None:
                 "food_name": food.name,
                 "category": food.category.name if food.category else "",
                 "molecules": molecule_data,
-                "safety_score": food.overall_safety_score or 50,
-                "health_index": food.health_index or 50,
+                "safety_score": score_or_default(food.overall_safety_score),
+                "health_index": score_or_default(food.health_index),
             },
         )
     except Exception as exc:
