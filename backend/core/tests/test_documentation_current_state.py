@@ -40,6 +40,8 @@ def test_current_state_docs_do_not_contain_stale_platform_claims():
         "Phase 11 | 3 pages, Layout, API client, types | Pages complete, 3 pages missing",
         "Phase 12 | 4 screens, navigation, history store | Scaffolded, mostly placeholder",
         "Phase 13 | ocr/README.md, scan.py | Architecture done, not integrated",
+        "`ban_list/conditional_warnings.md` | ⬜ Not started | Not yet written",
+        "`ban_list/regulatory_tracker.md` | ⬜ Not started | Not yet written",
     ]
 
     for claim in stale_claims:

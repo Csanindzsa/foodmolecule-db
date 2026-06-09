@@ -214,12 +214,12 @@
 |-----------|--------|-------|
 | `ban_list/ban_list.md` | ✅ Complete | Core ban list documentation |
 | `ban_list/ban_list.json` | 🟡 Partial | Draft structured entries migrated from markdown; citations still required before finalization |
-| `ban_list/conditional_warnings.md` | ⬜ Not started | Not yet written |
-| `ban_list/regulatory_tracker.md` | ⬜ Not started | Not yet written |
+| `ban_list/conditional_warnings.md` | 🟡 Partial | Draft warning copy and verification gate written |
+| `ban_list/regulatory_tracker.md` | 🟡 Partial | Draft status taxonomy and verification workflow written |
 | BanListEntry Django model | ✅ Complete | Full model with regulatory JSONB |
 | Ban list API + web page | ✅ Complete | `/api/v1/ban-list/` and `web/src/pages/BanList.tsx` implemented with tests |
 
-**Notes:** Ban criteria documented (4 criteria for automatic entry). Conditional warnings framework defined. The `BanListEntry` model supports per-jurisdiction regulatory JSONB. The structured JSON is draft-only until each entry has PubMed or regulatory citations.
+**Notes:** Ban criteria documented (4 criteria for automatic entry). Conditional warnings and regulatory tracker drafts are in place. The `BanListEntry` model supports per-jurisdiction regulatory JSONB. The structured JSON is draft-only until each entry has PubMed or regulatory citations.
 
 ---
 

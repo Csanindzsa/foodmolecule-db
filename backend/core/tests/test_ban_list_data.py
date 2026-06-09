@@ -4,6 +4,8 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 BAN_LIST_PATH = PROJECT_ROOT / "ban_list" / "ban_list.json"
+CONDITIONAL_WARNINGS_PATH = PROJECT_ROOT / "ban_list" / "conditional_warnings.md"
+REGULATORY_TRACKER_PATH = PROJECT_ROOT / "ban_list" / "regulatory_tracker.md"
 
 
 def _ban_list_data() -> dict:
@@ -29,3 +31,15 @@ def test_ban_list_json_entries_remain_citation_required_until_verified():
 
     assert all(entry["metadata"]["source"] == "ban_list/ban_list.md" for entry in data["entries"])
     assert all(entry["metadata"]["requires_citation"] is True for entry in data["entries"])
+
+
+def test_ban_list_draft_docs_exist_and_preserve_citation_gate():
+    conditional = CONDITIONAL_WARNINGS_PATH.read_text(encoding="utf-8")
+    regulatory = REGULATORY_TRACKER_PATH.read_text(encoding="utf-8")
+
+    assert "Status: draft" in conditional
+    assert "requires_citation" in conditional
+    assert "Status: draft" in regulatory
+    assert "requires_citation" in regulatory
+    assert "python scripts/validate_schema.py ban_list ban_list/ban_list.json" in conditional
+    assert "python scripts/validate_schema.py ban_list ban_list/ban_list.json" in regulatory
