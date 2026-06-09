@@ -17,7 +17,7 @@ Photo → Backend upload → Pre-process → Tesseract OCR →
 | Capture | Expo Image Picker / camera | High-res label photo capture or library import |
 | Upload | `POST /api/v1/scan/` | Multipart field named `image`, max 8 MB |
 | Pre-process | Pillow | Grayscale conversion and contrast boost |
-| OCR | Tesseract via `pytesseract` | Server-side fallback OCR with confidence |
+| OCR | Tesseract via `pytesseract` | Server-side OCR with confidence |
 | Extractor | `ocr/src/pipeline/ingredients.py` | Pull ingredient terms from noisy raw OCR text |
 | Matcher | DRF ORM filters | Match ingredient terms against foods and molecules |
 | Lookup | DRF serializers | Return safety scores, molecule metadata, and raw OCR text |
@@ -37,26 +37,29 @@ brew install tesseract
 
 On Linux/CI images, install the equivalent OS package, usually `tesseract-ocr`.
 
-## OCR Prompt Template
+## Scan API Contract
 
-When ML Kit returns low-confidence text, we fall back to a vision-capable model:
+`POST /api/v1/scan/` accepts a multipart upload with the image in the `image` field.
+The backend rejects empty files, files over 8 MB, and non-JPEG/PNG/WebP uploads before
+calling the OCR scanner.
 
-```jinja2
-You are an OCR assistant for food ingredient labels.
-Rules:
-1. List ONLY the ingredient names, one per line.
-2. Do NOT include marketing text, brand names, or "Ingredients:" header.
-3. Preserve chemical names exactly (e.g., "Sodium Benzoate" not "sodium benzoate").
-4. If a word is unreadable, output "[unreadable]".
-5. Combine split words across line breaks intelligently.
+Successful responses return:
 
-Photo analysis:
-{{ image_description }}
-Raw OCR text:
-{{ raw_text }}
-
-Return JSON: {"ingredients": ["..."], "confidence": 0.0-1.0}
+```json
+{
+  "ingredients": ["water", "sea salt"],
+  "confidence": 92.5,
+  "raw_text": "Ingredients: water, sea salt",
+  "raw_text_truncated": false,
+  "foods": [],
+  "molecules": [],
+  "count": 0
+}
 ```
+
+`confidence` is normalized to a finite `0-100` percentage before it is returned to
+mobile clients or logged in aggregate analytics. `raw_text` is capped by the backend
+response limit; when capped, `raw_text_truncated` is `true`.
 
 ## Integration
 
