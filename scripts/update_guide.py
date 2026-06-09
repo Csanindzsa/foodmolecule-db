@@ -69,7 +69,7 @@ Return ONLY valid JSON:
     new_guide = IngredientAIGuide.objects.create(
         food=food,
         guide_markdown=result.markdown_content,
-        version=result.version,
+        version=current_guide.version + 1,
         generated_by=dispatcher.last_model_used or dispatcher.selector.pick_best_model("guide_generation"),
     )
     print(f"  Updated guide to v{new_guide.version} for {food.name}")
