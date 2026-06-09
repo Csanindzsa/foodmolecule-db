@@ -1,0 +1,29 @@
+compound,method,reduction_percent_min,reduction_percent_max,conditions,confidence,source,requires_citation,notes
+Oxalic acid,Boiling,30,87,Discard cooking water,draft,processing/methods.md,true,Spinach and beet greens noted in source doc
+Phytohaemagglutinin,Boiling,99,100,Rolling boil for 10 minutes,draft,processing/methods.md,true,Source doc states greater than 99 percent
+Phytic acid,Boiling,20,60,Discard cooking water,draft,processing/methods.md,true,
+Nitrates,Boiling,40,70,Water-soluble leaching with discarded water,draft,processing/methods.md,true,
+Amygdalin,Boiling,60,80,HCN precursor reduction,draft,processing/methods.md,true,
+Glucosinolates,Boiling,30,60,Water and heat processing,draft,processing/methods.md,true,
+Lectins,Soaking,40,50,Soak 12 hours and discard soak water,draft,processing/methods.md,true,
+Phytic acid,Soaking,20,50,Soak 12 to 24 hours,draft,processing/methods.md,true,
+Tannins,Soaking,30,60,Soak 8 to 12 hours,draft,processing/methods.md,true,
+Phytic acid,Fermentation,50,95,Sourdough or fermented porridge context,draft,processing/methods.md,true,
+Lactose,Fermentation,20,40,Yogurt context; aged cheese may be near-complete,draft,processing/methods.md,true,
+Nitrates,Fermentation,20,30,Fermented vegetables context,draft,processing/methods.md,true,
+Lectins,Pressure cooking,99,100,15 psi for 30 minutes,draft,processing/methods.md,true,Source doc states greater than 99.9 percent
+Phytic acid,Pressure cooking,50,75,Pressure cooking legumes,draft,processing/methods.md,true,
+Trypsin inhibitors,Pressure cooking,90,100,Pressure cooking legumes,draft,processing/methods.md,true,Source doc states greater than 90 percent
+Phytic acid,Sprouting,20,60,Germination for grains and legumes,draft,processing/methods.md,true,
+Lectins,Sprouting,30,50,Germination for grains and legumes,draft,processing/methods.md,true,
+Trypsin inhibitors,Sprouting,50,80,Germination for grains and legumes,draft,processing/methods.md,true,
+Amygdalin,Roasting/Baking,60,90,170 C for 15 or more minutes,draft,processing/methods.md,true,
+Aflatoxins,Roasting/Baking,10,25,Partial reduction only; prevention remains primary control,draft,processing/methods.md,true,
+Goitrogens,Roasting/Baking,30,50,Cruciferous vegetable context,draft,processing/methods.md,true,
+Tetrodotoxin,None effective,0,0,No domestic cooking or preparation method documented,draft,processing/methods.md,true,Ban-list trigger
+Ricin,None effective,0,0,Domestic heat is unreliable,draft,processing/methods.md,true,Ban-list trigger
+Hypoglycin A,None effective,0,0,Requires full physiological ripening,draft,processing/methods.md,true,Ban-list trigger
+Caramboxin,None effective,0,0,No cooking method documented,draft,processing/methods.md,true,Ban-list trigger
+Mercury,None effective,0,0,Heavy metal bioaccumulation,draft,processing/methods.md,true,Ban-list trigger
+Lead,None effective,0,0,Heavy metal contamination,draft,processing/methods.md,true,Ban-list trigger
+Persistent organics,None effective,0,0,Lipophilic persistent contaminants bound in tissue fat,draft,processing/methods.md,true,Ban-list trigger

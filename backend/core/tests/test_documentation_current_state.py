@@ -43,6 +43,8 @@ def test_current_state_docs_do_not_contain_stale_platform_claims():
         "`ban_list/conditional_warnings.md` | ⬜ Not started | Not yet written",
         "`ban_list/regulatory_tracker.md` | ⬜ Not started | Not yet written",
         "Press kit | ⬜ Not started | Not created",
+        "`processing/compound_matrix.csv` | ⬜ Not started | Empty",
+        "Phase 8 | methods.md, MoleculeNeutralization model | Methods doc done, data empty",
     ]
 
     for claim in stale_claims:

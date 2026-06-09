@@ -197,10 +197,10 @@
 | Component | Status | Notes |
 |-----------|--------|-------|
 | `processing/methods.md` | ✅ Complete | 12 processing methods documented |
-| `processing/compound_matrix.csv` | ⬜ Not started | Empty |
+| `processing/compound_matrix.csv` | 🟡 Partial | Draft compound-method matrix migrated from methods doc; citations still required |
 | MoleculeNeutralization model | ✅ Complete | Django model with reduction %, evidence refs |
 
-**Notes:** Processing methods documented (boiling, pressure cooking, soaking, fermentation, sprouting, roasting, steaming, peeling, acidification, enzyme treatment, dehydration, freezing). Compound-level data population not yet started.
+**Notes:** Processing methods documented (boiling, pressure cooking, soaking, fermentation, sprouting, roasting, steaming, peeling, acidification, enzyme treatment, dehydration, freezing). Draft compound-level data exists, but each row still needs source-level PubMed or standards citations before production seeding.
 
 ---
 
@@ -367,7 +367,7 @@ GET /api/v1/stats/
 | Phase 5 | pubmed_watcher.py, study_analyzer.py, safety_adjuster.py, ai_override.py | Complete |
 | Phase 6 | template.md, generate_guides.py, update_guide.py | Template + scripts done, 0 guides |
 | Phase 7 | harm_levels.md, harm_types.md, health_index.py | Complete |
-| Phase 8 | methods.md, MoleculeNeutralization model | Methods doc done, data empty |
+| Phase 8 | methods.md, compound_matrix.csv, MoleculeNeutralization model | Draft compound matrix done, citations pending |
 | Phase 9 | ban_list.md, ban_list.json, BanListEntry model | Draft structured data + model done, citations pending |
 | Phase 10 | 17 endpoints, 9 serializers, settings.py, urls.py, admin.py | Complete |
 | Phase 11 | Routed web app, Layout, API client, hooks, tests | Core public pages complete |
