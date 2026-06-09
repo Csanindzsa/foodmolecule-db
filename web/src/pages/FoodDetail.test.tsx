@@ -90,7 +90,7 @@ const mockFood = {
   molecules: [
     {
       molecule: { id: "m1", name: "Vitamin C", harm_level: 1, is_beneficial: true },
-      amount_per_100g: 50,
+      amount_per_100g: "50.000000",
       unit: "mg",
       amount_notes: "",
       is_beneficial: true,

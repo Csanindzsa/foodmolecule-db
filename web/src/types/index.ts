@@ -14,7 +14,7 @@ export interface Food {
 
 export interface FoodMolecule {
   molecule: Molecule;
-  amount_per_100g: number | null;
+  amount_per_100g: string | null;
   unit: string;
   amount_notes: string;
   is_beneficial: boolean;
@@ -27,7 +27,7 @@ export interface Molecule {
   iupac_name: string;
   cas_number: string;
   molecular_formula: string;
-  molecular_weight: number | null;
+  molecular_weight: string | null;
   harm_level: number;
   harm_mechanisms: string[];
   is_heat_stable: boolean;

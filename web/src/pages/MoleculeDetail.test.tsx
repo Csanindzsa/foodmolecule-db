@@ -67,7 +67,7 @@ const mockMolecule = {
   iupac_name: "1,3,7-trimethylpurine-2,6-dione",
   cas_number: "58-08-2",
   molecular_formula: "C8H10N4O2",
-  molecular_weight: 194.19,
+  molecular_weight: "194.1900",
   harm_level: 2,
   harm_mechanisms: ["Increases heart rate", "Can cause insomnia"],
   is_heat_stable: true,
