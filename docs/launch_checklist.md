@@ -18,7 +18,7 @@
 ### Frontend
 - [ ] Build web (`cd web && npm run build`) and verify no Vite errors
 - [ ] Point `nutrii.fit` DNS to the production frontend host
-- [ ] Deploy to Vercel/Netlify with `VITE_API_BASE_URL` pointing to production backend
+- [ ] Deploy to Vercel/Netlify with `VITE_API_URL` pointing to the production backend API
 - [ ] Run Lighthouse audit: target >90 on Performance, Accessibility, SEO
 - [ ] Test all routes: `/`, `/search`, `/food/:id`, `/molecule/:id`, `/compare`, `/ban-list`
 
