@@ -1,6 +1,7 @@
 from xml.etree import ElementTree as ET
 
 import httpx
+import pytest
 
 from scripts.fetchers import fetch_pubmed
 
@@ -21,6 +22,22 @@ class FakeClient:
             text=self.text,
             request=httpx.Request("GET", url, params=params),
         )
+
+
+class SequenceClient:
+    def __init__(self, responses: list[httpx.Response]):
+        self.responses = responses
+        self.calls = 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def get(self, url: str, params: dict, timeout: int):
+        self.calls += 1
+        return self.responses.pop(0)
 
 
 def test_abstract_text_combines_labeled_sections_and_nested_text():
@@ -65,6 +82,49 @@ def test_fetch_abstracts_preserves_all_abstract_sections(monkeypatch):
     assert abstracts == {
         "12345": "METHODS: Diet records were collected.\nRESULTS: Higher intake changed biomarkers."
     }
+
+
+def test_search_studies_retries_transient_pubmed_status(monkeypatch):
+    clients: list[SequenceClient] = []
+    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+
+    def client_factory():
+        client = SequenceClient(
+            [
+                httpx.Response(500, json={}, request=httpx.Request("GET", url)),
+                httpx.Response(
+                    200,
+                    json={"esearchresult": {"idlist": ["12345"]}},
+                    request=httpx.Request("GET", url),
+                ),
+            ]
+        )
+        clients.append(client)
+        return client
+
+    monkeypatch.setattr(fetch_pubmed.httpx, "Client", client_factory)
+    monkeypatch.setattr(fetch_pubmed.time, "sleep", lambda _: None)
+
+    assert fetch_pubmed.search_studies("spinach", max_results=1) == ["12345"]
+    assert clients[0].calls == 2
+
+
+def test_fetch_summaries_does_not_retry_non_retryable_status(monkeypatch):
+    clients: list[SequenceClient] = []
+    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+
+    def client_factory():
+        client = SequenceClient([httpx.Response(400, json={}, request=httpx.Request("GET", url))])
+        clients.append(client)
+        return client
+
+    monkeypatch.setattr(fetch_pubmed.httpx, "Client", client_factory)
+    monkeypatch.setattr(fetch_pubmed.time, "sleep", lambda _: None)
+
+    with pytest.raises(httpx.HTTPStatusError):
+        fetch_pubmed.fetch_summaries(["12345"])
+
+    assert clients[0].calls == 1
 
 
 def test_publication_year_accepts_only_model_safe_years():
