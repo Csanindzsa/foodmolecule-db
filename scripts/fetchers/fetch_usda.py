@@ -20,6 +20,32 @@ from scripts.pipeline.models import FoodEntry, FoodMoleculeLink
 USDA_SEARCH_DATA_TYPES = ["Foundation", "SR Legacy"]
 
 
+def _is_retryable_status(status_code: int) -> bool:
+    return status_code == 429 or 500 <= status_code < 600
+
+
+def _request_with_retries(client: httpx.Client, method: str, url: str, **kwargs) -> httpx.Response:
+    last_exc: httpx.HTTPError | None = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = getattr(client, method)(url, **kwargs)
+            response.raise_for_status()
+            return response
+        except httpx.HTTPStatusError as exc:
+            last_exc = exc
+            if not _is_retryable_status(exc.response.status_code) or attempt == MAX_RETRIES:
+                raise
+        except httpx.HTTPError as exc:
+            last_exc = exc
+            if attempt == MAX_RETRIES:
+                raise
+        time.sleep((1 / RATE_LIMITS["usda"]) * attempt)
+
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("USDA request failed without an exception")
+
+
 def search_food(query: str, page_size: int = 5, page_number: int = 1) -> list[dict]:
     """Search for foods by name."""
     url = f"{USDA_API_BASE}/foods/search"
@@ -35,8 +61,7 @@ def search_food(query: str, page_size: int = 5, page_number: int = 1) -> list[di
                 "pageNumber": page_number,
                 "dataType": data_type,
             }
-            resp = client.get(url, params=params, timeout=30)
-            resp.raise_for_status()
+            resp = _request_with_retries(client, "get", url, params=params, timeout=30)
 
             for food in resp.json().get("foods", []):
                 fdc_id = food.get("fdcId")
@@ -57,8 +82,7 @@ def get_food_details(fdc_ids: list[int]) -> list[dict]:
     params = {"api_key": USDA_API_KEY}
     payload = {"fdcIds": fdc_ids}
     with httpx.Client() as client:
-        resp = client.post(url, params=params, json=payload, timeout=60)
-        resp.raise_for_status()
+        resp = _request_with_retries(client, "post", url, params=params, json=payload, timeout=60)
         return resp.json()
 
 
@@ -67,8 +91,7 @@ def get_food_detail(fdc_id: int) -> dict:
     url = f"{USDA_API_BASE}/food/{fdc_id}"
     params = {"api_key": USDA_API_KEY}
     with httpx.Client() as client:
-        resp = client.get(url, params=params, timeout=30)
-        resp.raise_for_status()
+        resp = _request_with_retries(client, "get", url, params=params, timeout=30)
         return resp.json()
 
 
