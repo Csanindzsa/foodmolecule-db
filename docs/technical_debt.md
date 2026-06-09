@@ -46,8 +46,8 @@
 - [ ] **No API versioning** — Breaking changes would silently break consumers.
   - **Mitigation:** All endpoints prefixed `/api/v1/`. Breaking changes bump to `/api/v2/` with a deprecation notice.
 
-- [ ] **No pagination** — List endpoints returned unbounded result sets.
-  - **Mitigation:** Cursor pagination on all list endpoints. Max `page_size = 100`.
+- [x] **No pagination** — List endpoints returned unbounded result sets.
+  - **Mitigation:** DRF page-number pagination is enabled for list endpoints. Default `page_size = 50`; client-requested `page_size` is capped at 100.
 
 ### Testing & Quality
 

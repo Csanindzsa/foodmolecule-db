@@ -21,15 +21,15 @@ The original repository (`foodmolecule-db`) was a minimal data-first project wit
 
 ## 2. What Was Missing (Now Added)
 
-- No backend (Django) — **to be created in Phase 10**
-- No frontend — **to be created in Phase 11**
-- No mobile app — **to be created in Phase 12**
-- No AI/LLM integration — **to be created in Phase 4**
-- No PubMed ingestion — **to be created in Phase 5**
-- No Docker / infra config — **to be created in Phase 1**
+- No backend (Django) — **added** under `backend/`
+- No frontend — **added** under `web/`
+- No mobile app — **added** under `mobile/`
+- No AI/LLM integration — **added** through guide generation, study analysis, and safety adjustment scripts
+- No PubMed ingestion — **added** through PubMed fetcher and watcher scripts
+- No Docker / infra config — **partially added**; deployment still requires environment-specific hosting configuration
 - No `.env.example` — **added in Phase 1**
-- Missing schemas: `study.schema.json`, `ai_guide.schema.json` — **to be added in Phase 2**
-- No `docs/` directory with structured documentation — **created now**
+- Missing schemas: `study.schema.json`, `ai_guide.schema.json` — **added**
+- No `docs/` directory with structured documentation — **added**
 
 ## 3. Known Technical Debt from Legacy Project
 
@@ -40,8 +40,8 @@ Summary of the most critical issues identified to avoid repeating:
 1. **Hardcoded secrets** — legacy Nutri had `SECRET_KEY` committed in settings. nutrii uses environment variables exclusively via `.env` + `python-decouple`.
 2. **CORS `*`** — legacy used wildcard CORS. nutrii uses an explicit allow-list.
 3. **SQLite in production** — legacy used SQLite. nutrii uses Supabase PostgreSQL exclusively.
-4. **No migration strategy** — legacy had no Django migrations. nutrii will have migrations from day one.
-5. **No test suite** — legacy had zero tests. nutrii requires `pytest-django` coverage on all models and API endpoints.
+4. **No migration strategy** — legacy had no Django migrations. nutrii has Django migrations under `backend/core/migrations/`.
+5. **No test suite** — legacy had zero tests. nutrii has `pytest-django` coverage for models, APIs, ingestion, OCR, PubMed, and AI workflows.
 6. **No rate limiting** — legacy had no rate limiting. nutrii enables DRF anonymous throttling in production.
 7. **No caching** — legacy had no cache layer. nutrii has Django cache wiring with a local-memory backend; shared Redis remains a deployment upgrade for multi-instance traffic.
 8. **Schema drift** — JSON schema files were not enforced. nutrii runs `jsonschema` validation before every bulk insert.
