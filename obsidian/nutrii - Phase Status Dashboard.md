@@ -345,7 +345,7 @@ GET /api/v1/stats/
 | `docs/scaling.md` | ✅ Complete | Scaling roadmap across user milestones |
 | `backend/core/analytics.py` | ✅ Complete | Privacy-first analytics (IP hashing, no cookies) |
 | SEO optimization | ⬜ Not started | SSR/pre-rendering needed |
-| Sitemap generation | ⬜ Not started | Needed |
+| Sitemap generation | 🟡 Partial | Static route sitemap and robots.txt created; dynamic food/molecule sitemap needs production data |
 | App store listings | ⬜ Not started | Needed |
 | Press kit | ⬜ Not started | Not created |
 | GitHub ISSUE_TEMPLATE | ✅ Complete | new_food.md, ban_list_nomination.md |
