@@ -35,6 +35,11 @@ def test_current_state_docs_do_not_contain_stale_platform_claims():
         "ScanScreen | ✅ Complete | Camera button (placeholder, no API)",
         "Camera/OCR integration not implemented",
         "No API calls wired up yet",
+        "Phase 9 | ban_list.md, BanListEntry model | Doc + model done, data empty",
+        "Phase 10 | 16 views, 9 serializers, settings.py, urls.py, admin.py",
+        "Phase 11 | 3 pages, Layout, API client, types | Pages complete, 3 pages missing",
+        "Phase 12 | 4 screens, navigation, history store | Scaffolded, mostly placeholder",
+        "Phase 13 | ocr/README.md, scan.py | Architecture done, not integrated",
     ]
 
     for claim in stale_claims:

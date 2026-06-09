@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "evidence_status": "draft_requires_citation",
+  "entries": [
+    {
+      "food_name": "Castor beans",
+      "harmful_molecules": ["Ricin"],
+      "harm_level": "critical",
+      "reason": "Existing ban-list draft says ricin can be lethal at very small body-weight-adjusted doses, has no known antidote, and is not reliably inactivated by domestic cooking temperatures.",
+      "lethal_dose_mg": null,
+      "lethal_dose_notes": "Draft note from ban_list.md: 1-10 ug/kg body weight may be lethal.",
+      "is_conditionally_safe": false,
+      "safe_condition": null,
+      "neutralizable": "no",
+      "regulatory_status": {
+        "global": {
+          "status": "restricted",
+          "regulation": null,
+          "agency": null,
+          "note": "Draft note from ban_list.md: controlled substance in most countries.",
+          "date": null,
+          "max_ppm": null
+        }
+      },
+      "metadata": {
+        "source": "ban_list/ban_list.md",
+        "requires_citation": true,
+        "notes": "Migrated from markdown draft; do not treat as verified without PubMed or regulatory citations."
+      }
+    },
+    {
+      "food_name": "Raw bitter almonds",
+      "harmful_molecules": ["Amygdalin", "Hydrogen cyanide"],
+      "harm_level": "critical",
+      "reason": "Existing ban-list draft says raw bitter almonds can deliver dangerous cyanide exposure and that roasting may not reliably reduce hydrogen cyanide to safe levels.",
+      "lethal_dose_mg": null,
+      "lethal_dose_notes": "Draft note from ban_list.md: about 50 raw bitter almonds can deliver a lethal cyanide dose to an adult.",
+      "is_conditionally_safe": false,
+      "safe_condition": "Sweet almonds are outside this draft ban-list entry.",
+      "neutralizable": "partial",
+      "regulatory_status": {
+        "EU": {
+          "status": "restricted",
+          "regulation": null,
+          "agency": null,
+          "note": "Draft note from ban_list.md: sale restricted.",
+          "date": null,
+          "max_ppm": null
+        },
+        "USA": {
+          "status": "restricted",
+          "regulation": null,
+          "agency": null,
+          "note": "Draft note from ban_list.md: sale restricted.",
+          "date": null,
+          "max_ppm": null
+        }
+      },
+      "metadata": {
+        "source": "ban_list/ban_list.md",
+        "requires_citation": true,
+        "notes": "Migrated from markdown draft; do not treat as verified without PubMed or regulatory citations."
+      }
+    },
+    {
+      "food_name": "Pennyroyal oil (concentrated)",
+      "harmful_molecules": ["Pulegone"],
+      "harm_level": "critical",
+      "reason": "Existing ban-list draft distinguishes concentrated pennyroyal essential oil from the herb and flags liver failure risk.",
+      "lethal_dose_mg": null,
+      "lethal_dose_notes": null,
+      "is_conditionally_safe": false,
+      "safe_condition": null,
+      "neutralizable": "no",
+      "regulatory_status": {},
+      "metadata": {
+        "source": "ban_list/ban_list.md",
+        "requires_citation": true,
+        "notes": "Migrated from markdown draft; do not treat as verified without PubMed or regulatory citations."
+      }
+    },
+    {
+      "food_name": "Puffer fish / fugu (unprepared)",
+      "harmful_molecules": ["Tetrodotoxin"],
+      "harm_level": "critical",
+      "reason": "Existing ban-list draft says tetrodotoxin is heat-stable, has no antidote, and is dangerous when toxic organs are not removed.",
+      "lethal_dose_mg": 1.2,
+      "lethal_dose_notes": "Draft note from ban_list.md: about 1.2 mg may be lethal to a 70 kg adult.",
+      "is_conditionally_safe": true,
+      "safe_condition": "Only when prepared by licensed fugu chefs with certified removal of toxic organs.",
+      "neutralizable": "no",
+      "regulatory_status": {
+        "EU": {
+          "status": "banned",
+          "regulation": null,
+          "agency": null,
+          "note": "Draft note from ban_list.md: banned.",
+          "date": null,
+          "max_ppm": null
+        },
+        "USA": {
+          "status": "restricted",
+          "regulation": null,
+          "agency": null,
+          "note": "Draft note from ban_list.md: import restricted.",
+          "date": null,
+          "max_ppm": null
+        },
+        "Japan": {
+          "status": "restricted",
+          "regulation": null,
+          "agency": null,
+          "note": "Draft note from ban_list.md: licensed preparation allowed.",
+          "date": null,
+          "max_ppm": null
+        }
+      },
+      "metadata": {
+        "source": "ban_list/ban_list.md",
+        "requires_citation": true,
+        "notes": "Migrated from markdown draft; do not treat as verified without PubMed or regulatory citations."
+      }
+    },
+    {
+      "food_name": "Ackee (unripe or improperly prepared)",
+      "harmful_molecules": ["Hypoglycin A", "Hypoglycin B"],
+      "harm_level": "critical",
+      "reason": "Existing ban-list draft says unripe or improperly prepared ackee can cause severe hypoglycemia and may be fatal.",
+      "lethal_dose_mg": null,
+      "lethal_dose_notes": null,
+      "is_conditionally_safe": true,
+      "safe_condition": "Ripe, naturally opened arils only. Seeds and membranes must be discarded.",
+      "neutralizable": "unknown",
+      "regulatory_status": {
+        "USA": {
+          "status": "restricted",
+          "regulation": null,
+          "agency": null,
+          "note": "Draft note from ban_list.md: fresh ackee banned from import; canned ackee permitted.",
+          "date": null,
+          "max_ppm": null
+        }
+      },
+      "metadata": {
+        "source": "ban_list/ban_list.md",
+        "requires_citation": true,
+        "notes": "Migrated from markdown draft; do not treat as verified without PubMed or regulatory citations."
+      }
+    },
+    {
+      "food_name": "Rhubarb leaves",
+      "harmful_molecules": ["Oxalic acid", "Anthraquinone glycosides"],
+      "harm_level": "high-critical",
+      "reason": "Existing ban-list draft says rhubarb leaves contain much higher oxalic acid than stalks and can cause kidney failure and death.",
+      "lethal_dose_mg": null,
+      "lethal_dose_notes": "Draft note from ban_list.md: leaves contain about 0.5-1% oxalic acid.",
+      "is_conditionally_safe": true,
+      "safe_condition": "Stalks only; leaves must be discarded.",
+      "neutralizable": "no",
+      "regulatory_status": {},
+      "metadata": {
+        "source": "ban_list/ban_list.md",
+        "requires_citation": true,
+        "notes": "Migrated from markdown draft; do not treat as verified without PubMed or regulatory citations."
+      }
+    },
+    {
+      "food_name": "Raw kidney beans",
+      "harmful_molecules": ["Phytohaemagglutinin"],
+      "harm_level": "high",
+      "reason": "Existing ban-list draft says raw kidney beans can cause severe gastrointestinal symptoms and that slow cooking below boiling can increase toxicity.",
+      "lethal_dose_mg": null,
+      "lethal_dose_notes": "Draft note from ban_list.md: as few as 4-5 raw beans can cause severe symptoms.",
+      "is_conditionally_safe": true,
+      "safe_condition": "Must be boiled at 100 C for at least 10 minutes.",
+      "neutralizable": "yes",
+      "regulatory_status": {},
+      "metadata": {
+        "source": "ban_list/ban_list.md",
+        "requires_citation": true,
+        "notes": "Migrated from markdown draft; do not treat as verified without PubMed or regulatory citations."
+      }
+    },
+    {
+      "food_name": "Star fruit in kidney disease",
+      "harmful_molecules": ["Caramboxin", "Oxalic acid derivative"],
+      "harm_level": "high",
+      "reason": "Existing ban-list draft says star fruit can cause neurotoxicity in people with chronic kidney disease.",
+      "lethal_dose_mg": null,
+      "lethal_dose_notes": null,
+      "is_conditionally_safe": true,
+      "safe_condition": "Draft note from ban_list.md: safe for people with healthy kidneys.",
+      "neutralizable": "unknown",
+      "regulatory_status": {},
+      "metadata": {
+        "source": "ban_list/ban_list.md",
+        "requires_citation": true,
+        "notes": "Migrated from markdown draft; do not treat as verified without PubMed or regulatory citations."
+      }
+    },
+    {
+      "food_name": "Ergot-contaminated grain",
+      "harmful_molecules": ["Ergotamine", "Ergometrine", "Ergot alkaloids"],
+      "harm_level": "high-critical",
+      "reason": "Existing ban-list draft says contaminated grain can cause ergotism and should be rejected.",
+      "lethal_dose_mg": null,
+      "lethal_dose_notes": null,
+      "is_conditionally_safe": true,
+      "safe_condition": "Modern grain inspection should reject contaminated grain.",
+      "neutralizable": "partial",
+      "regulatory_status": {},
+      "metadata": {
+        "source": "ban_list/ban_list.md",
+        "requires_citation": true,
+        "notes": "Migrated from markdown draft; do not treat as verified without PubMed or regulatory citations."
+      }
+    }
+  ]
+}

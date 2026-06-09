@@ -18,5 +18,8 @@ labels: ban-list, needs-review
 <!-- Is it banned in any jurisdiction? -->
 
 ## References (REQUIRED)
-- PubMed PMID: 
-- Regulatory source: 
+- PubMed PMID:
+- Regulatory source:
+
+## Did you validate structured data, if included?
+- [ ] `python scripts/validate_schema.py ban_list ban_list/ban_list.json` passes locally

@@ -213,13 +213,13 @@
 | Component | Status | Notes |
 |-----------|--------|-------|
 | `ban_list/ban_list.md` | ✅ Complete | Core ban list documentation |
-| `ban_list/ban_list.json` | ⬜ Not started | Structured data not yet created |
+| `ban_list/ban_list.json` | 🟡 Partial | Draft structured entries migrated from markdown; citations still required before finalization |
 | `ban_list/conditional_warnings.md` | ⬜ Not started | Not yet written |
 | `ban_list/regulatory_tracker.md` | ⬜ Not started | Not yet written |
 | BanListEntry Django model | ✅ Complete | Full model with regulatory JSONB |
 | Ban list API + web page | ✅ Complete | `/api/v1/ban-list/` and `web/src/pages/BanList.tsx` implemented with tests |
 
-**Notes:** Ban criteria documented (4 criteria for automatic entry). Conditional warnings framework defined. The `BanListEntry` model supports per-jurisdiction regulatory JSONB.
+**Notes:** Ban criteria documented (4 criteria for automatic entry). Conditional warnings framework defined. The `BanListEntry` model supports per-jurisdiction regulatory JSONB. The structured JSON is draft-only until each entry has PubMed or regulatory citations.
 
 ---
 
@@ -368,9 +368,9 @@ GET /api/v1/stats/
 | Phase 6 | template.md, generate_guides.py, update_guide.py | Template + scripts done, 0 guides |
 | Phase 7 | harm_levels.md, harm_types.md, health_index.py | Complete |
 | Phase 8 | methods.md, MoleculeNeutralization model | Methods doc done, data empty |
-| Phase 9 | ban_list.md, BanListEntry model | Doc + model done, data empty |
-| Phase 10 | 16 views, 9 serializers, settings.py, urls.py, admin.py | Complete |
-| Phase 11 | 3 pages, Layout, API client, types | Pages complete, 3 pages missing |
-| Phase 12 | 4 screens, navigation, history store | Scaffolded, mostly placeholder |
-| Phase 13 | ocr/README.md, scan.py | Architecture done, not integrated |
+| Phase 9 | ban_list.md, ban_list.json, BanListEntry model | Draft structured data + model done, citations pending |
+| Phase 10 | 17 endpoints, 9 serializers, settings.py, urls.py, admin.py | Complete |
+| Phase 11 | Routed web app, Layout, API client, hooks, tests | Core public pages complete |
+| Phase 12 | 4 screens, API client, scan flow, history store, EAS profiles | App code ready for native build validation |
+| Phase 13 | ocr/README.md, scan.py, backend scan API, mobile scan flow | MVP integrated; real-label validation pending |
 | Phase 14 | launch_checklist.md, scaling.md, analytics.py, issue templates | Foundation laid |

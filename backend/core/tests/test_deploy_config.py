@@ -24,3 +24,9 @@ def test_ci_validates_food_seed_schemas():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 
     assert "python ../scripts/validate_schema.py food ../data/seed/foods" in workflow
+
+
+def test_ci_validates_ban_list_schema():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "python ../scripts/validate_schema.py ban_list ../ban_list/ban_list.json" in workflow

@@ -52,3 +52,36 @@ def test_validate_schema_cli_reports_invalid_json(tmp_path, capsys):
     captured = capsys.readouterr()
     assert exit_code == 1
     assert "Invalid JSON:" in captured.err
+
+
+def test_validate_schema_cli_accepts_ban_list_collection(tmp_path, capsys):
+    path = tmp_path / "ban_list.json"
+    path.write_text(
+        json.dumps({
+            "schema_version": 1,
+            "evidence_status": "draft_requires_citation",
+            "entries": [
+                {
+                    "food_name": "Raw test food",
+                    "harmful_molecules": ["test toxin"],
+                    "harm_level": "critical",
+                    "reason": "Requires controlled preparation.",
+                    "is_conditionally_safe": True,
+                    "safe_condition": "Only after certified processing.",
+                    "neutralizable": "partial",
+                    "regulatory_status": {},
+                    "metadata": {
+                        "source": "test",
+                        "requires_citation": True,
+                    },
+                }
+            ],
+        }),
+        encoding="utf-8",
+    )
+
+    exit_code = validate_schema.main(["ban_list", str(path)])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Validation passed for 1 ban_list file(s)." in captured.out

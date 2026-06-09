@@ -34,7 +34,7 @@
 - [ ] Seed database with top 100 most common food ingredients
 - [ ] Verify PubMed watcher cron job is running every 6 hours
 - [ ] Run one full safety adjustment cycle end-to-end
-- [ ] Confirm ban list entries are surfaced correctly in UI
+- [ ] Confirm verified ban list entries are surfaced correctly in UI
 
 ### Analytics (Phase 14)
 - [ ] Verify privacy-preserving backend analytics logs are captured by production logging

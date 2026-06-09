@@ -1,30 +1,73 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://nutrii.fit/schema/ban_list.schema.json",
-  "title": "BanListEntry",
-  "description": "An entry on the nutrii ban list",
+  "title": "BanList",
+  "description": "A draft collection of foods or preparations nominated for the nutrii ban list",
   "type": "object",
-  "required": ["food_id", "reason"],
+  "required": ["schema_version", "evidence_status", "entries"],
   "properties": {
-    "id": { "type": "string", "format": "uuid" },
-    "food_id": { "type": "string", "format": "uuid" },
-    "reason": { "type": "string" },
-    "lethal_dose_mg": { "type": ["number", "null"] },
-    "is_conditionally_safe": { "type": "boolean", "default": false },
-    "safe_condition": { "type": ["string", "null"] },
-    "regulatory_status": {
-      "type": "object",
-      "additionalProperties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "evidence_status": {
+      "type": "string",
+      "enum": ["draft_requires_citation", "verified"]
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
         "type": "object",
+        "required": ["food_name", "reason", "is_conditionally_safe"],
         "properties": {
-          "status": { "type": "string", "enum": ["banned", "restricted", "permitted", "under_review"] },
-          "regulation": { "type": ["string", "null"] },
-          "agency": { "type": ["string", "null"] },
-          "note": { "type": ["string", "null"] },
-          "date": { "type": ["string", "null"] },
-          "max_ppm": { "type": ["number", "null"] }
+          "food_name": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "harmful_molecules": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "default": []
+          },
+          "harm_level": {
+            "type": ["string", "null"],
+            "enum": ["critical", "high-critical", "high", "moderate", "low", null]
+          },
+          "reason": { "type": "string", "minLength": 1 },
+          "lethal_dose_mg": { "type": ["number", "null"] },
+          "lethal_dose_notes": { "type": ["string", "null"] },
+          "is_conditionally_safe": { "type": "boolean", "default": false },
+          "safe_condition": { "type": ["string", "null"] },
+          "neutralizable": {
+            "type": ["string", "null"],
+            "enum": ["no", "partial", "yes", "unknown", null]
+          },
+          "regulatory_status": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "required": ["status"],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["banned", "restricted", "permitted", "under_review"]
+                },
+                "regulation": { "type": ["string", "null"] },
+                "agency": { "type": ["string", "null"] },
+                "note": { "type": ["string", "null"] },
+                "date": { "type": ["string", "null"] },
+                "max_ppm": { "type": ["number", "null"] }
+              },
+              "additionalProperties": false
+            },
+            "default": {}
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "source": { "type": "string" },
+              "requires_citation": { "type": "boolean" },
+              "notes": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
         },
-        "required": ["status"]
+        "additionalProperties": false
       }
     }
   },
