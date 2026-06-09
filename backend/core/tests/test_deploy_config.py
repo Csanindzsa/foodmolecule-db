@@ -29,6 +29,12 @@ def test_ci_runs_backend_ai_and_ocr_tests():
     assert "python -m pytest ocr/tests -q" in workflow
 
 
+def test_ci_compiles_python_sources_before_tests():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "python -m compileall -q ../ai . ../ocr ../scripts" in workflow
+
+
 def test_ci_validates_food_seed_schemas():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 
