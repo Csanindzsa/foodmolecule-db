@@ -124,6 +124,26 @@ def test_seed_creates_food_molecule_links(temp_seed_dir):
 
 
 @pytest.mark.django_db
+def test_seed_normalizes_molecule_names_and_links(temp_seed_dir):
+    """Molecule JSON and food link names use the same canonical form."""
+    mol_file = temp_seed_dir / "molecules" / "test_mol.json"
+    mol_data = json.loads(mol_file.read_text(encoding="utf-8"))
+    mol_data["name"] = " Test Molecule (total) "
+    mol_file.write_text(json.dumps(mol_data), encoding="utf-8")
+
+    food_file = temp_seed_dir / "foods" / "test_food.json"
+    food_data = json.loads(food_file.read_text(encoding="utf-8"))
+    food_data["molecules"][0]["molecule_name"] = "TEST MOLECULE"
+    food_file.write_text(json.dumps(food_data), encoding="utf-8")
+
+    call_command("seed_data", "--path", str(temp_seed_dir))
+
+    molecule = Molecule.objects.get()
+    assert molecule.name == "test molecule"
+    assert FoodMolecule.objects.get().molecule == molecule
+
+
+@pytest.mark.django_db
 def test_seed_preserves_uuids(temp_seed_dir):
     """UUIDs from JSON files are used as primary keys."""
     call_command("seed_data", "--path", str(temp_seed_dir))
@@ -180,6 +200,19 @@ def test_seed_creates_by_name_when_id_missing(temp_seed_dir):
     assert Molecule.objects.count() == 1
     mol = Molecule.objects.get(name="test molecule")
     assert mol.pubchem_cid == 99999
+
+
+@pytest.mark.django_db
+def test_seed_updates_existing_molecule_by_case_insensitive_name(temp_seed_dir):
+    """Existing molecules are reused even if their stored case differs."""
+    existing = Molecule.objects.create(name="Test Molecule", pubchem_cid=111)
+
+    call_command("seed_data", "--path", str(temp_seed_dir))
+
+    assert Molecule.objects.count() == 1
+    existing.refresh_from_db()
+    assert existing.name == "test molecule"
+    assert existing.pubchem_cid == 12345
 
 
 @pytest.mark.django_db

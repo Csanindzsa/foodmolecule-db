@@ -18,6 +18,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from core.models import Food, FoodCategory, FoodMolecule, Molecule
+from scripts.transformers.normalizer import normalize_name
 
 
 class Command(BaseCommand):
@@ -104,8 +105,9 @@ class Command(BaseCommand):
 
             try:
                 defaults = self._build_molecule_defaults(data)
+                molecule_name = normalize_name(data["name"])
                 molecule, created = self._upsert_with_uuid(
-                    Molecule, data["id"], data["name"], defaults
+                    Molecule, data["id"], molecule_name, defaults
                 )
 
                 action = "created" if created else "updated"
@@ -198,12 +200,13 @@ class Command(BaseCommand):
                 # Process nested molecules
                 molecules_data = data.get("molecules", [])
                 for mol_data in molecules_data:
-                    try:
-                        molecule = Molecule.objects.get(name=mol_data["molecule_name"])
-                    except Molecule.DoesNotExist:
+                    raw_molecule_name = mol_data.get("molecule_name", "")
+                    molecule_name = normalize_name(raw_molecule_name)
+                    molecule = Molecule.objects.filter(name__iexact=molecule_name).first()
+                    if not molecule:
                         self.stdout.write(
                             self.style.WARNING(
-                                f"    Molecule '{mol_data['molecule_name']}' not found -- skipping"
+                                f"    Molecule '{raw_molecule_name}' not found -- skipping"
                             )
                         )
                         continue
@@ -254,7 +257,7 @@ class Command(BaseCommand):
 
         1. Try to find by id (from JSON)
         2. If not found, try to find by name (when unique_name=True)
-        3. If found, update defaults (excluding id)
+        3. If found, update name and defaults (excluding id)
         4. If not found, create with JSON id as PK
         """
         # Try by id first
@@ -263,9 +266,8 @@ class Command(BaseCommand):
         except model_class.DoesNotExist:
             # Try by name (only when unique_name is True, e.g. for Molecule)
             if unique_name:
-                try:
-                    instance = model_class.objects.get(name=name)
-                except model_class.DoesNotExist:
+                instance = model_class.objects.filter(name__iexact=name).first()
+                if instance is None:
                     # Create new with JSON id
                     instance = model_class.objects.create(
                         id=json_id, name=name, **defaults
@@ -279,6 +281,7 @@ class Command(BaseCommand):
                 return instance, True
 
         # Update existing instance (do not change id)
+        instance.name = name
         for field, value in defaults.items():
             setattr(instance, field, value)
         instance.save()
