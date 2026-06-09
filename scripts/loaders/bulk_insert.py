@@ -37,6 +37,7 @@ from core.models import (
     FoodStudy,
 )
 from scripts.pipeline.models import FoodEntry, MoleculeEntry, StudyEntry
+from scripts.transformers.normalizer import normalize_name
 
 
 def get_or_create_category(name: str) -> FoodCategory:
@@ -104,8 +105,11 @@ def upsert_food(entry: FoodEntry) -> Food:
 def link_food_molecules(food: Food, links: list) -> None:
     """Create FoodMolecule junction records."""
     for link in links:
-        mol_name = link.molecule_name
-        molecule = Molecule.objects.filter(name=mol_name).first()
+        mol_name = normalize_name(link.molecule_name)
+        if not mol_name:
+            raise ValueError(f"Blank molecule name for food {food.name!r}")
+
+        molecule = Molecule.objects.filter(name__iexact=mol_name).first()
         if not molecule:
             # Auto-create a stub molecule if missing
             molecule = Molecule.objects.create(name=mol_name)
