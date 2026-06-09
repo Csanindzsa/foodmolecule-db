@@ -28,6 +28,7 @@ import django
 django.setup()
 
 from django.db import transaction
+from django.db.models import F
 from django.utils import timezone
 
 from ai.dispatcher import OpenRouterDispatcher
@@ -53,7 +54,11 @@ def get_recent_studies(food: Food, n: int = 5) -> list[Study]:
     return list(
         Study.objects.filter(foodstudy__food=food, ai_summary__isnull=False)
         .exclude(ai_summary="")
-        .order_by("-analyzed_at")[:n]
+        .order_by(
+            F("analyzed_at").desc(nulls_last=True),
+            "-publication_year",
+            "title",
+        )[:n]
     )
 
 

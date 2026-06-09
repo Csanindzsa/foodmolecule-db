@@ -1,8 +1,9 @@
+from datetime import datetime, timezone as dt_timezone
 from types import SimpleNamespace
 
 import pytest
 
-from core.models import Food, Study
+from core.models import Food, FoodStudy, Study
 from scripts import safety_adjuster
 
 
@@ -81,3 +82,40 @@ def test_propose_adjustment_defaults_missing_scores_to_neutral(monkeypatch):
     assert revision.old_health_index == 50
     assert revision.new_safety_score == 65
     assert revision.new_health_index == 35
+
+
+@pytest.mark.django_db
+def test_get_recent_studies_orders_analyzed_before_undated_summaries():
+    food = Food.objects.create(name="study food")
+    undated = Study.objects.create(
+        pmid="990101",
+        title="Undated summary",
+        publication_year=2026,
+        ai_summary="done",
+    )
+    older = Study.objects.create(
+        pmid="990102",
+        title="Older summary",
+        publication_year=2024,
+        ai_summary="done",
+        analyzed_at=datetime(2025, 1, 1, tzinfo=dt_timezone.utc),
+    )
+    newer = Study.objects.create(
+        pmid="990103",
+        title="Newer summary",
+        publication_year=2023,
+        ai_summary="done",
+        analyzed_at=datetime(2026, 1, 1, tzinfo=dt_timezone.utc),
+    )
+    blank = Study.objects.create(
+        pmid="990104",
+        title="Blank summary",
+        publication_year=2027,
+        ai_summary="",
+    )
+    for study in (undated, older, newer, blank):
+        FoodStudy.objects.create(food=food, study=study)
+
+    studies = safety_adjuster.get_recent_studies(food, n=5)
+
+    assert studies == [newer, older, undated]
