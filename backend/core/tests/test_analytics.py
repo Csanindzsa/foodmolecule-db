@@ -16,18 +16,36 @@ def test_analytics_event_sanitizes_metadata():
         "search",
         metadata={
             "query_length": 12,
+            "food_count": 4,
+            "molecule_count": 2,
+            "dedupe": True,
             "_private": "drop",
+            "raw_query": "spinach kidney stones",
             "long": "x" * 250,
             "items": list(range(20)),
             "nested": {"raw": "ignored"},
         },
     )
 
-    assert event.metadata["query_length"] == 12
-    assert "_private" not in event.metadata
-    assert event.metadata["long"] == "x" * 200
-    assert event.metadata["items"] == list(range(10))
-    assert event.metadata["nested"] == "{'raw': 'ignored'}"
+    assert event.metadata == {
+        "query_length": 12,
+        "food_count": 4,
+        "molecule_count": 2,
+        "dedupe": True,
+    }
+
+
+def test_analytics_event_drops_metadata_not_allowed_for_event_type():
+    event = AnalyticsEvent(
+        "view",
+        metadata={
+            "query_length": 12,
+            "food_count": 4,
+            "raw_path": "/foods/private",
+        },
+    )
+
+    assert event.metadata == {}
 
 
 def test_log_event_writes_structured_json(caplog):

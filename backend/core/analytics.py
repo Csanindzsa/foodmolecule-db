@@ -15,6 +15,17 @@ logger = logging.getLogger("nutrii.analytics")
 
 ALLOWED_EVENT_TYPES = {"search", "view", "scan", "compare"}
 MAX_METADATA_VALUE_LENGTH = 200
+ALLOWED_METADATA_KEYS = {
+    "search": {"query_length", "food_count", "molecule_count", "dedupe"},
+    "scan": {"ingredient_count", "food_count", "molecule_count", "confidence"},
+    "compare": {
+        "requested_count",
+        "matched_count",
+        "shared_molecule_count",
+        "unique_molecule_count",
+    },
+    "view": set(),
+}
 
 
 class AnalyticsEvent:
@@ -30,7 +41,7 @@ class AnalyticsEvent:
             raise ValueError(f"Unsupported analytics event type: {event_type}")
         self.event_type = event_type
         self.entity_id = entity_id
-        self.metadata = _sanitize_metadata(metadata or {})
+        self.metadata = _sanitize_metadata(event_type, metadata or {})
         self.timestamp = datetime.now(timezone.utc).isoformat()
 
     def anonymized_ip(self, request: HttpRequest) -> str:
@@ -55,17 +66,14 @@ def log_event(event: AnalyticsEvent, request: HttpRequest) -> None:
     logger.info(payload)
 
 
-def _sanitize_metadata(metadata: dict) -> dict:
+def _sanitize_metadata(event_type: str, metadata: dict) -> dict:
     sanitized = {}
+    allowed_keys = ALLOWED_METADATA_KEYS[event_type]
     for key, value in metadata.items():
-        if not isinstance(key, str) or key.startswith("_"):
+        if not isinstance(key, str) or key not in allowed_keys:
             continue
         if isinstance(value, (str, int, float, bool)) or value is None:
             sanitized[key] = _truncate(value)
-        elif isinstance(value, (list, tuple)):
-            sanitized[key] = [_truncate(item) for item in value[:10]]
-        else:
-            sanitized[key] = str(value)[:MAX_METADATA_VALUE_LENGTH]
     return sanitized
 
 
