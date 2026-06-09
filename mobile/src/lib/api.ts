@@ -57,6 +57,7 @@ export type ScanResponse = SearchResponse & {
   ingredients: string[];
   confidence: number;
   raw_text: string;
+  raw_text_truncated?: boolean;
 };
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {

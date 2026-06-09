@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIRequestFactory
 
-from core.views import IngredientScanView, MAX_SCAN_IMAGE_BYTES
+from core.views import IngredientScanView, MAX_SCAN_IMAGE_BYTES, MAX_SCAN_RAW_TEXT_CHARS
 
 
 @dataclass
@@ -21,6 +21,15 @@ class FakeScanner:
             ingredients=["spinach", "oxalic acid"],
             confidence=88.5,
             raw_text="Ingredients: spinach, oxalic acid",
+        )
+
+
+class LongTextScanner:
+    def scan(self, image_bytes: bytes) -> FakeScanResult:
+        return FakeScanResult(
+            ingredients=["spinach"],
+            confidence=75.0,
+            raw_text="x" * (MAX_SCAN_RAW_TEXT_CHARS + 25),
         )
 
 
@@ -152,8 +161,25 @@ def test_scan_returns_ocr_result_and_database_matches(monkeypatch):
     assert response.data["ingredients"] == ["spinach", "oxalic acid"]
     assert response.data["confidence"] == 88.5
     assert response.data["raw_text"] == "Ingredients: spinach, oxalic acid"
+    assert response.data["raw_text_truncated"] is False
     assert response.data["foods"][0]["id"] == "food-1"
     assert response.data["foods"][0]["name"] == "spinach"
     assert response.data["molecules"][0]["id"] == "molecule-1"
     assert response.data["molecules"][0]["name"] == "Oxalic Acid"
     assert response.data["count"] == 2
+
+
+def test_scan_truncates_long_raw_ocr_text(monkeypatch):
+    monkeypatch.setattr("core.views._build_label_scanner", lambda: LongTextScanner())
+    monkeypatch.setattr("core.views.Food", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.Molecule", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.serializers.FoodListSerializer", FakeSerializer)
+    monkeypatch.setattr("core.views.serializers.MoleculeSerializer", FakeSerializer)
+    image = SimpleUploadedFile("label.jpg", b"image-bytes", content_type="image/jpeg")
+
+    response = _scan_request(image)
+
+    assert response.status_code == 200
+    assert len(response.data["raw_text"]) == MAX_SCAN_RAW_TEXT_CHARS
+    assert response.data["raw_text_truncated"] is True
+    assert response.data["ingredients"] == ["spinach"]

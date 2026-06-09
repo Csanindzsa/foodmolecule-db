@@ -27,6 +27,7 @@ from .models import BanListEntry, Food, FoodCategory, FoodMolecule, Molecule, Pr
 
 
 MAX_SCAN_IMAGE_BYTES = 8 * 1024 * 1024
+MAX_SCAN_RAW_TEXT_CHARS = 5_000
 OCR_SCANNER_PATH = Path(__file__).resolve().parents[2] / "ocr" / "src" / "pipeline" / "scan.py"
 SCAN_IMAGE_CONTENT_TYPES = frozenset({"image/jpeg", "image/jpg", "image/png", "image/webp"})
 FOOD_DEDUPE_MODES = frozenset({
@@ -132,6 +133,12 @@ def _parse_uuid_csv_query_param(request, name: str):
 def _is_supported_scan_image(image) -> bool:
     content_type = (getattr(image, "content_type", "") or "").split(";")[0].strip().lower()
     return content_type in SCAN_IMAGE_CONTENT_TYPES
+
+
+def _scan_raw_text_preview(raw_text: str) -> tuple[str, bool]:
+    if len(raw_text) <= MAX_SCAN_RAW_TEXT_CHARS:
+        return raw_text, False
+    return raw_text[:MAX_SCAN_RAW_TEXT_CHARS], True
 
 
 @api_view(["GET"])
@@ -526,6 +533,7 @@ class IngredientScanView(APIView):
             )
 
         ingredients = scan_result.ingredients[:30]
+        raw_text_preview, raw_text_truncated = _scan_raw_text_preview(scan_result.raw_text)
         food_query = _ingredient_query(ingredients)
         molecule_query = _molecule_query(ingredients)
 
@@ -556,7 +564,8 @@ class IngredientScanView(APIView):
         return Response({
             "ingredients": ingredients,
             "confidence": scan_result.confidence,
-            "raw_text": scan_result.raw_text,
+            "raw_text": raw_text_preview,
+            "raw_text_truncated": raw_text_truncated,
             "foods": serializers.FoodListSerializer(foods, many=True).data,
             "molecules": serializers.MoleculeSerializer(molecules, many=True).data,
             "count": food_count + molecule_count,
