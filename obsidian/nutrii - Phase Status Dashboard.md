@@ -233,7 +233,7 @@
 | Django project setup | ✅ Complete | Settings, URLs, WSGI, ASGI |
 | All 10 models | ✅ Complete | Full field definitions |
 | All serializers | ✅ Complete | 9 serializers with nested relations |
-| All API views | ✅ Complete | 16 endpoints implemented |
+| All API views | ✅ Complete | 17 endpoints implemented |
 | All URL routing | ✅ Complete | Nested api/v1/ prefix |
 | Django admin | ✅ Complete | 10 model admins with filters/search |
 | Core tests | ✅ Complete | Model tests + health index tests |
@@ -256,10 +256,11 @@ GET /api/v1/studies/recent/
 GET /api/v1/ban-list/
 GET /api/v1/categories/
 GET /api/v1/processing-methods/
+POST /api/v1/scan/
 GET /api/v1/stats/
 ```
 
-**Notes:** Fully public - no JWT, no sessions, no user table. Rate limited (100 req/min/IP). Redis caching configured. Cursor pagination on all list endpoints.
+**Notes:** Fully public - no JWT, no sessions, no user table. Rate limited (100 req/min/IP). Local-memory caching is configured by default. Page-number pagination is used on list endpoints.
 
 ---
 

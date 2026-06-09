@@ -43,7 +43,7 @@ Query Parameters:
 | min_health_index | int | Minimum health index (0-100) |
 | max_health_index | int | Maximum health index (0-100) |
 
-Response: Cursor-paginated list of foods with name, category, safety score, health index.
+Response: Page-number paginated list of foods with name, category, safety score, health index.
 
 #### Food Detail
 ```
@@ -172,6 +172,16 @@ GET /api/v1/processing-methods/
 
 ---
 
+### Ingredient Scan
+
+```
+POST /api/v1/scan/
+```
+
+Accepts a multipart image upload and returns OCR ingredients plus matched foods and molecules.
+
+---
+
 ### Platform Stats
 
 ```
@@ -201,12 +211,12 @@ Response:
 
 ## Pagination
 
-All list endpoints use cursor pagination. Page size: 50 items default.
+All list endpoints use page-number pagination. Page size: 50 items default; client-requested `page_size` is capped at 100.
 
 ## Rate Limiting
 
 - 100 requests/minute per IP (configurable via `RATE_LIMIT_REQUESTS_PER_MINUTE`)
-- Backed by Redis
+- Backed by Django's configured cache. The default deployment uses local-memory cache; configure a shared cache before multi-instance production traffic.
 
 ## CORS
 
