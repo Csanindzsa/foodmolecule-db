@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -25,9 +26,21 @@ import django
 django.setup()
 
 from django.db import transaction
+from django.utils import timezone
 
 from ai.dispatcher import OpenRouterDispatcher
 from core.models import Food, Molecule, Study
+
+
+def _contains_term(text: str, term: str) -> bool:
+    """Return True when a food or molecule name appears as a bounded phrase."""
+    normalized = term.strip().lower()
+    if not normalized:
+        return False
+    escaped = re.escape(normalized)
+    phrase = re.sub(r"\\\s+", r"\\s+", escaped)
+    pattern = rf"(?<![a-z0-9]){phrase}(?![a-z0-9])"
+    return re.search(pattern, text) is not None
 
 
 def find_relevant_ingredient(study: Study) -> Food | Molecule | None:
@@ -37,12 +50,12 @@ def find_relevant_ingredient(study: Study) -> Food | Molecule | None:
     # Try foods first
     for food in Food.objects.all():
         names = {food.name} | set(food.aliases)
-        if any(n in text for n in names if n):
+        if any(_contains_term(text, n) for n in names):
             return food
 
     # Then molecules
     for mol in Molecule.objects.all():
-        if mol.name in text:
+        if _contains_term(text, mol.name):
             return mol
 
     return None
@@ -81,7 +94,7 @@ def analyze_study(study: Study) -> bool:
         study.ai_health_impact = result.health_impact
         study.ai_confidence = result.confidence
         study.ai_model_used = dispatcher.last_model_used or dispatcher.selector.pick_best_model("study_analysis")
-        study.analyzed_at = datetime.utcnow()
+        study.analyzed_at = timezone.now()
         study.save()
 
     print(f"  Analyzed PMID {study.pmid}: safety={result.safety_impact}, health={result.health_impact}, confidence={result.confidence}")

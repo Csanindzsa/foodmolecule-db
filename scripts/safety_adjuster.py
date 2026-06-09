@@ -28,6 +28,7 @@ import django
 django.setup()
 
 from django.db import transaction
+from django.utils import timezone
 
 from ai.dispatcher import OpenRouterDispatcher
 from core.models import Food, IngredientAIGuide, SafetyScoreRevision, Study
@@ -110,7 +111,7 @@ def apply_revision(revision: SafetyScoreRevision) -> None:
         food = revision.food
         food.overall_safety_score = revision.new_safety_score
         food.health_index = revision.new_health_index
-        food.last_analyzed_at = datetime.utcnow()
+        food.last_analyzed_at = timezone.now()
         food.save()
 
 

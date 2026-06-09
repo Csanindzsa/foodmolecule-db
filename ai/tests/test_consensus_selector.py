@@ -3,6 +3,7 @@ Tests for the Consensus Model Selector.
 """
 
 import pytest
+import httpx
 
 from ai.consensus_selector import ConsensusSelector, EXCLUDED_MODELS
 
@@ -33,6 +34,9 @@ class TestConsensusSelector:
         if not selector.api_key:
             pytest.skip("No OPENROUTER_API_KEY set")
 
-        top = selector.list_top_models("study_analysis", n=3)
+        try:
+            top = selector.list_top_models("study_analysis", n=3)
+        except httpx.HTTPError as exc:
+            pytest.skip(f"OpenRouter model list unavailable: {exc}")
         assert len(top) <= 3
         assert all("id" in m and "score" in m for m in top)
