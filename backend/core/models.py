@@ -11,8 +11,9 @@ from __future__ import annotations
 
 import uuid
 
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
+
+from .fields import PortableArrayField as ArrayField
 
 
 # ---------------------------------------------------------------------------

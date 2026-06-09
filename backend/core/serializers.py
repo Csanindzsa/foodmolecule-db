@@ -116,9 +116,13 @@ class SafetyScoreRevisionSerializer(serializers.ModelSerializer):
 class BanListFoodSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source="category.name", allow_null=True, read_only=True)
 
+    def to_internal_value(self, data):
+        raise serializers.ValidationError("Ban list food entries are read-only.")
+
     class Meta:
         model = Food
         fields = ["id", "name", "category", "health_index"]
+        read_only_fields = fields
 
 
 class BanListEntrySerializer(serializers.ModelSerializer):
