@@ -11,7 +11,7 @@
 - [ ] Add GIN indexes on `Food.name`, `Molecule.name`, `Study.title` if not present
 - [ ] Configure Render/Fly.io `DATABASE_URL`; add `REDIS_URL` only if switching from local-memory cache to a shared cache
 - [ ] Set `DEBUG=False`, configure `ALLOWED_HOSTS`
-- [ ] Verify production security settings with `python manage.py check --deploy`
+- [x] Verify production security settings with `python manage.py check --deploy`
 - [ ] Verify production throttling with `RATE_LIMIT_REQUESTS_PER_MINUTE` set for launch traffic
 - [ ] Set up Logtail / Sentry for error tracking
 - [ ] Verify OpenRouter API key has sufficient quota for launch traffic
