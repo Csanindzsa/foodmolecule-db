@@ -4,6 +4,7 @@ import type {
   Food,
   Molecule,
   HealthIndexBreakdown,
+  MoleculeNeutralization,
 } from "../lib/api";
 
 /**
@@ -12,7 +13,7 @@ import type {
  */
 interface MoleculeDetail extends Molecule {
   foods: Food[];
-  neutralization_methods: unknown[];
+  neutralization_methods: MoleculeNeutralization[];
 }
 
 const STALE_TIME_2_MIN = 2 * 60 * 1000;

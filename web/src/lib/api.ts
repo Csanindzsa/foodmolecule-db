@@ -36,3 +36,4 @@ export type HealthIndexBreakdown = import("../types").HealthIndexBreakdown;
 export type FoodListItem = import("../types").FoodListItem;
 export type BanListEntry = import("../types").BanListEntry;
 export type FoodCompareResult = import("../types").FoodCompareResult;
+export type MoleculeNeutralization = import("../types").MoleculeNeutralization;

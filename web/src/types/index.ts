@@ -34,6 +34,25 @@ export interface Molecule {
   is_neutralizable: boolean;
 }
 
+export interface ProcessingMethod {
+  id: number;
+  name: string;
+  description: string;
+  mechanism: string;
+  typical_temperature_c: number | null;
+  typical_duration_min: number | null;
+}
+
+export interface MoleculeNeutralization {
+  method: ProcessingMethod | string | null;
+  reduction_percent_min: number | null;
+  reduction_percent_max: number | null;
+  time_required: string;
+  notes: string;
+  evidence_refs: string[];
+  confidence: string;
+}
+
 export interface Study {
   id: string;
   pmid: string;

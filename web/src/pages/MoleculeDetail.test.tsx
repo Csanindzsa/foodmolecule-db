@@ -80,8 +80,38 @@ const mockFoods = [
 ];
 
 const mockNeutralizations = [
-  { method: "Drink water" },
-  { method: "Consume with food" },
+  {
+    method: {
+      id: 1,
+      name: "Boiling",
+      description: "Heat in water",
+      mechanism: "Thermal decomposition",
+      typical_temperature_c: 100,
+      typical_duration_min: 15,
+    },
+    reduction_percent_min: 30,
+    reduction_percent_max: 90,
+    time_required: "10-30 minutes",
+    notes: "Discard cooking water.",
+    evidence_refs: ["12345678"],
+    confidence: "high",
+  },
+  {
+    method: {
+      id: 2,
+      name: "Fermenting",
+      description: "Microbial processing",
+      mechanism: "Biochemical transformation",
+      typical_temperature_c: null,
+      typical_duration_min: null,
+    },
+    reduction_percent_min: null,
+    reduction_percent_max: null,
+    time_required: "",
+    notes: "",
+    evidence_refs: [],
+    confidence: "",
+  },
 ];
 
 /* ------------------------------------------------------------------
@@ -299,8 +329,11 @@ describe("MoleculeDetail page", () => {
 
     renderWithRouter(<MoleculeDetail />);
 
-    expect(document.body.textContent).toContain("Drink water");
-    expect(document.body.textContent).toContain("Consume with food");
+    expect(document.body.textContent).toContain("Boiling");
+    expect(document.body.textContent).toContain("30-90% reduction");
+    expect(document.body.textContent).toContain("10-30 minutes");
+    expect(document.body.textContent).toContain("high confidence");
+    expect(document.body.textContent).toContain("Fermenting");
   });
 
   test("shows 'No neutralization methods known.' when array is empty", () => {

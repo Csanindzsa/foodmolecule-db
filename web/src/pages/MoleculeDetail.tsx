@@ -1,6 +1,34 @@
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useMoleculeDetail, useMoleculeFoods, useMoleculeNeutralizations } from "../hooks/useApi";
+import type { MoleculeNeutralization } from "../types";
+
+type NeutralizationDisplay = MoleculeNeutralization | string | null;
+
+function neutralizationMethodName(neutralization: NeutralizationDisplay): string {
+  if (typeof neutralization === "string") return neutralization;
+  if (!neutralization) return "Unknown method";
+  if (typeof neutralization.method === "string") return neutralization.method;
+  return neutralization.method?.name || "Unknown method";
+}
+
+function neutralizationDetails(neutralization: NeutralizationDisplay): string[] {
+  if (!neutralization || typeof neutralization === "string") return [];
+
+  const details: string[] = [];
+  const min = neutralization.reduction_percent_min;
+  const max = neutralization.reduction_percent_max;
+  if (min != null && max != null) {
+    details.push(min === max ? `${min}% reduction` : `${min}-${max}% reduction`);
+  } else if (min != null) {
+    details.push(`At least ${min}% reduction`);
+  } else if (max != null) {
+    details.push(`Up to ${max}% reduction`);
+  }
+  if (neutralization.time_required) details.push(neutralization.time_required);
+  if (neutralization.confidence) details.push(`${neutralization.confidence} confidence`);
+  return details;
+}
 
 export default function MoleculeDetail() {
   const { id } = useParams<{ id: string }>();
@@ -133,12 +161,24 @@ export default function MoleculeDetail() {
           </div>
         ) : neutralizations && neutralizations.length > 0 ? (
           <div className="space-y-2">
-            {neutralizations.map((nm: unknown, i: number) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-lg border bg-white dark:border-gray-700 dark:bg-gray-800">
-                <span className="text-green-500 dark:text-green-400">&#10003;</span>
-                <span className="text-sm text-gray-700 dark:text-gray-300">{nm != null && typeof nm === "object" ? String((nm as any).method ?? nm) : String(nm)}</span>
-              </div>
-            ))}
+            {neutralizations.map((neutralization: NeutralizationDisplay, i: number) => {
+              const details = neutralizationDetails(neutralization);
+              return (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-lg border bg-white dark:border-gray-700 dark:bg-gray-800">
+                  <span className="text-green-500 dark:text-green-400 mt-0.5">&#10003;</span>
+                  <div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {neutralizationMethodName(neutralization)}
+                    </div>
+                    {details.length > 0 && (
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {details.join(" · ")}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <p className="text-gray-400 dark:text-gray-500 text-sm">No neutralization methods known.</p>
