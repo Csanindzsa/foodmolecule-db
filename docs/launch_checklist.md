@@ -38,8 +38,8 @@
 
 ### Analytics (Phase 14)
 - [ ] Verify privacy-preserving backend analytics logs are captured by production logging
-- [ ] Verify aggregate events are emitted for searches, food detail views, scans, and comparisons
-- [ ] Confirm analytics metadata remains aggregate-only and contains no raw queries, labels, IP addresses, or user identifiers
+- [x] Verify aggregate events are emitted for searches, food detail views, scans, and comparisons (`backend/core/tests/test_analytics.py`)
+- [x] Confirm analytics metadata remains aggregate-only and contains no raw queries, labels, IP addresses, or user identifiers (`backend/core/tests/test_analytics.py`)
 
 ## Post-Launch
 - [ ] Monitor OpenRouter costs daily for first 2 weeks
