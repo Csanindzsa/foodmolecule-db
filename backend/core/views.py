@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import serializers
+from .analytics import AnalyticsEvent, log_event
 from .food_deduplication import dedupe_foods_by_molecule_signature, dedupe_foods_by_normalized_name
 from .health_index import compute_health_index
 from .models import BanListEntry, Food, FoodCategory, FoodMolecule, Molecule, ProcessingMethod, Study
@@ -150,6 +151,11 @@ class FoodDetailView(generics.RetrieveAPIView):
     ).select_related("category")
     serializer_class = serializers.FoodDetailSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        log_event(AnalyticsEvent("view", entity_id=str(kwargs["pk"])), request)
+        return response
+
 
 class FoodHealthIndexView(APIView):
     def get(self, request, pk):
@@ -208,11 +214,26 @@ class FoodSearchView(APIView):
             Q(name__icontains=q) | Q(iupac_name__icontains=q) | Q(cas_number__iexact=q)
         )[:20]
 
+        food_count = len(foods)
+        molecule_count = len(molecules)
+        log_event(
+            AnalyticsEvent(
+                "search",
+                metadata={
+                    "query_length": len(q),
+                    "food_count": food_count,
+                    "molecule_count": molecule_count,
+                    "dedupe": bool(dedupe),
+                },
+            ),
+            request,
+        )
+
         return Response({
             "query": q,
             "foods": serializers.FoodListSerializer(foods, many=True).data,
             "molecules": serializers.MoleculeSerializer(molecules, many=True).data,
-            "count": len(foods) + len(molecules),
+            "count": food_count + molecule_count,
         })
 
 
@@ -246,6 +267,19 @@ class FoodCompareView(APIView):
 
         # Shared molecules
         shared = set.intersection(*[set(c["molecules"].keys()) for c in comparison]) if len(comparison) > 1 else set()
+
+        log_event(
+            AnalyticsEvent(
+                "compare",
+                metadata={
+                    "requested_count": len(ids),
+                    "matched_count": len(comparison),
+                    "shared_molecule_count": len(shared),
+                    "unique_molecule_count": len(all_molecule_names),
+                },
+            ),
+            request,
+        )
 
         return Response({
             "foods": comparison,
@@ -399,11 +433,26 @@ class IngredientScanView(APIView):
         if molecule_query:
             molecules = Molecule.objects.filter(molecule_query).distinct()[:20]
 
+        food_count = len(foods)
+        molecule_count = len(molecules)
+        log_event(
+            AnalyticsEvent(
+                "scan",
+                metadata={
+                    "ingredient_count": len(ingredients),
+                    "food_count": food_count,
+                    "molecule_count": molecule_count,
+                    "confidence": round(float(scan_result.confidence), 2),
+                },
+            ),
+            request,
+        )
+
         return Response({
             "ingredients": ingredients,
             "confidence": scan_result.confidence,
             "raw_text": scan_result.raw_text,
             "foods": serializers.FoodListSerializer(foods, many=True).data,
             "molecules": serializers.MoleculeSerializer(molecules, many=True).data,
-            "count": len(foods) + len(molecules),
+            "count": food_count + molecule_count,
         })
