@@ -123,10 +123,13 @@ def link_food_molecules(food: Food, links: list) -> None:
 
 def load_json_entries(directory: Path, model_class):
     """Load all JSON files from a directory into pipeline model instances."""
-    entries = []
     if not directory.exists():
-        return entries
-    for path in directory.glob("*.json"):
+        raise FileNotFoundError(f"Seed data directory does not exist: {directory}")
+    if not directory.is_dir():
+        raise NotADirectoryError(f"Seed data path is not a directory: {directory}")
+
+    entries = []
+    for path in sorted(directory.glob("*.json")):
         with open(path) as f:
             data = json.load(f)
         entries.append(model_class(**data))
