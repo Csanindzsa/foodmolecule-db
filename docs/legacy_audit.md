@@ -42,8 +42,8 @@ Summary of the most critical issues identified to avoid repeating:
 3. **SQLite in production** — legacy used SQLite. nutrii uses Supabase PostgreSQL exclusively.
 4. **No migration strategy** — legacy had no Django migrations. nutrii will have migrations from day one.
 5. **No test suite** — legacy had zero tests. nutrii requires `pytest-django` coverage on all models and API endpoints.
-6. **No rate limiting** — legacy had no rate limiting. nutrii uses Django Ratelimit + Redis from Phase 1.
-7. **No caching** — legacy had no cache layer. nutrii uses Redis for all high-traffic endpoints.
+6. **No rate limiting** — legacy had no rate limiting. nutrii enables DRF anonymous throttling in production.
+7. **No caching** — legacy had no cache layer. nutrii has Django cache wiring with a local-memory backend; shared Redis remains a deployment upgrade for multi-instance traffic.
 8. **Schema drift** — JSON schema files were not enforced. nutrii runs `jsonschema` validation before every bulk insert.
 
 ## 4. Reusable Patterns
