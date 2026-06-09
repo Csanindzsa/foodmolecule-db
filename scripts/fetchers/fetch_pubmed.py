@@ -22,6 +22,9 @@ import httpx
 from scripts.pipeline.config import MAX_RETRIES, NCBI_API_KEY, NCBI_EMAIL, PUBMED_EUTILS_BASE
 from scripts.pipeline.models import StudyEntry
 
+MIN_PUBLICATION_YEAR = 1900
+MAX_PUBLICATION_YEAR = 2100
+
 
 def abstract_text(article: ET.Element) -> str:
     """Return all PubMed abstract sections as one readable string."""
@@ -111,6 +114,18 @@ def fetch_abstracts(pmids: list[str]) -> dict[str, str]:
     return abstracts
 
 
+def publication_year(pubdate: str) -> int | None:
+    """Extract a model-safe publication year from a PubMed summary date."""
+    year = pubdate[:4]
+    if not year.isdigit():
+        return None
+
+    parsed = int(year)
+    if MIN_PUBLICATION_YEAR <= parsed <= MAX_PUBLICATION_YEAR:
+        return parsed
+    return None
+
+
 def build_study_entries(pmids: list[str]) -> list[StudyEntry]:
     """Fetch metadata and build StudyEntry objects."""
     summaries = fetch_summaries(pmids)
@@ -128,19 +143,13 @@ def build_study_entries(pmids: list[str]) -> list[StudyEntry]:
             if name:
                 authors.append(name)
 
-        year = info.get("pubdate", "")[:4]
-        try:
-            year_int = int(year) if year.isdigit() else None
-        except ValueError:
-            year_int = None
-
         entries.append(
             StudyEntry(
                 pmid=pmid,
                 title=info.get("title", ""),
                 authors=authors,
                 journal=info.get("fulljournalname", info.get("source", "")),
-                publication_year=year_int,
+                publication_year=publication_year(info.get("pubdate", "")),
                 url=f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
                 abstract=abstracts.get(pmid, ""),
             )

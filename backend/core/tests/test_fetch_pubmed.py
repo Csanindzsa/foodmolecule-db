@@ -65,3 +65,35 @@ def test_fetch_abstracts_preserves_all_abstract_sections(monkeypatch):
     assert abstracts == {
         "12345": "METHODS: Diet records were collected.\nRESULTS: Higher intake changed biomarkers."
     }
+
+
+def test_publication_year_accepts_only_model_safe_years():
+    assert fetch_pubmed.publication_year("2025 Jan") == 2025
+    assert fetch_pubmed.publication_year("1900") == 1900
+    assert fetch_pubmed.publication_year("2100 Dec") == 2100
+    assert fetch_pubmed.publication_year("") is None
+    assert fetch_pubmed.publication_year("Fall 2025") is None
+    assert fetch_pubmed.publication_year("1899") is None
+    assert fetch_pubmed.publication_year("9999") is None
+
+
+def test_build_study_entries_ignores_out_of_range_pubmed_year(monkeypatch):
+    monkeypatch.setattr(
+        fetch_pubmed,
+        "fetch_summaries",
+        lambda pmids: {
+            "12345": {
+                "title": "Placeholder year study",
+                "authors": [{"name": "A Researcher"}],
+                "fulljournalname": "Journal of Food Data",
+                "pubdate": "9999",
+            },
+        },
+    )
+    monkeypatch.setattr(fetch_pubmed, "fetch_abstracts", lambda pmids: {"12345": "Abstract."})
+
+    entries = fetch_pubmed.build_study_entries(["12345"])
+
+    assert len(entries) == 1
+    assert entries[0].publication_year is None
+    assert entries[0].title == "Placeholder year study"
