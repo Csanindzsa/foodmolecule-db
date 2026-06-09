@@ -85,3 +85,23 @@ def test_parse_windows_newline_separated_ingredients():
         "raisins",
         "cinnamon",
     ]
+
+
+def test_parse_stops_before_contains_allergen_section():
+    raw_text = "Ingredients: wheat flour, sugar, cocoa powder. Contains: milk, soy."
+
+    assert parse_ingredients_text(raw_text) == [
+        "wheat flour",
+        "sugar",
+        "cocoa powder",
+    ]
+
+
+def test_parse_contains_as_section_marker_without_ingredients_label():
+    raw_text = "Contains: milk, soy, wheat."
+
+    assert parse_ingredients_text(raw_text) == [
+        "milk",
+        "soy",
+        "wheat",
+    ]

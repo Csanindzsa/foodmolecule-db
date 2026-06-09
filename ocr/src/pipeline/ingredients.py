@@ -72,11 +72,17 @@ def _ingredient_region(text: str) -> str:
     stop_positions = [
         match.start()
         for marker in STOP_MARKERS
-        if (match := re.search(rf"\b{re.escape(marker)}\b", region_lower))
+        if (match := re.search(_stop_marker_pattern(marker), region_lower))
     ]
     if stop_positions:
         region = region[:min(stop_positions)]
     return region
+
+
+def _stop_marker_pattern(marker: str) -> str:
+    if marker.endswith(":"):
+        return rf"\b{re.escape(marker[:-1])}\s*:"
+    return rf"\b{re.escape(marker)}\b"
 
 
 def _split_terms(text: str) -> list[str]:
