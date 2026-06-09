@@ -7,9 +7,9 @@
 ## Local Development Environment
 
 ### Prerequisites
-- Docker & Docker Compose
+- Docker & Docker Compose (optional for offline PostgreSQL)
 - Python 3.11+
-- Node.js 20+
+- Bun
 - Supabase account (for production database)
 
 ### Quick Start
@@ -23,7 +23,7 @@ cd nutrii
 cp .env.example .env
 # Edit .env with your API keys
 
-# Start infrastructure
+# Start optional local PostgreSQL infrastructure
 docker compose up -d
 
 # Set up Django backend
@@ -36,8 +36,8 @@ python manage.py runserver
 
 # Start web frontend (separate terminal)
 cd web
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 ---
@@ -48,7 +48,6 @@ From `infra/docker-compose.yml`:
 
 | Service | Image | Port | Purpose |
 |---------|-------|------|---------|
-| `db` | postgres:16-alpine | 5432 | PostgreSQL database |
 | `db` | postgres:16-alpine | 5432 | PostgreSQL database |
 
 ### Docker Compose Commands
@@ -97,11 +96,10 @@ Key variables from `.env.example`:
 | `DJANGO_SECRET_KEY` | Django encryption key | Yes |
 | `DATABASE_URL` | PostgreSQL connection string | Yes |
 | `OPENROUTER_API_KEY` | AI model access | For AI features |
-| `REDIS_URL` | Cache backend | Yes |
 | `CORS_ALLOWED_ORIGINS` | Frontend domains | Yes |
+| `RATE_LIMIT_REQUESTS_PER_MINUTE` | Production anonymous throttle | Production |
 | `USDA_API_KEY` | USDA FoodData Central | For data pipeline |
 | `NCBI_API_KEY` | PubMed E-utilities | For PubMed pipeline |
-| `GOOGLE_CLOUD_API_KEY` | Cloud Vision OCR | For scan feature |
 
 ---
 
@@ -112,7 +110,7 @@ Key variables from `.env.example`:
 Defined in `render.yaml`:
 - Django app with Gunicorn
 - PostgreSQL via Supabase (not Render's managed DB)
-- Redis via Render's managed Redis or Upstash
+- Local-memory cache by default; add Redis or another shared cache before multi-instance traffic
 
 ### Frontend (Vercel)
 
@@ -125,6 +123,6 @@ Defined in `render.yaml`:
 | Users | Infrastructure |
 |-------|---------------|
 | 0-10k | Supabase free tier + Vercel hobby |
-| 10k-100k | Supabase Pro + Vercel Pro + MeiliSearch Cloud |
+| 10k-100k | Supabase Pro + Vercel Pro + shared cache |
 | 100k-1M | Supabase Enterprise + CDN + read replicas |
 | 1M+ | Self-managed PG + dedicated OCR cluster |

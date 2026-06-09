@@ -35,7 +35,7 @@
 **Goal:** Provision production-grade infrastructure. No authentication layer.
 
 **Deliverables:**
-- [x] `infra/docker-compose.yml` — PostgreSQL 16 + Redis + MinIO
+- [x] `infra/docker-compose.yml` — PostgreSQL 16 for offline local development
 - [x] `infra/supabase-config.md` — Supabase project settings guide
 - [x] `infra/init.sql` — Database initialization
 - [x] `.env.example` — Complete environment template with all API keys
@@ -49,7 +49,7 @@
 - `.env.example`
 - `render.yaml` — Render deployment config
 
-**Notes:** Docker Compose mirrors Supabase PG16. Uses env vars exclusively (no hardcoded secrets). Redis configured for caching + rate limiting.
+**Notes:** Docker Compose mirrors Supabase PG16 for offline development. Uses env vars exclusively (no hardcoded secrets). The app defaults to Django local-memory cache; use a shared cache before multi-instance production traffic.
 
 ---
 
@@ -324,10 +324,11 @@ GET /api/v1/stats/
 | Component | Status | Notes |
 |-----------|--------|-------|
 | `ocr/README.md` | ✅ Complete | Architecture documentation |
-| `ocr/src/pipeline/scan.py` | ✅ Complete | Hybrid OCR pipeline (on-device + cloud) |
-| Full AI pipeline | ⬜ Not started | Not integrated with backend |
+| `ocr/src/pipeline/scan.py` | ✅ Complete | Tesseract ingredient extraction pipeline |
+| Backend scan API | ✅ Complete | `/api/v1/scan/` accepts image uploads |
+| Mobile scan flow | ✅ Complete | Expo camera and image picker submit to backend scan API |
 
-**Notes:** OCR pipeline designed as hybrid: try on-device (ML Kit, fast/free), fallback to cloud (Google Vision, accurate). The ocr/ directory exists but the full pipeline is not yet integrated with the backend or mobile app.
+**Notes:** OCR is backend-driven for MVP readiness. Device camera/gallery capture is handled by Expo, then the Django scan endpoint runs the Tesseract pipeline and returns matched foods and molecules.
 
 ---
 

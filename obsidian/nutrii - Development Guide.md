@@ -30,8 +30,8 @@ python manage.py createsuperuser  # optional, for admin
 python manage.py runserver        # Backend: http://localhost:8000
 
 cd web
-npm install
-npm run dev                       # Frontend: http://localhost:5173
+bun install
+bun run dev                       # Frontend: http://localhost:5173
 ```
 
 ---
@@ -95,7 +95,8 @@ python -m pytest tests/                   # Consensus selector, dispatcher, pars
 
 # Web (if configured)
 cd web
-npm run lint                              # ESLint
+bun run test                             # Bun tests
+bun run build                            # TypeScript + Vite build
 ```
 
 ---
@@ -177,7 +178,7 @@ Create a JSON file in `data/seed/foods/` or `data/seed/molecules/`:
 - Type hints on all functions
 - Pydantic models for data validation
 - Django ORM for database access
-- `ruff` for linting (commented in requirements.txt)
+- `ruff`/`black`/`mypy` remain planned hardening tools
 
 ### TypeScript
 - Strict TypeScript configuration
@@ -199,7 +200,7 @@ test: add tests
 
 - Never commit `.env` file (it's in `.gitignore`)
 - No authentication in API (public by design)
-- Rate limiting via Redis
+- Rate limiting is enabled in production through DRF anonymous throttles
 - CORS allow-list in production
 - API keys read from environment only
 - Service role key never used in client-side code
