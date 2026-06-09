@@ -4,12 +4,26 @@ Receives a photo, returns matched ingredients with safety data.
 """
 
 import io
+import importlib.util
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
 import pytesseract
 from PIL import Image
+
+try:
+    from .ingredients import parse_ingredients_text
+except ImportError:
+    spec = importlib.util.spec_from_file_location(
+        "nutrii_ocr_ingredients",
+        Path(__file__).resolve().with_name("ingredients.py"),
+    )
+    if spec is None or spec.loader is None:
+        raise
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    parse_ingredients_text = module.parse_ingredients_text
 
 
 @dataclass
@@ -52,8 +66,4 @@ class LabelScanner:
 
     @staticmethod
     def _extract_ingredients(raw_text: str) -> List[str]:
-        """Heuristic parser: split on commas and newlines, strip fluff."""
-        lines = raw_text.replace(",", "\n").splitlines()
-        cleaned = [line.strip().rstrip(".*") for line in lines if len(line.strip()) > 2]
-        # TODO: fuzzy match against molecule/food database
-        return cleaned
+        return parse_ingredients_text(raw_text)
