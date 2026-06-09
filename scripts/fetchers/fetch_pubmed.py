@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import time
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -20,6 +21,18 @@ import httpx
 
 from scripts.pipeline.config import MAX_RETRIES, NCBI_API_KEY, NCBI_EMAIL, PUBMED_EUTILS_BASE
 from scripts.pipeline.models import StudyEntry
+
+
+def abstract_text(article: ET.Element) -> str:
+    """Return all PubMed abstract sections as one readable string."""
+    sections = []
+    for abstract_el in article.findall(".//Abstract/AbstractText"):
+        text = " ".join(part.strip() for part in abstract_el.itertext() if part and part.strip())
+        text = re.sub(r"\s+([,.;:])", r"\1", text)
+        if text:
+            label = (abstract_el.attrib.get("Label") or "").strip()
+            sections.append(f"{label}: {text}" if label else text)
+    return "\n".join(sections)
 
 
 def search_studies(query: str, max_results: int = 10, days: int | None = None) -> list[str]:
@@ -93,8 +106,7 @@ def fetch_abstracts(pmids: list[str]) -> dict[str, str]:
         if pmid_el is None:
             continue
         pmid = pmid_el.text
-        abstract_el = article.find(".//Abstract/AbstractText")
-        abstracts[pmid] = abstract_el.text if abstract_el is not None else ""
+        abstracts[pmid] = abstract_text(article)
 
     return abstracts
 
