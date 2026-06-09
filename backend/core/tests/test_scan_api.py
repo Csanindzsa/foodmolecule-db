@@ -97,6 +97,22 @@ def test_scan_rejects_oversized_images():
     assert "too large" in response.data["detail"]
 
 
+def test_scan_rejects_empty_images(monkeypatch):
+    def fail_build_scanner():
+        raise AssertionError("scanner should not be built for empty uploads")
+
+    monkeypatch.setattr("core.views._build_label_scanner", fail_build_scanner)
+    image = SimpleUploadedFile("label.jpg", b"", content_type="image/jpeg")
+
+    response = _scan_request(image)
+
+    assert response.status_code == 400
+    assert response.data == {
+        "detail": "Uploaded image is empty.",
+        "code": "empty_image",
+    }
+
+
 def test_scan_rejects_unsupported_upload_type():
     upload = SimpleUploadedFile(
         "label.txt",

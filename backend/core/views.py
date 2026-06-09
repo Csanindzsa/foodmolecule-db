@@ -516,6 +516,11 @@ class IngredientScanView(APIView):
                 {"detail": "Upload an image file in the multipart field named 'image'."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        if image.size <= 0:
+            return Response(
+                {"detail": "Uploaded image is empty.", "code": "empty_image"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if image.size > MAX_SCAN_IMAGE_BYTES:
             return Response(
                 {"detail": "Image is too large. Maximum size is 8 MB."},
