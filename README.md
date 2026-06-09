@@ -26,6 +26,8 @@ cp .env.example .env
 See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for the full roadmap.
 For long-running USDA/PubMed/image enrichment on another machine, see
 [docs/overnight_ingestion_runbook.md](docs/overnight_ingestion_runbook.md).
+For mobile ingredient scanning and Tesseract runtime setup, see
+[ocr/README.md](ocr/README.md).
 
 ```
 nutrii/

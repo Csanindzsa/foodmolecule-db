@@ -5,22 +5,37 @@ Mobile-first ingredient label OCR pipeline.
 ## Architecture
 
 ```
-Photo → Pre-process → OCR (Tesseract / Google ML Kit) →
-  Text Normalization → Ingredient Extraction →
-  Fuzzy Match (≥0.80) → API Lookup → Results
+Photo → Backend upload → Pre-process → Tesseract OCR →
+  Text normalization → Ingredient extraction →
+  Food/molecule API match → Results
 ```
 
 ## Pipeline
 
 | Stage | Tool | Purpose |
 |-------|------|---------|
-| Capture | `expo-camera` | High-res photo, auto-focus, flashlight toggle |
-| Pre-process | OpenCV (native) | Deskew, contrast boost, binarize |
-| OCR | Google ML Kit Text Recognition v2 | On-device, free, 90%+ accuracy on labels |
-| Normalizer | Custom regex + OpenRouter fallback | Fix line breaks, split concatenated words |
-| Extractor | Regex + heuristic parser | Pull ingredient list from raw text |
-| Matcher | `thefuzz` (Python) or `fuse.js` (JS) | Fuzzy match against molecule/food names |
-| Lookup | DRF API | Return safety scores, neutralization tips |
+| Capture | Expo Image Picker / camera | High-res label photo capture or library import |
+| Upload | `POST /api/v1/scan/` | Multipart field named `image`, max 8 MB |
+| Pre-process | Pillow | Grayscale conversion and contrast boost |
+| OCR | Tesseract via `pytesseract` | Server-side fallback OCR with confidence |
+| Extractor | `ocr/src/pipeline/ingredients.py` | Pull ingredient terms from noisy raw OCR text |
+| Matcher | DRF ORM filters | Match ingredient terms against foods and molecules |
+| Lookup | DRF serializers | Return safety scores, molecule metadata, and raw OCR text |
+
+## Runtime Requirements
+
+Python dependencies are declared in `backend/requirements.txt`:
+
+- `Pillow`
+- `pytesseract`
+
+The host must also provide the Tesseract binary:
+
+```bash
+brew install tesseract
+```
+
+On Linux/CI images, install the equivalent OS package, usually `tesseract-ocr`.
 
 ## OCR Prompt Template
 
@@ -45,10 +60,16 @@ Return JSON: {"ingredients": ["..."], "confidence": 0.0-1.0}
 
 ## Integration
 
-The mobile app calls the OCR pipeline via:
-```typescript
-const results = await scanLabel(photoUri);
-// results: { ingredients: MatchedIngredient[], unmatched: string[] }
+The mobile app calls the public backend API via `mobile/src/lib/api.ts`.
+Set `EXPO_PUBLIC_API_URL` for physical devices or production builds:
+
+```bash
+EXPO_PUBLIC_API_URL=https://your-api.example.com/api/v1 npm run start
 ```
 
-Local history is persisted in `expo-sqlite` (no cloud sync, no auth).
+When unset, the mobile client defaults to:
+
+- Android emulator: `http://10.0.2.2:8000/api/v1`
+- iOS simulator / web: `http://localhost:8000/api/v1`
+
+Local scan history is persisted on-device only through AsyncStorage. No cloud sync, auth, cookies, or device fingerprinting are used.
