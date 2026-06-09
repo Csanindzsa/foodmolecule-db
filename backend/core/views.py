@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import logging
+import math
 import sys
 import uuid
 from pathlib import Path
@@ -139,6 +140,16 @@ def _scan_raw_text_preview(raw_text: str) -> tuple[str, bool]:
     if len(raw_text) <= MAX_SCAN_RAW_TEXT_CHARS:
         return raw_text, False
     return raw_text[:MAX_SCAN_RAW_TEXT_CHARS], True
+
+
+def _scan_confidence(value) -> float:
+    try:
+        confidence = float(value)
+    except (TypeError, ValueError):
+        return 0.0
+    if not math.isfinite(confidence):
+        return 0.0
+    return min(100.0, max(0.0, confidence))
 
 
 @api_view(["GET"])
@@ -545,9 +556,10 @@ class IngredientScanView(APIView):
             return Response(
                 {"detail": "OCR scan failed.", "code": "ocr_scan_failed"},
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            )
+        )
 
         ingredients = scan_result.ingredients[:30]
+        confidence = _scan_confidence(scan_result.confidence)
         raw_text_preview, raw_text_truncated = _scan_raw_text_preview(scan_result.raw_text)
         food_query = _ingredient_query(ingredients)
         molecule_query = _molecule_query(ingredients)
@@ -570,7 +582,7 @@ class IngredientScanView(APIView):
                     "ingredient_count": len(ingredients),
                     "food_count": food_count,
                     "molecule_count": molecule_count,
-                    "confidence": round(float(scan_result.confidence), 2),
+                    "confidence": round(confidence, 2),
                 },
             ),
             request,
@@ -578,7 +590,7 @@ class IngredientScanView(APIView):
 
         return Response({
             "ingredients": ingredients,
-            "confidence": scan_result.confidence,
+            "confidence": confidence,
             "raw_text": raw_text_preview,
             "raw_text_truncated": raw_text_truncated,
             "foods": serializers.FoodListSerializer(foods, many=True).data,

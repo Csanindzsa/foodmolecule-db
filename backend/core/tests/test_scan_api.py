@@ -38,6 +38,18 @@ class FailingScanner:
         raise RuntimeError("internal scanner path /tmp/secret")
 
 
+class ConfidenceScanner:
+    def __init__(self, confidence):
+        self.confidence = confidence
+
+    def scan(self, image_bytes: bytes) -> FakeScanResult:
+        return FakeScanResult(
+            ingredients=["spinach"],
+            confidence=self.confidence,
+            raw_text="Ingredients: spinach",
+        )
+
+
 class FakeQuerySet(list):
     def select_related(self, *args):
         return self
@@ -183,6 +195,48 @@ def test_scan_returns_ocr_result_and_database_matches(monkeypatch):
     assert response.data["molecules"][0]["id"] == "molecule-1"
     assert response.data["molecules"][0]["name"] == "Oxalic Acid"
     assert response.data["count"] == 2
+
+
+def test_scan_clamps_out_of_range_confidence(monkeypatch):
+    monkeypatch.setattr("core.views._build_label_scanner", lambda: ConfidenceScanner(120.75))
+    monkeypatch.setattr("core.views.Food", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.Molecule", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.serializers.FoodListSerializer", FakeSerializer)
+    monkeypatch.setattr("core.views.serializers.MoleculeSerializer", FakeSerializer)
+    image = SimpleUploadedFile("label.jpg", b"image-bytes", content_type="image/jpeg")
+
+    response = _scan_request(image)
+
+    assert response.status_code == 200
+    assert response.data["confidence"] == 100.0
+
+
+def test_scan_defaults_invalid_confidence_to_zero(monkeypatch):
+    monkeypatch.setattr("core.views._build_label_scanner", lambda: ConfidenceScanner(float("nan")))
+    monkeypatch.setattr("core.views.Food", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.Molecule", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.serializers.FoodListSerializer", FakeSerializer)
+    monkeypatch.setattr("core.views.serializers.MoleculeSerializer", FakeSerializer)
+    image = SimpleUploadedFile("label.jpg", b"image-bytes", content_type="image/jpeg")
+
+    response = _scan_request(image)
+
+    assert response.status_code == 200
+    assert response.data["confidence"] == 0.0
+
+
+def test_scan_defaults_nonnumeric_confidence_to_zero(monkeypatch):
+    monkeypatch.setattr("core.views._build_label_scanner", lambda: ConfidenceScanner("unavailable"))
+    monkeypatch.setattr("core.views.Food", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.Molecule", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.serializers.FoodListSerializer", FakeSerializer)
+    monkeypatch.setattr("core.views.serializers.MoleculeSerializer", FakeSerializer)
+    image = SimpleUploadedFile("label.jpg", b"image-bytes", content_type="image/jpeg")
+
+    response = _scan_request(image)
+
+    assert response.status_code == 200
+    assert response.data["confidence"] == 0.0
 
 
 def test_scan_truncates_long_raw_ocr_text(monkeypatch):
