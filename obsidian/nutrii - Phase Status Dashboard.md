@@ -301,11 +301,12 @@ GET /api/v1/stats/
 | Component | Status | Notes |
 |-----------|--------|-------|
 | Expo project setup | ✅ Complete | SDK 52, TypeScript, React Navigation |
-| App.tsx navigation | ✅ Complete | Stack navigator with 4 screens |
+| App.tsx navigation | ✅ Complete | Stack navigator with Home, Search, Food Detail, Scan, and Ban List screens |
 | HomeScreen | ✅ Complete | Entry actions plus recent scan history with food image and health context |
 | SearchScreen | ✅ Complete | API-backed food and molecule results with enriched image thumbnails |
 | FoodDetailScreen | ✅ Complete | API-backed detail screen with images, molecules, health breakdown, AI guide, and linked research |
 | ScanScreen | ✅ Complete | Camera/gallery image scan posts to backend `/scan/` and surfaces OCR confidence, matches, and images |
+| BanListScreen | ✅ Complete | API-backed draft safety entries with citation-required labels and food-detail navigation |
 | History store (`useHistoryStore.ts`) | ✅ Complete | Zustand + AsyncStorage with five-item scan history |
 | EAS build profiles | ✅ Complete | Development, preview, and production profiles in `mobile/eas.json` |
 | iOS build | ⬜ Not started | Requires Apple account and bundle identifier |
@@ -313,7 +314,7 @@ GET /api/v1/stats/
 | Components directory | ⬜ Empty | Directory exists, no files |
 | Hooks directory | ⬜ Not started | Missing |
 
-**Notes:** API-backed mobile flows now cover food and molecule search, rich food detail, OCR scanning, and recent scan history. Food detail shares enriched image, molecule, health-index breakdown, AI guide, and PubMed research context with the backend. Native build, physical-device permission testing, and real-label OCR validation remain open.
+**Notes:** API-backed mobile flows now cover food and molecule search, rich food detail, OCR scanning, draft ban-list review, and recent scan history. Food detail shares enriched image, molecule, health-index breakdown, AI guide, and PubMed research context with the backend. Native build, physical-device permission testing, and real-label OCR validation remain open.
 
 ---
 
@@ -371,6 +372,6 @@ GET /api/v1/stats/
 | Phase 9 | ban_list.md, ban_list.json, BanListEntry model | Draft structured data + model done, citations pending |
 | Phase 10 | 17 endpoints, 9 serializers, settings.py, urls.py, admin.py | Complete |
 | Phase 11 | Routed web app, Layout, API client, hooks, tests | Core public pages complete |
-| Phase 12 | 4 screens, API client, scan flow, history store, EAS profiles | App code ready for native build validation |
+| Phase 12 | 5 screens, API client, scan flow, ban list, history store, EAS profiles | App code ready for native build validation |
 | Phase 13 | ocr/README.md, scan.py, backend scan API, mobile scan flow | MVP integrated; real-label validation pending |
 | Phase 14 | launch_checklist.md, scaling.md, analytics.py, issue templates | Foundation laid |

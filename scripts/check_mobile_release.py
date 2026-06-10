@@ -41,9 +41,12 @@ def _plugin_names(config: dict) -> set[str]:
 def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = False) -> tuple[MobileCheck, ...]:
     app = _load_json(mobile_root / "app.json")["expo"]
     eas = _load_json(mobile_root / "eas.json")
+    app_root = (mobile_root / "App.tsx").read_text(encoding="utf-8")
+    navigation_types = (mobile_root / "src" / "navigation" / "types.ts").read_text(encoding="utf-8")
     scan_screen = (mobile_root / "src" / "screens" / "ScanScreen.tsx").read_text(encoding="utf-8")
     search_screen = (mobile_root / "src" / "screens" / "SearchScreen.tsx").read_text(encoding="utf-8")
     food_detail_screen = (mobile_root / "src" / "screens" / "FoodDetailScreen.tsx").read_text(encoding="utf-8")
+    ban_list_screen = (mobile_root / "src" / "screens" / "BanListScreen.tsx").read_text(encoding="utf-8")
     home_screen = (mobile_root / "src" / "screens" / "HomeScreen.tsx").read_text(encoding="utf-8")
     history_store = (mobile_root / "src" / "stores" / "useHistoryStore.ts").read_text(encoding="utf-8")
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
@@ -183,6 +186,23 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "breakdown.benefit_score" in food_detail_screen
             and "breakdown.bioavailability_score" in food_detail_screen,
             "mobile food detail must surface AI guide copy and health-index breakdowns",
+        ),
+        MobileCheck(
+            "mobile-ban-list-contract",
+            "type BanListEntry" in api_client
+            and "banList:" in api_client
+            and '"/ban-list/"' in api_client
+            and "BanList: undefined" in navigation_types
+            and "BanListScreen" in app_root
+            and 'name="BanList"' in app_root
+            and 'navigation.navigate("BanList")' in home_screen
+            and "api.banList()" in ban_list_screen
+            and "Citation verification required" in ban_list_screen
+            and "Citation-required draft" in ban_list_screen
+            and "entry.lethal_dose_mg" in ban_list_screen
+            and "entry.is_conditionally_safe" in ban_list_screen
+            and 'navigation.navigate("FoodDetail"' in ban_list_screen,
+            "mobile must expose the draft/citation-gated ban list with food-detail navigation",
         ),
         MobileCheck(
             "eas-build-profiles",

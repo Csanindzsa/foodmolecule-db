@@ -64,6 +64,21 @@ export type HealthBreakdown = {
   label: string;
 };
 
+export type BanListEntry = {
+  id: string;
+  food: {
+    id: string;
+    name: string;
+    category?: string | null;
+    health_index?: number | null;
+  } | null;
+  reason: string;
+  lethal_dose_mg?: string | null;
+  is_conditionally_safe: boolean;
+  safe_condition?: string;
+  regulatory_status?: Record<string, unknown>;
+};
+
 export type FoodDetail = FoodListItem & {
   aliases: string[];
   origin: string;
@@ -123,6 +138,7 @@ export const api = {
   foodStudies: (id: string) => request<{ results: Study[] }>(`/foods/${pathId(id)}/studies/`),
   foodGuide: (id: string) => request<FoodGuide>(`/foods/${pathId(id)}/guide/`),
   foodHealthIndex: (id: string) => request<HealthBreakdown>(`/foods/${pathId(id)}/health-index/`),
+  banList: () => request<{ results: BanListEntry[] }>("/ban-list/"),
   scanImage: (uri: string) => {
     const body = new FormData();
     body.append("image", {

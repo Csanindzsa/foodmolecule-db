@@ -33,6 +33,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - Search preserves and displays molecule matches returned by the API, including harm and formula context.
 - Food detail surfaces linked research summaries and PubMed citation links when study data is present.
 - Food detail surfaces AI guide copy and health-index breakdowns from the existing backend endpoints.
+- Ban List is reachable from Home and surfaces draft/citation-required safety entries with food-detail navigation.
 - Development, preview, and production EAS build profiles exist.
 
 ## What It Does Not Prove

@@ -1,6 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
+import BanListScreen from "./src/screens/BanListScreen";
 import FoodDetailScreen from "./src/screens/FoodDetailScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import ScanScreen from "./src/screens/ScanScreen";
@@ -17,6 +18,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: "nutrii" }} />
         <Stack.Screen name="Search" component={SearchScreen} options={{ title: "Search" }} />
         <Stack.Screen name="FoodDetail" component={FoodDetailScreen} options={{ title: "Ingredient" }} />
+        <Stack.Screen name="BanList" component={BanListScreen} options={{ title: "Ban List" }} />
         <Stack.Screen name="Scan" component={ScanScreen} options={{ title: "Scan Label" }} />
       </Stack.Navigator>
     </NavigationContainer>
