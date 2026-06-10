@@ -48,6 +48,8 @@ jobs:
         run: python ../scripts/check_research_ops.py
       - name: Check image operations contract
         run: python ../scripts/check_image_ops.py
+      - name: Run local release audit
+        run: python ../scripts/check_local_release.py
       - name: Run core tests
         run: python -m pytest core/tests -q
       - name: Run AI tests

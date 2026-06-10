@@ -99,6 +99,12 @@ def test_ci_checks_image_operations_contract():
     assert "python ../scripts/check_image_ops.py" in workflow
 
 
+def test_ci_runs_local_release_audit():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "python ../scripts/check_local_release.py" in workflow
+
+
 def test_ci_validates_ban_list_schema():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 

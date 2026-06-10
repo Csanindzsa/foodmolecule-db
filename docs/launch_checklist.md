@@ -6,6 +6,7 @@
 ## Pre-Launch (Before Public Release)
 
 ### Backend
+- [ ] Run local no-credential release audit with `python scripts/check_local_release.py` (`docs/local_release_audit.md`)
 - [ ] Run launch environment preflight with `python scripts/check_launch_env.py --env-file .env.production` (`docs/launch_environment.md`)
 - [ ] Run full `pytest-django` suite against live Supabase (needs Docker up or live DB)
 - [ ] Verify all 17 API endpoints respond from the deployed API with `python scripts/smoke_api.py --require-full` (`docs/api_smoke_test.md`); separately confirm high-traffic queries are <200ms with `python scripts/check_query_plans.py --threshold-ms 200` (`docs/query_plan_checks.md`)
