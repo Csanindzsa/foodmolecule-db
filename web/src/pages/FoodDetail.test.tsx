@@ -369,7 +369,7 @@ describe("FoodDetail page", () => {
   test("studies list hides malformed AI confidence labels", () => {
     mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });
     mockUseFoodStudies.mockReturnValue({
-      data: [{ ...mockStudies[0], ai_confidence: "certain" }],
+      data: [{ ...mockStudies[0], ai_confidence: "certain", publication_year: Number.NaN }],
       isLoading: false,
       error: null,
       refetch: mockRefetchStudies,
@@ -379,6 +379,7 @@ describe("FoodDetail page", () => {
 
     expect(document.body.textContent).not.toContain("AI confidence:");
     expect(document.body.textContent).not.toContain("certain");
+    expect(document.body.textContent).not.toContain("NaN");
   });
 
   // ─── L) Studies loading ───

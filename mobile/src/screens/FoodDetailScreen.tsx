@@ -8,6 +8,7 @@ import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatHarmLevel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
+import { formatPublicationYear } from "../lib/yearDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "FoodDetail">;
@@ -180,6 +181,7 @@ export default function FoodDetailScreen({ route }: Props) {
       ) : studies.length > 0 ? studies.map((study) => {
         const pubmedUrl = externalHttpUrl(study.url);
         const aiConfidence = formatConfidence(study.ai_confidence);
+        const publicationYear = formatPublicationYear(study.publication_year);
 
         return (
           <View key={study.id} style={styles.researchItem}>
@@ -187,7 +189,7 @@ export default function FoodDetailScreen({ route }: Props) {
             {!!study.ai_summary && <Text style={styles.researchSummary}>{study.ai_summary}</Text>}
             <Text style={styles.meta}>
               PMID {study.pmid}
-              {study.publication_year ? ` · ${study.publication_year}` : ""}
+              {publicationYear ? ` · ${publicationYear}` : ""}
               {aiConfidence ? ` · ${aiConfidence}` : ""}
             </Text>
             {pubmedUrl && (

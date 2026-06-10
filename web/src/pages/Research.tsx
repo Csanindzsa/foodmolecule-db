@@ -2,6 +2,7 @@ import { useRecentStudies } from "../hooks/useApi";
 import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatImpact } from "../lib/impactDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
+import { formatPublicationYear } from "../lib/yearDisplay";
 
 export default function Research() {
   const { data: studies, isLoading, error, refetch } = useRecentStudies();
@@ -60,6 +61,7 @@ export default function Research() {
             const aiConfidence = formatConfidence(study.ai_confidence);
             const safetyImpact = formatImpact(study.ai_safety_impact);
             const healthImpact = formatImpact(study.ai_health_impact);
+            const publicationYear = formatPublicationYear(study.publication_year);
 
             return (
               <article key={study.id} className="rounded-xl border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
@@ -92,7 +94,7 @@ export default function Research() {
                       study.pmid
                     )}
                   </span>
-                  {study.publication_year && <span>{study.publication_year}</span>}
+                  {publicationYear && <span>{publicationYear}</span>}
                   {study.journal && <span>{study.journal}</span>}
                   {safetyImpact && (
                     <span>Safety impact: {safetyImpact}</span>

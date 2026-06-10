@@ -129,7 +129,7 @@ describe("Research page", () => {
   test("success state clamps and hides malformed AI impact values", () => {
     mockUseRecentStudies.mockReturnValue({
       data: [
-        { ...mockStudies[0], ai_safety_impact: 99, ai_health_impact: Number.NaN },
+        { ...mockStudies[0], ai_safety_impact: 99, ai_health_impact: Number.NaN, publication_year: Number.NaN },
       ],
       isLoading: false,
       error: null,

@@ -59,6 +59,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     compare_display = (mobile_root / "src" / "lib" / "compareDisplay.ts").read_text(encoding="utf-8")
     molecule_display = (mobile_root / "src" / "lib" / "moleculeDisplay.ts").read_text(encoding="utf-8")
     scan_display = (mobile_root / "src" / "lib" / "scanDisplay.ts").read_text(encoding="utf-8")
+    year_display = (mobile_root / "src" / "lib" / "yearDisplay.ts").read_text(encoding="utf-8")
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
 
@@ -240,10 +241,11 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "Latest Research" in food_detail_screen
             and "study.ai_summary" in food_detail_screen
             and "study.ai_confidence" in food_detail_screen
+            and "formatPublicationYear(study.publication_year)" in food_detail_screen
             and "study.url" in food_detail_screen
             and "Linking.openURL" in food_detail_screen
             and 'accessibilityRole="link"' in food_detail_screen,
-            "mobile food detail must surface linked research summaries and PubMed citation links",
+            "mobile food detail must surface linked research summaries, sanitized years, and PubMed citation links",
         ),
         MobileCheck(
             "mobile-recent-research-contract",
@@ -259,10 +261,13 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "study.ai_confidence" in research_screen
             and "study.ai_safety_impact" in research_screen
             and "study.ai_health_impact" in research_screen
+            and "formatPublicationYear(study.publication_year)" in research_screen
+            and "formatPublicationYear" in year_display
+            and "Number.isFinite(value)" in year_display
             and "study.url" in research_screen
             and "Linking.openURL" in research_screen
             and 'accessibilityRole="link"' in research_screen,
-            "mobile must expose recent PubMed research with AI impact context",
+            "mobile must expose recent PubMed research with AI impact context and sanitized years",
         ),
         MobileCheck(
             "mobile-ai-confidence-sanitizer",

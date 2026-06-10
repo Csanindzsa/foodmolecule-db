@@ -5,6 +5,7 @@ import { formatDate } from "../lib/dateDisplay";
 import { foodMoleculeBadgeClass, foodMoleculeBadgeLabel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore, normalizeScore } from "../lib/scoreDisplay";
+import { formatPublicationYear } from "../lib/yearDisplay";
 
 export default function FoodDetail() {
   const { id } = useParams<{ id: string }>();
@@ -215,6 +216,7 @@ export default function FoodDetail() {
               {visibleStudies.map((s) => {
                 const citationUrl = externalHttpUrl(s.url);
                 const aiConfidence = formatConfidence(s.ai_confidence);
+                const publicationYear = formatPublicationYear(s.publication_year);
 
                 return (
                   <div key={s.id} className="p-4 rounded-xl border bg-white dark:border-gray-700 dark:bg-gray-800">
@@ -234,7 +236,7 @@ export default function FoodDetail() {
                         </a>
                       ) : (
                         s.pmid
-                      )} {s.publication_year && `· ${s.publication_year}`}
+                      )} {publicationYear && `· ${publicationYear}`}
                       {aiConfidence && ` · ${aiConfidence}`}
                     </div>
                   </div>

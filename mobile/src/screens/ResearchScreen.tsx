@@ -6,6 +6,7 @@ import { firstItems } from "../lib/array";
 import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatImpact } from "../lib/impactDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
+import { formatPublicationYear } from "../lib/yearDisplay";
 
 export default function ResearchScreen() {
   const [studies, setStudies] = useState<Study[]>([]);
@@ -56,6 +57,7 @@ export default function ResearchScreen() {
         const aiConfidence = formatConfidence(study.ai_confidence);
         const safetyImpact = formatImpact(study.ai_safety_impact);
         const healthImpact = formatImpact(study.ai_health_impact);
+        const publicationYear = formatPublicationYear(study.publication_year);
 
         return (
           <View key={study.id} style={styles.studyCard}>
@@ -64,7 +66,7 @@ export default function ResearchScreen() {
             <View style={styles.metaBlock}>
               <Text style={styles.meta}>
                 PMID {study.pmid}
-                {study.publication_year ? ` · ${study.publication_year}` : ""}
+                {publicationYear ? ` · ${publicationYear}` : ""}
                 {study.journal ? ` · ${study.journal}` : ""}
               </Text>
               {!!aiConfidence && <Text style={styles.meta}>{aiConfidence}</Text>}

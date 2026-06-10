@@ -28,6 +28,7 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ResearchSurfaceCheck,
     web_hooks = _read(project_root / "web" / "src" / "hooks" / "useApi.ts")
     safe_url = _read(project_root / "web" / "src" / "lib" / "safeUrl.ts")
     confidence_display = _read(project_root / "web" / "src" / "lib" / "confidenceDisplay.ts")
+    year_display = _read(project_root / "web" / "src" / "lib" / "yearDisplay.ts")
     types = _read(project_root / "web" / "src" / "types" / "index.ts")
     serializers = _read(project_root / "backend" / "core" / "serializers.py")
     runbook = _read(project_root / "docs" / "research_surface_checks.md")
@@ -92,9 +93,13 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ResearchSurfaceCheck,
             and "s.ai_confidence" in food_detail
             and "study.publication_year" in research_page
             and "study.ai_confidence" in research_page
+            and "formatPublicationYear(s.publication_year)" in food_detail
+            and "formatPublicationYear(study.publication_year)" in research_page
+            and "formatPublicationYear" in year_display
+            and "Number.isFinite(value)" in year_display
             and "PMID:" in food_detail
             and "PMID:" in research_page,
-            "study cards must keep PMID, publication year, and AI confidence visible",
+            "study cards must keep PMID, sanitized publication year, and AI confidence visible",
         ),
         ResearchSurfaceCheck(
             "ai-confidence-sanitizer",
