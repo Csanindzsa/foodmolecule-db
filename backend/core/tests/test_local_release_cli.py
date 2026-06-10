@@ -43,6 +43,18 @@ def test_local_release_migration_drift_uses_offline_database_fallback():
     )
 
 
+def test_backend_venv_python_detects_project_virtualenv(tmp_path):
+    python = tmp_path / "backend" / ".venv" / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    python.write_text("#!/usr/bin/env python\n", encoding="utf-8")
+
+    assert check_local_release.backend_venv_python(tmp_path) == str(python)
+
+
+def test_backend_venv_python_allows_missing_virtualenv(tmp_path):
+    assert check_local_release.backend_venv_python(tmp_path) is None
+
+
 def test_local_release_audit_can_include_env_preflight(tmp_path):
     env_file = tmp_path / ".env.production"
     env_file.write_text("DJANGO_DEBUG=False\n", encoding="utf-8")
@@ -84,6 +96,38 @@ def test_run_command_applies_command_env_overrides(monkeypatch, tmp_path):
     assert captured["cwd"] == tmp_path
     assert captured["check"] is False
     assert captured["env"]["DATABASE_URL"] == ""
+
+
+def test_run_command_uses_command_python_override(monkeypatch, tmp_path):
+    captured = {}
+
+    class Result:
+        returncode = 0
+
+    def fake_run(args, *, cwd, env, check):
+        captured["args"] = args
+        return Result()
+
+    monkeypatch.setattr(check_local_release.subprocess, "run", fake_run)
+
+    exit_code = check_local_release.run_command(
+        check_local_release.AuditCommand(
+            "migration",
+            ("backend/manage.py", "makemigrations", "--check", "--dry-run"),
+            python="/repo/backend/.venv/bin/python",
+        ),
+        python="ambient-python",
+        cwd=tmp_path,
+    )
+
+    assert exit_code == 0
+    assert captured["args"] == (
+        "/repo/backend/.venv/bin/python",
+        "backend/manage.py",
+        "makemigrations",
+        "--check",
+        "--dry-run",
+    )
 
 
 def test_local_release_audit_reports_failed_commands(monkeypatch, capsys):

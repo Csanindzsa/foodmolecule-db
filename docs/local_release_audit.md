@@ -18,6 +18,11 @@ python scripts/check_local_release.py --env-file .env.production
 
 CI runs the no-secret version.
 
+The audit uses the current Python interpreter for static checks. If
+`backend/.venv/bin/python` exists, the Django migration-drift check uses that
+project venv automatically so the documented command works even when the
+ambient shell Python does not have Django installed.
+
 ## Included Checks
 
 - Seed readiness: `scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4`

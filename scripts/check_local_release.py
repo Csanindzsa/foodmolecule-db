@@ -18,6 +18,12 @@ class AuditCommand:
     name: str
     args: tuple[str, ...]
     env_overrides: tuple[tuple[str, str], ...] = ()
+    python: str | None = None
+
+
+def backend_venv_python(project_root: Path = PROJECT_ROOT) -> str | None:
+    python = project_root / "backend" / ".venv" / "bin" / "python"
+    return str(python) if python.exists() else None
 
 
 LOCAL_AUDIT_COMMANDS = (
@@ -31,6 +37,7 @@ LOCAL_AUDIT_COMMANDS = (
             ("SUPABASE_URL", ""),
             ("SUPABASE_DB_PASSWORD", ""),
         ),
+        backend_venv_python(),
     ),
     AuditCommand("backend-release-contract", ("scripts/check_backend_release.py",)),
     AuditCommand("api-smoke-probe-list", ("scripts/smoke_api.py", "--list-probes")),
@@ -65,7 +72,8 @@ def run_command(command: AuditCommand, *, python: str = sys.executable, cwd: Pat
     print(f"===== {command.name} =====", flush=True)
     env = os.environ.copy()
     env.update(dict(command.env_overrides))
-    result = subprocess.run((python, *command.args), cwd=cwd, env=env, check=False)
+    executable = command.python or python
+    result = subprocess.run((executable, *command.args), cwd=cwd, env=env, check=False)
     return result.returncode
 
 
