@@ -52,6 +52,7 @@ def test_current_state_docs_do_not_contain_stale_platform_claims():
         "expo-ml-kit",
         "SQLite for local caching",
         "Sync top 500 most-searched foods to local SQLite",
+        "Mobile app caches last 50 searches in SQLite",
         "Queue scans when offline; process when connection restored",
         "Phase 9 | ban_list.md, BanListEntry model | Doc + model done, data empty",
         "Phase 10 | 16 views, 9 serializers, settings.py, urls.py, admin.py",
@@ -85,6 +86,8 @@ def test_current_state_docs_describe_mobile_release_scope():
         "Phase 12 | 7 screens, API client, compare, scan flow, ban list, history store, EAS profiles | App code ready for native build validation",
         "API-backed search, compare, food detail, molecule detail, ban list, and scan flows",
         "Recent scan history is stored **locally** on device with AsyncStorage",
+        "Current-state note:",
+        "For launch readiness, use the deliverable status tables in each phase",
     ]
 
     for claim in required_claims:

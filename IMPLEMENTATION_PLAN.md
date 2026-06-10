@@ -4,6 +4,8 @@
 > **Vision:** A fully autonomous, AI-driven database that maps every known food ingredient on Earth to its molecular composition, continuously updates safety scores from live PubMed research via OpenRouter LLMs, and delivers real-time health intelligence through a web platform and mobile app with ingredient scanning.  
 > **Core Principle:** No human gatekeepers. No authentication walls. Science-backed, automatically evolving, completely open.
 
+> **Current-state note:** Early phase checklists preserve the original roadmap for traceability. For launch readiness, use the deliverable status tables in each phase, the "Summary: All Files Across All Phases" section, and `docs/launch_checklist.md` as the source of truth.
+
 ---
 
 ## Table of Contents
