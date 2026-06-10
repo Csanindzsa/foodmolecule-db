@@ -102,11 +102,11 @@
 | Deduplicator (`transformers/deduplicator.py`) | ✅ Complete | Fuzzy name matching, alias merging |
 | Bulk inserter (`loaders/bulk_insert.py`) | ✅ Complete | Upsert with ON CONFLICT handling |
 | Schema validator (`loaders/validate.py`) | ✅ Complete | JSON Schema validation |
-| Seed data (foods) | ⬜ Partial | 2 examples (spinach, kidney_bean) |
+| Seed data (foods) | 🟡 Partial | 5,003 USDA-derived seed JSON files are present and covered by schema/readiness checks; production DB load still required |
 | Seed data (molecules) | ⬜ Partial | 4 examples (oxalic_acid, lectin, saponin, iron) |
 | Seed data (studies) | ⬜ Not started | Directory exists, empty |
 
-**Notes:** All pipeline infrastructure is built. Needs actual data population at scale. The pipeline processes JSON files from `data/seed/` through a 5-stage pipeline.
+**Notes:** All pipeline infrastructure is built. Food seed files are present at launch-baseline scale and validated in CI; production database loading remains a launch task. Molecule/study coverage still needs expansion.
 
 ---
 

@@ -32,6 +32,10 @@ jobs:
         run: python -m compileall -q ../ai . ../ocr ../scripts
       - name: Validate food seed schemas
         run: python ../scripts/validate_schema.py food ../data/seed/foods
+      - name: Validate molecule seed schemas
+        run: python ../scripts/validate_schema.py molecule ../data/seed/molecules
+      - name: Check launch seed readiness
+        run: python ../scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4
       - name: Validate ban list schema
         run: python ../scripts/validate_schema.py ban_list ../ban_list/ban_list.json
       - name: Run core tests

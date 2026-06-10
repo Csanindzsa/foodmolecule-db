@@ -54,6 +54,18 @@ def test_ci_validates_food_seed_schemas():
     assert "python ../scripts/validate_schema.py food ../data/seed/foods" in workflow
 
 
+def test_ci_validates_molecule_seed_schemas():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "python ../scripts/validate_schema.py molecule ../data/seed/molecules" in workflow
+
+
+def test_ci_checks_launch_seed_readiness():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "python ../scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4" in workflow
+
+
 def test_ci_validates_ban_list_schema():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 

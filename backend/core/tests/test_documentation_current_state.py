@@ -45,6 +45,8 @@ def test_current_state_docs_do_not_contain_stale_platform_claims():
         "Press kit | ⬜ Not started | Not created",
         "`processing/compound_matrix.csv` | ⬜ Not started | Empty",
         "Phase 8 | methods.md, MoleculeNeutralization model | Methods doc done, data empty",
+        "2 examples (spinach, kidney_bean)",
+        "Needs actual data population at scale.",
     ]
 
     for claim in stale_claims:

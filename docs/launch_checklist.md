@@ -32,7 +32,7 @@
 - [ ] Submit to App Store / Google Play (or use Expo Go for beta)
 
 ### Data & AI
-- [ ] Seed database with top 100 most common food ingredients
+- [ ] Verify launch seed files with `python scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4` (`docs/seed_readiness.md`), then seed the target database
 - [ ] Verify PubMed watcher cron job is running every 6 hours
 - [ ] Run one full safety adjustment cycle end-to-end
 - [ ] Confirm verified ban list entries are surfaced correctly in UI
