@@ -55,7 +55,7 @@
   - **Mitigation:** `pytest-django` covers backend models, API views, ingestion scripts, AI guide generation, PubMed fetchers, safety adjustment, OCR scanning, and pipeline behavior. Coverage gating is still a launch hardening item.
 
 - [ ] **No linting / formatting** — Inconsistent code style.
-  - **Mitigation:** CI now compiles backend, AI, OCR, and script Python sources to catch syntax errors. `ruff` for linting, `black` for formatting, and `mypy` for type checking remain launch-hardening follow-up work.
+  - **Mitigation:** CI now runs web ESLint and compiles backend, AI, OCR, and script Python sources to catch syntax errors. Python `ruff`, `black`, `mypy`, and mobile linting remain launch-hardening follow-up work.
 
 - [x] **No CI/CD** — No automated checks on PRs.
   - **Mitigation:** GitHub Actions runs backend and web test/build checks on pull requests and pushes. Production deploy automation remains environment-specific.
