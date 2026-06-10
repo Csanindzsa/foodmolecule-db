@@ -25,6 +25,9 @@ python scripts/check_mobile_release.py --require-store-ids
 - iOS camera and photo-library permission copy exists.
 - `ScanScreen` launches camera/gallery image selection and submits through `api.scanImage`.
 - The mobile API client posts multipart images to `/scan/`.
+- The mobile upload client names scan files and sends JPEG, PNG, or WebP content types.
+- The scan result view preserves OCR confidence, raw-text truncation, empty states, and matched-food navigation.
+- Successful scans persist up to five matched foods to local history for offline revisit.
 - Development, preview, and production EAS build profiles exist.
 
 ## What It Does Not Prove

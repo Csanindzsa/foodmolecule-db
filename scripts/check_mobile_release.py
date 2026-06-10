@@ -84,6 +84,32 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "mobile API client must post FormData image uploads to /scan/",
         ),
         MobileCheck(
+            "scan-upload-mime-contract",
+            'return "image/png"' in api_client
+            and 'return "image/webp"' in api_client
+            and 'return "image/jpeg"' in api_client
+            and "imageName(uri)" in api_client
+            and "imageType(uri)" in api_client,
+            "mobile upload client must name files and send JPEG, PNG, or WebP content types",
+        ),
+        MobileCheck(
+            "scan-result-ux-contract",
+            "OCR confidence" in scan_screen
+            and "raw_text_truncated" in scan_screen
+            and "Raw OCR" in scan_screen
+            and "Truncated" in scan_screen
+            and "No ingredient terms detected." in scan_screen
+            and "No food matches found." in scan_screen,
+            "ScanScreen must show confidence, raw OCR truncation, empty states, and matches",
+        ),
+        MobileCheck(
+            "scan-history-contract",
+            "useHistoryStore" in scan_screen
+            and "addHistory" in scan_screen
+            and "response.foods.slice(0, 5)" in scan_screen,
+            "successful scans must persist up to five matched foods to local history",
+        ),
+        MobileCheck(
             "eas-build-profiles",
             eas["build"]["development"].get("developmentClient") is True
             and eas["build"]["preview"].get("distribution") == "internal"

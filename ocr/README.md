@@ -64,6 +64,11 @@ response limit; when capped, `raw_text_truncated` is `true`.
 ## Integration
 
 The mobile app calls the public backend API via `mobile/src/lib/api.ts`.
+The scan screen must keep the backend response contract visible: confidence,
+matched ingredients, matched foods, raw OCR preview, and the truncated-text badge
+when `raw_text_truncated` is true. Successful scans add up to five matched foods
+to local on-device history for later review.
+
 Set `EXPO_PUBLIC_API_URL` for physical devices or production builds:
 
 ```bash

@@ -17,6 +17,9 @@ def test_mobile_release_checker_passes_static_mvp_contract():
         "ios-permission-copy",
         "scan-screen-wiring",
         "scan-api-client",
+        "scan-upload-mime-contract",
+        "scan-result-ux-contract",
+        "scan-history-contract",
         "eas-build-profiles",
     }
 
@@ -34,6 +37,7 @@ def test_mobile_release_cli_outputs_summary(capsys):
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "ok\tproduction-api-url" in captured.out
+    assert "ok\tscan-result-ux-contract" in captured.out
     assert "skip\tstore-identifiers" in captured.out
 
 
