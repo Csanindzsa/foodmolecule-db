@@ -3,7 +3,14 @@ const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_
 async function fetcher<T>(path: string): Promise<T> {
   const resp = await fetch(`${API_BASE}${path}`);
   if (!resp.ok) {
-    throw new Error(`API error: ${resp.status} ${resp.statusText}`);
+    let detail = `API error: ${resp.status} ${resp.statusText}`;
+    try {
+      const body = await resp.json();
+      if (typeof body.detail === "string") detail = body.detail;
+    } catch {
+      // Preserve the status fallback for non-JSON error bodies.
+    }
+    throw new Error(detail);
   }
   return resp.json() as Promise<T>;
 }

@@ -280,6 +280,19 @@ describe("api", () => {
       await expect(api.foods()).rejects.toThrow("API error: 404 Not Found");
     });
 
+    test("throws server detail text for non-ok JSON responses", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ detail: "Search query is too long." }), {
+            status: 400,
+            statusText: "Bad Request",
+            headers: { "Content-Type": "application/json" },
+          })
+        )
+      );
+      await expect(api.search("x")).rejects.toThrow("Search query is too long.");
+    });
+
     test("throws on 500 response", async () => {
       mockFetch.mockImplementation(() =>
         Promise.resolve(
