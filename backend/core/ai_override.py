@@ -41,8 +41,8 @@ def validate_override(
     4. New score must be within 0–100.
     """
     base = compute_health_index(food)
-    old_safety = food.overall_safety_score or base.safety_score
-    old_health = food.health_index or base.score
+    old_safety = food.overall_safety_score if food.overall_safety_score is not None else base.safety_score
+    old_health = food.health_index if food.health_index is not None else base.score
 
     # Guard 1: PMID citation
     has_pmid = False
