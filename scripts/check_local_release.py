@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -16,12 +17,21 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 class AuditCommand:
     name: str
     args: tuple[str, ...]
+    env_overrides: tuple[tuple[str, str], ...] = ()
 
 
 LOCAL_AUDIT_COMMANDS = (
     AuditCommand("seed-readiness", ("scripts/check_seed_readiness.py", "--min-foods", "100", "--min-molecules", "4")),
     AuditCommand("ban-list-schema", ("scripts/validate_schema.py", "ban_list", "ban_list/ban_list.json")),
-    AuditCommand("django-migration-drift", ("backend/manage.py", "makemigrations", "--check", "--dry-run")),
+    AuditCommand(
+        "django-migration-drift",
+        ("backend/manage.py", "makemigrations", "--check", "--dry-run"),
+        (
+            ("DATABASE_URL", ""),
+            ("SUPABASE_URL", ""),
+            ("SUPABASE_DB_PASSWORD", ""),
+        ),
+    ),
     AuditCommand("backend-release-contract", ("scripts/check_backend_release.py",)),
     AuditCommand("api-smoke-probe-list", ("scripts/smoke_api.py", "--list-probes")),
     AuditCommand("query-plan-target-list", ("scripts/check_query_plans.py", "--list")),
@@ -53,7 +63,9 @@ def build_commands(env_file: Path | None = None) -> tuple[AuditCommand, ...]:
 
 def run_command(command: AuditCommand, *, python: str = sys.executable, cwd: Path = PROJECT_ROOT) -> int:
     print(f"===== {command.name} =====", flush=True)
-    result = subprocess.run((python, *command.args), cwd=cwd, check=False)
+    env = os.environ.copy()
+    env.update(dict(command.env_overrides))
+    result = subprocess.run((python, *command.args), cwd=cwd, env=env, check=False)
     return result.returncode
 
 

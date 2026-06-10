@@ -30,6 +30,19 @@ def test_local_release_audit_default_commands_are_no_credential_checks():
     ]
 
 
+def test_local_release_migration_drift_uses_offline_database_fallback():
+    commands = check_local_release.build_commands()
+    migration_command = next(
+        command for command in commands if command.name == "django-migration-drift"
+    )
+
+    assert migration_command.env_overrides == (
+        ("DATABASE_URL", ""),
+        ("SUPABASE_URL", ""),
+        ("SUPABASE_DB_PASSWORD", ""),
+    )
+
+
 def test_local_release_audit_can_include_env_preflight(tmp_path):
     env_file = tmp_path / ".env.production"
     env_file.write_text("DJANGO_DEBUG=False\n", encoding="utf-8")
@@ -38,6 +51,39 @@ def test_local_release_audit_can_include_env_preflight(tmp_path):
 
     assert commands[0].name == "launch-env-preflight"
     assert commands[0].args == ("scripts/check_launch_env.py", "--env-file", str(env_file))
+
+
+def test_run_command_applies_command_env_overrides(monkeypatch, tmp_path):
+    captured = {}
+
+    class Result:
+        returncode = 0
+
+    def fake_run(args, *, cwd, env, check):
+        captured["args"] = args
+        captured["cwd"] = cwd
+        captured["env"] = env
+        captured["check"] = check
+        return Result()
+
+    monkeypatch.setenv("DATABASE_URL", "postgresql://remote.example/db")
+    monkeypatch.setattr(check_local_release.subprocess, "run", fake_run)
+
+    exit_code = check_local_release.run_command(
+        check_local_release.AuditCommand(
+            "offline",
+            ("manage.py", "check"),
+            (("DATABASE_URL", ""),),
+        ),
+        python="python",
+        cwd=tmp_path,
+    )
+
+    assert exit_code == 0
+    assert captured["args"] == ("python", "manage.py", "check")
+    assert captured["cwd"] == tmp_path
+    assert captured["check"] is False
+    assert captured["env"]["DATABASE_URL"] == ""
 
 
 def test_local_release_audit_reports_failed_commands(monkeypatch, capsys):
