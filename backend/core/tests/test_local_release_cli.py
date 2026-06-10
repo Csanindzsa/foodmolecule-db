@@ -11,6 +11,7 @@ def test_local_release_audit_default_commands_are_no_credential_checks():
     names = [command.name for command in commands]
 
     assert names == [
+        "python-source-compile",
         "seed-readiness",
         "ban-list-schema",
         "django-migration-drift",
@@ -41,6 +42,26 @@ def test_local_release_migration_drift_uses_offline_database_fallback():
         ("SUPABASE_URL", ""),
         ("SUPABASE_DB_PASSWORD", ""),
     )
+
+
+def test_local_release_python_compile_check_skips_virtualenv():
+    commands = check_local_release.build_commands()
+    compile_command = next(
+        command for command in commands if command.name == "python-source-compile"
+    )
+
+    assert compile_command.args == (
+        "-m",
+        "compileall",
+        "-q",
+        "ai",
+        "backend/core",
+        "backend/nutrii",
+        "backend/manage.py",
+        "ocr",
+        "scripts",
+    )
+    assert "backend/.venv" not in compile_command.args
 
 
 def test_backend_venv_python_detects_project_virtualenv(tmp_path):

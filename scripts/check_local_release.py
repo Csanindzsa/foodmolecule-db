@@ -27,6 +27,20 @@ def backend_venv_python(project_root: Path = PROJECT_ROOT) -> str | None:
 
 
 LOCAL_AUDIT_COMMANDS = (
+    AuditCommand(
+        "python-source-compile",
+        (
+            "-m",
+            "compileall",
+            "-q",
+            "ai",
+            "backend/core",
+            "backend/nutrii",
+            "backend/manage.py",
+            "ocr",
+            "scripts",
+        ),
+    ),
     AuditCommand("seed-readiness", ("scripts/check_seed_readiness.py", "--min-foods", "100", "--min-molecules", "4")),
     AuditCommand("ban-list-schema", ("scripts/validate_schema.py", "ban_list", "ban_list/ban_list.json")),
     AuditCommand(

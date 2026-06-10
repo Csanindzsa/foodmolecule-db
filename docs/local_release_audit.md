@@ -25,6 +25,7 @@ ambient shell Python does not have Django installed.
 
 ## Included Checks
 
+- Python source compile check for `ai/`, Django app/project files, `ocr/`, and `scripts/`.
 - Seed readiness: `scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4`
 - Ban-list schema validation.
 - Django migration drift check: `backend/manage.py makemigrations --check --dry-run` with database env cleared so it uses the offline SQLite fallback.
