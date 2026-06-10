@@ -25,6 +25,7 @@ def test_mobile_release_checker_passes_static_mvp_contract():
         "mobile-search-molecule-contract",
         "mobile-molecule-detail-contract",
         "mobile-research-surface-contract",
+        "mobile-recent-research-contract",
         "mobile-ai-guide-contract",
         "mobile-ban-list-contract",
         "mobile-compare-contract",
@@ -51,6 +52,7 @@ def test_mobile_release_cli_outputs_summary(capsys):
     assert "ok\tmobile-search-molecule-contract" in captured.out
     assert "ok\tmobile-molecule-detail-contract" in captured.out
     assert "ok\tmobile-research-surface-contract" in captured.out
+    assert "ok\tmobile-recent-research-contract" in captured.out
     assert "ok\tmobile-ai-guide-contract" in captured.out
     assert "ok\tmobile-ban-list-contract" in captured.out
     assert "ok\tmobile-compare-contract" in captured.out

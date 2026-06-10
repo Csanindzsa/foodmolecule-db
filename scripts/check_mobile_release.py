@@ -46,6 +46,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     scan_screen = (mobile_root / "src" / "screens" / "ScanScreen.tsx").read_text(encoding="utf-8")
     search_screen = (mobile_root / "src" / "screens" / "SearchScreen.tsx").read_text(encoding="utf-8")
     compare_screen = (mobile_root / "src" / "screens" / "CompareScreen.tsx").read_text(encoding="utf-8")
+    research_screen = (mobile_root / "src" / "screens" / "ResearchScreen.tsx").read_text(encoding="utf-8")
     food_detail_screen = (mobile_root / "src" / "screens" / "FoodDetailScreen.tsx").read_text(encoding="utf-8")
     molecule_detail_screen = (mobile_root / "src" / "screens" / "MoleculeDetailScreen.tsx").read_text(encoding="utf-8")
     ban_list_screen = (mobile_root / "src" / "screens" / "BanListScreen.tsx").read_text(encoding="utf-8")
@@ -188,6 +189,25 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "Linking.openURL" in food_detail_screen
             and 'accessibilityRole="link"' in food_detail_screen,
             "mobile food detail must surface linked research summaries and PubMed citation links",
+        ),
+        MobileCheck(
+            "mobile-recent-research-contract",
+            "recentStudies" in api_client
+            and '"/studies/recent/"' in api_client
+            and "Research: undefined" in navigation_types
+            and "ResearchScreen" in app_root
+            and 'name="Research"' in app_root
+            and 'navigation.navigate("Research")' in home_screen
+            and "api.recentStudies()" in research_screen
+            and "Latest Research" in research_screen
+            and "study.ai_summary" in research_screen
+            and "study.ai_confidence" in research_screen
+            and "study.ai_safety_impact" in research_screen
+            and "study.ai_health_impact" in research_screen
+            and "study.url" in research_screen
+            and "Linking.openURL" in research_screen
+            and 'accessibilityRole="link"' in research_screen,
+            "mobile must expose recent PubMed research with AI impact context",
         ),
         MobileCheck(
             "mobile-ai-guide-contract",

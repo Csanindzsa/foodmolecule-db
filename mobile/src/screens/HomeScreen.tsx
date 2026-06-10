@@ -26,6 +26,7 @@ export default function HomeScreen({ navigation }: Props) {
       </View>
       <View style={styles.secondaryRow}>
         <Button title="Compare" onPress={() => navigation.navigate("Compare")} />
+        <Button title="Research" onPress={() => navigation.navigate("Research")} />
         <Button title="Ban List" onPress={() => navigation.navigate("BanList")} />
       </View>
       {history.length > 0 && (

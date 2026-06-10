@@ -6,6 +6,7 @@ import CompareScreen from "./src/screens/CompareScreen";
 import FoodDetailScreen from "./src/screens/FoodDetailScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import MoleculeDetailScreen from "./src/screens/MoleculeDetailScreen";
+import ResearchScreen from "./src/screens/ResearchScreen";
 import ScanScreen from "./src/screens/ScanScreen";
 import SearchScreen from "./src/screens/SearchScreen";
 import type { RootStackParamList } from "./src/navigation/types";
@@ -20,6 +21,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: "nutrii" }} />
         <Stack.Screen name="Search" component={SearchScreen} options={{ title: "Search" }} />
         <Stack.Screen name="Compare" component={CompareScreen} options={{ title: "Compare" }} />
+        <Stack.Screen name="Research" component={ResearchScreen} options={{ title: "Research" }} />
         <Stack.Screen name="FoodDetail" component={FoodDetailScreen} options={{ title: "Ingredient" }} />
         <Stack.Screen name="MoleculeDetail" component={MoleculeDetailScreen} options={{ title: "Molecule" }} />
         <Stack.Screen name="BanList" component={BanListScreen} options={{ title: "Ban List" }} />

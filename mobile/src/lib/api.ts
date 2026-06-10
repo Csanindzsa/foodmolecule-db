@@ -62,9 +62,12 @@ export type Study = {
   id: string;
   pmid: string;
   title: string;
+  journal?: string;
   publication_year?: number | null;
   url?: string;
   ai_summary?: string | null;
+  ai_safety_impact?: number | null;
+  ai_health_impact?: number | null;
   ai_confidence?: "high" | "medium" | "low" | null;
 };
 
@@ -170,6 +173,7 @@ export const api = {
   food: (id: string) => request<FoodDetail>(`/foods/${pathId(id)}/`),
   molecule: (id: string) => request<MoleculeDetail>(`/molecules/${pathId(id)}/`),
   foodStudies: (id: string) => request<{ results: Study[] }>(`/foods/${pathId(id)}/studies/`),
+  recentStudies: () => request<{ results: Study[] }>("/studies/recent/"),
   foodGuide: (id: string) => request<FoodGuide>(`/foods/${pathId(id)}/guide/`),
   foodHealthIndex: (id: string) => request<HealthBreakdown>(`/foods/${pathId(id)}/health-index/`),
   banList: () => request<{ results: BanListEntry[] }>("/ban-list/"),
