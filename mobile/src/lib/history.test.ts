@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { normalizeHistory } from "./history";
+import { normalizeHistory, normalizeHistoryItem } from "./history";
 
 describe("history storage helpers", () => {
   test("normalizeHistory rejects missing, invalid, and non-array payloads", () => {
@@ -11,8 +11,9 @@ describe("history storage helpers", () => {
 
   test("normalizeHistory keeps valid items and drops malformed entries", () => {
     const result = normalizeHistory(JSON.stringify([
-      { id: "food-1", name: "Apple", scannedAt: "2026-06-10T10:00:00Z", image_url: "https://example.com/apple.webp", health_index: 91.2 },
+      { id: " food-1 ", name: " Apple ", scannedAt: " 2026-06-10T10:00:00Z ", image_url: " https://example.com/apple.webp ", health_index: 91.2 },
       { id: "missing-name", scannedAt: "2026-06-10T10:00:00Z" },
+      { id: "bad-date", name: "Bad Date", scannedAt: "not a date" },
       { id: "food-2", name: "Pear", scannedAt: "2026-06-10T11:00:00Z", image_url: 42, health_index: 200 },
     ]));
 
@@ -42,5 +43,23 @@ describe("history storage helpers", () => {
     })));
 
     expect(normalizeHistory(raw)).toHaveLength(50);
+  });
+
+  test("normalizeHistoryItem rejects malformed values and clamps health context", () => {
+    expect(normalizeHistoryItem({ id: "", name: "Apple", scannedAt: "2026-06-10T10:00:00Z" })).toBeNull();
+    expect(normalizeHistoryItem({ id: "food-1", name: "Apple", scannedAt: "not a date" })).toBeNull();
+    expect(normalizeHistoryItem({
+      id: " food-1 ",
+      name: " Apple ",
+      scannedAt: "2026-06-10T10:00:00Z",
+      image_url: " https://example.com/apple.webp ",
+      health_index: Number.POSITIVE_INFINITY,
+    })).toEqual({
+      id: "food-1",
+      name: "Apple",
+      scannedAt: "2026-06-10T10:00:00Z",
+      image_url: "https://example.com/apple.webp",
+      health_index: null,
+    });
   });
 });

@@ -8,24 +8,47 @@ export interface StoredHistoryItem {
   health_index?: number | null;
 }
 
+function cleanString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const cleaned = value.trim();
+  return cleaned ? cleaned : null;
+}
+
+function cleanScannedAt(value: unknown): string | null {
+  const cleaned = cleanString(value);
+  if (!cleaned || Number.isNaN(Date.parse(cleaned))) return null;
+  return cleaned;
+}
+
+export function normalizeHistoryItem(value: unknown): StoredHistoryItem | null {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Record<string, unknown>;
+  const id = cleanString(item.id);
+  const name = cleanString(item.name);
+  const scannedAt = cleanScannedAt(item.scannedAt);
+  if (!id || !name || !scannedAt) return null;
+  const imageUrl = cleanString(item.image_url);
+  const healthIndex = typeof item.health_index === "number" || item.health_index == null
+    ? normalizeScore(item.health_index)
+    : null;
+
+  return {
+    id,
+    name,
+    scannedAt,
+    image_url: imageUrl ?? undefined,
+    health_index: healthIndex,
+  };
+}
+
 export function normalizeHistory(raw: string | null): StoredHistoryItem[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
     return parsed
-      .filter((item): item is StoredHistoryItem =>
-        typeof item?.id === "string" &&
-        typeof item?.name === "string" &&
-        typeof item?.scannedAt === "string",
-      )
-      .map((item) => ({
-        id: item.id,
-        name: item.name,
-        scannedAt: item.scannedAt,
-        image_url: typeof item.image_url === "string" ? item.image_url : undefined,
-        health_index: normalizeScore(item.health_index),
-      }))
+      .map(normalizeHistoryItem)
+      .filter((item): item is StoredHistoryItem => item !== null)
       .slice(0, 50);
   } catch {
     return [];

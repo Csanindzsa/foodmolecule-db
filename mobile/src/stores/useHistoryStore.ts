@@ -1,8 +1,7 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { normalizeHistory, type StoredHistoryItem } from "../lib/history";
-import { normalizeScore } from "../lib/scoreDisplay";
+import { normalizeHistory, normalizeHistoryItem, type StoredHistoryItem } from "../lib/history";
 
 type HistoryItem = StoredHistoryItem & {
   image_url?: string;
@@ -21,8 +20,10 @@ const STORAGE_KEY = "nutrii_history";
 export const useHistoryStore = create<HistoryState>((set, get) => ({
   history: [],
   add: (item) => {
-    const deduped = get().history.filter((existing) => existing.id !== item.id);
-    const next = [{ ...item, health_index: normalizeScore(item.health_index) }, ...deduped].slice(0, 50);
+    const normalized = normalizeHistoryItem(item);
+    if (!normalized) return;
+    const deduped = get().history.filter((existing) => existing.id !== normalized.id);
+    const next = [normalized, ...deduped].slice(0, 50);
     set({ history: next });
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => undefined);
   },

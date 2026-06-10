@@ -30,7 +30,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - The mobile upload client names scan files and sends JPEG, PNG, or WebP content types.
 - The scan result view preserves OCR confidence, raw-text truncation, empty states, matched-food navigation, and sanitized ingredient/hazard/raw-text displays.
 - Successful scans persist up to five matched foods to local history for offline revisit.
-- Recent scan history preserves food image and health context when available.
+- Recent scan history normalizes persisted IDs, names, scan dates, food image, and health context when available.
 - Search, food detail, and scan result screens surface enriched food images when `image_url` is present.
 - Search preserves and displays molecule matches returned by the API, including sanitized harm, formula, and molecule-name snippet context.
 - Molecule detail is reachable from search and surfaces structure image, sanitized text/harm/count/amount/molecular-property context, and linked foods.
