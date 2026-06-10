@@ -154,6 +154,20 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "mobile search must preserve and display molecule matches returned by the API",
         ),
         MobileCheck(
+            "mobile-research-surface-contract",
+            "type Study" in api_client
+            and "foodStudies" in api_client
+            and "/studies/" in api_client
+            and "api.foodStudies(id)" in food_detail_screen
+            and "Latest Research" in food_detail_screen
+            and "study.ai_summary" in food_detail_screen
+            and "study.ai_confidence" in food_detail_screen
+            and "study.url" in food_detail_screen
+            and "Linking.openURL" in food_detail_screen
+            and 'accessibilityRole="link"' in food_detail_screen,
+            "mobile food detail must surface linked research summaries and PubMed citation links",
+        ),
+        MobileCheck(
             "eas-build-profiles",
             eas["build"]["development"].get("developmentClient") is True
             and eas["build"]["preview"].get("distribution") == "internal"

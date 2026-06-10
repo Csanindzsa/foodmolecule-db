@@ -31,6 +31,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - Recent scan history preserves food image and health context when available.
 - Search, food detail, and scan result screens surface enriched food images when `image_url` is present.
 - Search preserves and displays molecule matches returned by the API, including harm and formula context.
+- Food detail surfaces linked research summaries and PubMed citation links when study data is present.
 - Development, preview, and production EAS build profiles exist.
 
 ## What It Does Not Prove

@@ -37,6 +37,16 @@ export type Molecule = {
   linked_food_count?: number;
 };
 
+export type Study = {
+  id: string;
+  pmid: string;
+  title: string;
+  publication_year?: number | null;
+  url?: string;
+  ai_summary?: string | null;
+  ai_confidence?: "high" | "medium" | "low" | null;
+};
+
 export type FoodDetail = FoodListItem & {
   aliases: string[];
   origin: string;
@@ -93,6 +103,7 @@ export const api = {
     `/foods/search/?q=${encodeURIComponent(query)}&dedupe=ingredient_signature`,
   ),
   food: (id: string) => request<FoodDetail>(`/foods/${pathId(id)}/`),
+  foodStudies: (id: string) => request<{ results: Study[] }>(`/foods/${pathId(id)}/studies/`),
   scanImage: (uri: string) => {
     const body = new FormData();
     body.append("image", {

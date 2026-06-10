@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { api, type FoodDetail } from "../lib/api";
+import { api, type FoodDetail, type Study } from "../lib/api";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "FoodDetail">;
@@ -10,13 +10,19 @@ type Props = NativeStackScreenProps<RootStackParamList, "FoodDetail">;
 export default function FoodDetailScreen({ route }: Props) {
   const { id } = route.params;
   const [food, setFood] = useState<FoodDetail | null>(null);
+  const [studies, setStudies] = useState<Study[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [studiesLoading, setStudiesLoading] = useState(true);
+  const [studiesError, setStudiesError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     setIsLoading(true);
+    setStudiesLoading(true);
     setError(null);
+    setStudiesError(null);
+    setStudies([]);
 
     api.food(id)
       .then((response) => {
@@ -27,6 +33,17 @@ export default function FoodDetailScreen({ route }: Props) {
       })
       .finally(() => {
         if (isMounted) setIsLoading(false);
+      });
+
+    api.foodStudies(id)
+      .then((response) => {
+        if (isMounted) setStudies(response.results.slice(0, 3));
+      })
+      .catch((err) => {
+        if (isMounted) setStudiesError(err instanceof Error ? err.message : "Failed to load research");
+      })
+      .finally(() => {
+        if (isMounted) setStudiesLoading(false);
       });
 
     return () => {
@@ -91,6 +108,33 @@ export default function FoodDetailScreen({ route }: Props) {
       )) : (
         <Text style={styles.meta}>No molecule data available.</Text>
       )}
+      <Text style={styles.sectionTitle}>Latest Research</Text>
+      {studiesLoading ? (
+        <Text style={styles.meta}>Loading research...</Text>
+      ) : studiesError ? (
+        <Text style={styles.meta}>Research is unavailable right now.</Text>
+      ) : studies.length > 0 ? studies.map((study) => (
+        <View key={study.id} style={styles.researchItem}>
+          <Text style={styles.researchTitle}>{study.title}</Text>
+          {!!study.ai_summary && <Text style={styles.researchSummary}>{study.ai_summary}</Text>}
+          <Text style={styles.meta}>
+            PMID {study.pmid}
+            {study.publication_year ? ` · ${study.publication_year}` : ""}
+            {study.ai_confidence ? ` · AI confidence: ${study.ai_confidence}` : ""}
+          </Text>
+          {!!study.url && (
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => Linking.openURL(study.url as string)}
+              style={styles.pubmedLink}
+            >
+              <Text style={styles.pubmedLinkText}>Open PubMed</Text>
+            </Pressable>
+          )}
+        </View>
+      )) : (
+        <Text style={styles.meta}>No linked research available.</Text>
+      )}
     </ScrollView>
   );
 }
@@ -108,6 +152,11 @@ const styles = StyleSheet.create({
   sectionTitle: { marginTop: 18, marginBottom: 8, fontSize: 18, fontWeight: "700" },
   moleculeItem: { borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 8, padding: 12, marginBottom: 10, backgroundColor: "#fff" },
   moleculeName: { fontSize: 16, fontWeight: "700" },
+  researchItem: { borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 8, padding: 12, marginBottom: 10, backgroundColor: "#fff" },
+  researchTitle: { fontSize: 15, fontWeight: "700", color: "#0f172a" },
+  researchSummary: { color: "#334155", marginTop: 6, lineHeight: 20 },
+  pubmedLink: { alignSelf: "flex-start", marginTop: 8, paddingVertical: 6 },
+  pubmedLinkText: { color: "#047857", fontWeight: "700" },
   meta: { color: "#64748b", marginTop: 4 },
   error: { color: "#b91c1c" },
 });
