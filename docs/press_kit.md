@@ -12,7 +12,7 @@ nutrii helps people inspect food ingredients through molecular composition, safe
 
 ## Long Description
 
-nutrii is an open, no-login food ingredient database built around molecular composition and safety transparency. It exposes public API endpoints for foods, molecules, studies, comparisons, ban-list entries, platform stats, and OCR ingredient scans. The web app supports search, detail views, comparisons, molecule pages, and ban-list browsing. The mobile app supports API-backed food and molecule search, comparisons, food and molecule details, health breakdowns, AI guides, PubMed research links, enriched images, draft ban-list review, recent scan history, and camera/gallery label scanning through the backend OCR pipeline.
+nutrii is an open, no-login food ingredient database built around molecular composition and safety transparency. It exposes public API endpoints for foods, molecules, studies, comparisons, ban-list entries, platform stats, and OCR ingredient scans. The web app supports search, detail views, comparisons, molecule pages, recent PubMed research browsing, and ban-list browsing. The mobile app supports API-backed food and molecule search, comparisons, recent PubMed research browsing, food and molecule details, health breakdowns, AI guides, PubMed research links, enriched images, draft ban-list review, recent scan history, and camera/gallery label scanning through the backend OCR pipeline.
 
 ## Launch Positioning
 
@@ -40,12 +40,14 @@ Capture these after production deploy and route smoke testing:
 3. Food detail page with molecule and health-index sections.
 4. Molecule detail page with linked foods.
 5. Compare page with two or three foods.
-6. Ban-list page with conditional warning badges.
-7. Mobile compare screen with two or three selected foods.
-8. Mobile food detail with health breakdown, AI guide, and PubMed research links.
-9. Mobile molecule detail with structure image and linked foods.
-10. Mobile ban-list screen with citation-required draft safety entries.
-11. Mobile scan screen after a successful label scan.
+6. Research page with recent PubMed summaries.
+7. Ban-list page with conditional warning badges.
+8. Mobile compare screen with two or three selected foods.
+9. Mobile research screen with recent PubMed summaries.
+10. Mobile food detail with health breakdown, AI guide, and PubMed research links.
+11. Mobile molecule detail with structure image and linked foods.
+12. Mobile ban-list screen with citation-required draft safety entries.
+13. Mobile scan screen after a successful label scan.
 
 ## Approved Claims
 
@@ -56,7 +58,7 @@ Use only claims that are covered by the repository and current launch checklist:
 - Backend test coverage for API, ingestion, OCR scan, PubMed tooling, safety adjustment, schema validation, and deployment config.
 - Static web SEO assets and SPA route fallbacks are configured.
 - Expo preview and production build profiles are configured.
-- Static Expo release checks cover scan upload wiring, search results, molecule details, comparisons, ban-list safety review, food detail image/research/AI-guide surfaces, and recent scan history context.
+- Static Expo release checks cover scan upload wiring, search results, molecule details, comparisons, recent research, ban-list safety review, food detail image/research/AI-guide surfaces, and recent scan history context.
 
 Avoid these claims until externally verified:
 

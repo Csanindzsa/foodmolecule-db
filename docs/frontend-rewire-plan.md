@@ -16,6 +16,7 @@
 | `/foods/:id` | Food detail | Food, molecules, NHI, studies, AI guide |
 | `/molecules/:id` | Molecule detail | Molecule, foods, neutralization methods |
 | `/compare` | Compare 2-3 foods | `GET /foods/compare/?ids=...` |
+| `/research` | Recent research | `GET /studies/recent/` |
 | `/ban-list` | Ban list | `GET /ban-list/` |
 
 ## Backend API Contract
