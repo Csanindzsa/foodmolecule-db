@@ -11,6 +11,8 @@ describe("validRouteId", () => {
     expect(validRouteId(undefined)).toBeNull();
     expect(validRouteId(null)).toBeNull();
     expect(validRouteId("   ")).toBeNull();
+    expect(validRouteId("undefined")).toBeNull();
+    expect(validRouteId(" null ")).toBeNull();
     expect(validRouteId("🎉".repeat(MAX_ROUTE_ID_CHARS + 1))).toBeNull();
   });
 });

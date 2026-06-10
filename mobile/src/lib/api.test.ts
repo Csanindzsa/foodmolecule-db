@@ -94,6 +94,8 @@ describe("mobile API client", () => {
     expect(() => api.food("")).toThrow("API IDs must be non-empty.");
     expect(() => api.molecule("🎉".repeat(129))).toThrow("API IDs are limited to 128 characters.");
     expect(() => api.foodStudies(" ".repeat(4))).toThrow("API IDs must be non-empty.");
+    expect(() => api.food("undefined")).toThrow("API IDs must not be placeholder values.");
+    expect(() => api.molecule(" null ")).toThrow("API IDs must not be placeholder values.");
     expect(fetchMock).not.toHaveBeenCalled();
   });
 

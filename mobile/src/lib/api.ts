@@ -16,8 +16,12 @@ const MIN_COMPARE_IDS = 2;
 const MAX_COMPARE_IDS = 3;
 
 function pathId(id: string): string {
-  if (id.trim().length === 0) {
+  const cleaned = id.trim();
+  if (cleaned.length === 0) {
     throw new Error("API IDs must be non-empty.");
+  }
+  if (cleaned.toLowerCase() === "undefined" || cleaned.toLowerCase() === "null") {
+    throw new Error("API IDs must not be placeholder values.");
   }
   if (Array.from(id).length > MAX_PATH_ID_CHARS) {
     throw new Error(`API IDs are limited to ${MAX_PATH_ID_CHARS} characters.`);

@@ -389,6 +389,12 @@ describe("api", () => {
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
+    test("food rejects placeholder IDs before fetch", async () => {
+      expect(() => api.food("undefined")).toThrow("API IDs must not be placeholder values.");
+      expect(() => api.food(" null ")).toThrow("API IDs must not be placeholder values.");
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
     test("molecule rejects empty string ID before fetch", async () => {
       expect(() => api.molecule("")).toThrow("API IDs must be non-empty.");
       expect(mockFetch).not.toHaveBeenCalled();

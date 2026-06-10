@@ -137,6 +137,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "MAX_PATH_ID_CHARS = 128" in api_client
             and "function pathId" in api_client
             and "API IDs must be non-empty." in api_client
+            and "API IDs must not be placeholder values." in api_client
             and "API IDs are limited to" in api_client
             and "Array.from(id).length > MAX_PATH_ID_CHARS" in api_client,
             "mobile API client must reject empty and oversized path IDs before fetch",
@@ -145,7 +146,8 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "mobile-route-id-bound",
             "MAX_ROUTE_ID_CHARS = 128" in route_id
             and "function validRouteId" in route_id
-            and "value.trim().length === 0" in route_id
+            and "cleaned.length === 0" in route_id
+            and 'cleaned.toLowerCase() === "undefined"' in route_id
             and "Array.from(value).length > MAX_ROUTE_ID_CHARS" in route_id
             and "validRouteId(id)" in food_detail_screen
             and "validRouteId(id)" in molecule_detail_screen
