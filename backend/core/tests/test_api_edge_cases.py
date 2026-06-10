@@ -89,6 +89,32 @@ def test_food_list_rejects_out_of_range_numeric_filters(param, value, detail):
 
 
 @pytest.mark.django_db
+def test_food_list_rejects_excessive_category_filter_length():
+    response = _get(FoodListView, f"/api/v1/foods/?category={'a' * 101}")
+
+    assert response.status_code == 400
+    assert response.data["detail"] == "Query parameter 'category' must be at most 100 characters."
+
+
+@pytest.mark.django_db
+def test_food_list_rejects_excessive_dietary_preference_filter_length():
+    response = _get(FoodListView, f"/api/v1/foods/?dietary_preferences={'a' * 101}")
+
+    assert response.status_code == 400
+    assert response.data["detail"] == "Query parameter 'dietary_preferences' values must be at most 100 characters."
+
+
+@pytest.mark.django_db
+def test_food_list_rejects_excessive_dietary_preference_count():
+    preferences = ",".join(f"pref{i}" for i in range(21))
+
+    response = _get(FoodListView, f"/api/v1/foods/?dietary_preferences={preferences}")
+
+    assert response.status_code == 400
+    assert response.data["detail"] == "Query parameter 'dietary_preferences' must include at most 20 values."
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize("param", ["harm_level", "max_harm_level"])
 def test_molecule_list_rejects_invalid_integer_filters(param):
     response = _get(MoleculeListView, f"/api/v1/molecules/?{param}=bad")

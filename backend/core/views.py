@@ -30,6 +30,8 @@ from .models import BanListEntry, Food, FoodCategory, FoodMolecule, Molecule, Pr
 MAX_SCAN_IMAGE_BYTES = 8 * 1024 * 1024
 MAX_SCAN_RAW_TEXT_CHARS = 5_000
 MAX_SEARCH_QUERY_CHARS = 128
+MAX_FOOD_FILTER_VALUE_CHARS = 100
+MAX_FOOD_FILTER_VALUES = 20
 OCR_SCANNER_PATH = Path(__file__).resolve().parents[2] / "ocr" / "src" / "pipeline" / "scan.py"
 SCAN_IMAGE_CONTENT_TYPES = frozenset({"image/jpeg", "image/jpg", "image/png", "image/webp"})
 FOOD_DEDUPE_MODES = frozenset({
@@ -132,6 +134,24 @@ def _parse_search_query_param(request, name: str = "q", *, lowercase: bool = Fal
     return value.lower() if lowercase else value
 
 
+def _parse_filter_text_query_param(request, name: str):
+    value = request.query_params.get(name, "").strip()
+    if len(value) > MAX_FOOD_FILTER_VALUE_CHARS:
+        raise ValueError(f"Query parameter '{name}' must be at most {MAX_FOOD_FILTER_VALUE_CHARS} characters.")
+    return value
+
+
+def _parse_filter_csv_query_param(request, name: str):
+    values = [value.strip() for value in request.query_params.get(name, "").split(",") if value.strip()]
+    if len(values) > MAX_FOOD_FILTER_VALUES:
+        raise ValueError(f"Query parameter '{name}' must include at most {MAX_FOOD_FILTER_VALUES} values.")
+    if any(len(value) > MAX_FOOD_FILTER_VALUE_CHARS for value in values):
+        raise ValueError(
+            f"Query parameter '{name}' values must be at most {MAX_FOOD_FILTER_VALUE_CHARS} characters."
+        )
+    return values
+
+
 def _parse_uuid_csv_query_param(request, name: str):
     raw_value = request.query_params.get(name, "")
     values = [value.strip() for value in raw_value.split(",") if value.strip()]
@@ -206,12 +226,8 @@ class FoodListView(generics.ListAPIView):
             max_molecule_harm_value=Max("foodmolecule__molecule__harm_level"),
         )
         q = _parse_search_query_param(self.request)
-        category = self.request.query_params.get("category")
-        dietary_preferences = [
-            value.strip()
-            for value in self.request.query_params.get("dietary_preferences", "").split(",")
-            if value.strip()
-        ]
+        category = _parse_filter_text_query_param(self.request, "category")
+        dietary_preferences = _parse_filter_csv_query_param(self.request, "dietary_preferences")
         sort_fields = {
             "name_asc": ("name",),
             "name_desc": ("-name",),
