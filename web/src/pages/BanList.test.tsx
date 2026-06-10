@@ -724,6 +724,25 @@ describe("BanList page", () => {
     expect(conditionalRow!.textContent).toContain("\u24D8");
   });
 
+  test("conditionally safe entry hides malformed safe_condition titles", () => {
+    mockUseBanList.mockReturnValue({
+      data: [{
+        ...mockEntries[0],
+        safe_condition: { text: "Limit to < 2g per day" } as unknown as string,
+      }],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<BanList />);
+
+    const conditionalBadge = container.querySelector("span[title='Conditionally safe']");
+    expect(conditionalBadge).not.toBeNull();
+    expect(container.textContent).not.toContain("\u24D8");
+    expect(container.textContent).not.toContain("[object Object]");
+  });
+
   // ─── K) Default sort ───
   test("default sort is by food_name ascending", () => {
     mockUseBanList.mockReturnValue({

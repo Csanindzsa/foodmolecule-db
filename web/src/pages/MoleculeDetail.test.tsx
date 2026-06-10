@@ -343,6 +343,27 @@ describe("MoleculeDetail page", () => {
     expect(propertiesSection).not.toContain("NaN");
   });
 
+  test("hides malformed optional text properties", () => {
+    mockUseMoleculeDetail.mockReturnValue({
+      data: {
+        ...mockMolecule,
+        molecular_formula: { text: "C8H10N4O2" } as unknown as string,
+        cas_number: { text: "58-08-2" } as unknown as string,
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithRouter(<MoleculeDetail />);
+
+    const propertiesSection = document.body.textContent || "";
+    expect(propertiesSection).toContain("Molecular Formula");
+    expect(propertiesSection).toContain("CAS Number");
+    expect(propertiesSection).not.toContain("C8H10N4O2");
+    expect(propertiesSection).not.toContain("58-08-2");
+    expect(propertiesSection).not.toContain("[object Object]");
+  });
+
   // ─── Harm Mechanisms ───
   test("shows harm mechanism list items", () => {
     mockUseMoleculeDetail.mockReturnValue({ data: mockMolecule, isLoading: false, error: null });

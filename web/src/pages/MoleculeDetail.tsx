@@ -102,7 +102,9 @@ export default function MoleculeDetail() {
   const harmLevel = formatHarmLevel(molecule.harm_level, "?");
   const harmLabel = harmLevelLabel(molecule.harm_level);
   const harmColor = harmLevelBadgeClass(molecule.harm_level);
+  const molecularFormula = formatOptionalText(molecule.molecular_formula);
   const molecularWeight = formatMolecularWeight(molecule.molecular_weight);
+  const casNumber = formatOptionalText(molecule.cas_number);
   const pubChemCid = formatPubChemCid(molecule.pubchem_cid);
   const structureImageUrl = externalHttpUrl(molecule.structure_image_url);
 
@@ -147,9 +149,9 @@ export default function MoleculeDetail() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Properties</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <PropertyCard label="Molecular Formula" value={molecule.molecular_formula} />
+          <PropertyCard label="Molecular Formula" value={molecularFormula} />
           <PropertyCard label="Molecular Weight" value={molecularWeight != null ? `${molecularWeight} g/mol` : null} />
-          <PropertyCard label="CAS Number" value={molecule.cas_number} />
+          <PropertyCard label="CAS Number" value={casNumber} />
           <PropertyCard label="PubChem CID" value={pubChemCid} />
         </div>
       </section>

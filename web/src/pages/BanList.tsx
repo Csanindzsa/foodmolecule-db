@@ -129,6 +129,7 @@ export default function BanList() {
                 const healthIndex = normalizeScore(entry.food?.health_index);
                 const lethalDose = formatLethalDose(entry.lethal_dose_mg);
                 const category = formatOptionalText(entry.food?.category);
+                const safeCondition = formatOptionalText(entry.safe_condition);
 
                 return (
                   <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -161,9 +162,9 @@ export default function BanList() {
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {entry.is_conditionally_safe ? (
-                        <span title={entry.safe_condition || "Conditionally safe"} className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400">
+                        <span title={safeCondition || "Conditionally safe"} className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400">
                           Conditional
-                          {entry.safe_condition && (
+                          {safeCondition && (
                             <span className="ml-0.5 cursor-help">&#9432;</span>
                           )}
                         </span>

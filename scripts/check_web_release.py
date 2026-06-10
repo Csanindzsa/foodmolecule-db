@@ -161,6 +161,8 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "formatOptionalText(food.category)" in food_detail
             and "formatOptionalText(m.molecular_formula)" in search_page
             and "formatOptionalText(entry.food?.category)" in ban_list_page
+            and "formatOptionalText(entry.safe_condition)" in ban_list_page
+            and "formatOptionalText(molecule.molecular_formula)" in molecule_detail
             and "formatOptionalText(food.category)" in molecule_detail,
             "web optional category and formula text must be sanitized before rendering",
         ),
