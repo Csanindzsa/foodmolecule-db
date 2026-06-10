@@ -484,6 +484,30 @@ describe("Compare page", () => {
     expect(container.textContent).toContain("Safety Score: 88");
   });
 
+  test("non-finite safety score renders as unknown", () => {
+    mockUseCompare.mockReturnValue({
+      data: {
+        foods: [
+          {
+            ...mockCompareData.foods[0],
+            safety_score: NaN,
+          },
+          mockCompareData.foods[1],
+        ],
+        shared_molecules: [],
+        total_unique_molecules: 0,
+      },
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<Compare />, ["/compare?ids=f1,f2"]);
+
+    expect(container.textContent).toContain("Safety Score: unknown");
+    expect(container.textContent).not.toContain("NaN");
+  });
+
   test("molecules are sorted by amount descending", () => {
     mockUseCompare.mockReturnValue({
       data: mockCompareData,

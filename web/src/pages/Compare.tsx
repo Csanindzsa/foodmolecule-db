@@ -1,16 +1,12 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useCompare } from "../hooks/useApi";
+import { formatScore, normalizeScore } from "../lib/scoreDisplay";
 
 function getHealthBarColor(healthIndex: number): string {
   if (healthIndex >= 75) return "bg-green-500";
   if (healthIndex >= 50) return "bg-yellow-500";
   if (healthIndex >= 25) return "bg-orange-500";
   return "bg-red-500";
-}
-
-function normalizeHealthIndex(value: number | null | undefined): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) return null;
-  return Math.min(Math.max(value, 0), 100);
 }
 
 function foodCardKey(food: { id?: string; name?: string }, index: number) {
@@ -105,7 +101,7 @@ export default function Compare() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.foods.map((food, index) => {
-          const healthIndex = normalizeHealthIndex(food.health_index);
+          const healthIndex = normalizeScore(food.health_index);
           const healthBarValue = healthIndex ?? 0;
           const moleculeEntries = Object.entries(food.molecules || {}).sort((a, b) => b[1] - a[1]);
 
@@ -130,7 +126,7 @@ export default function Compare() {
                   />
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {healthIndex ?? "unknown"}/100 — Safety Score: {food.safety_score}
+                  {healthIndex ?? "unknown"}/100 — Safety Score: {formatScore(food.safety_score)}
                 </p>
               </div>
 

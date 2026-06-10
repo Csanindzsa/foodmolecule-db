@@ -1,9 +1,6 @@
 import { Link } from "react-router-dom";
 import { useHomeData } from "../hooks/useApi";
-
-function hasRenderableHealthIndex(value: number | null | undefined): value is number {
-  return typeof value === "number" && Number.isFinite(value);
-}
+import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 
 function foodCardKey(food: { id?: string; name?: string }, index: number) {
   return food.id || `${food.name || "food"}-${index}`;
@@ -51,7 +48,7 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {foods.map((food, index) => {
-              const healthIndex = hasRenderableHealthIndex(food.health_index) ? food.health_index : null;
+              const healthIndex = normalizeScore(food.health_index);
 
               return (
                 <Link
@@ -70,11 +67,7 @@ export default function Home() {
                   <div className="flex items-center justify-between">
                     <span className="font-medium capitalize">{food.name}</span>
                     {healthIndex !== null && (
-                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                        healthIndex >= 75 ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" :
-                        healthIndex >= 50 ? "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400" :
-                        "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400"
-                      }`}>
+                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${scoreBadgeClass(healthIndex)}`}>
                         {healthIndex}
                       </span>
                     )}

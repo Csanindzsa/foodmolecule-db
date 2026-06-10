@@ -507,7 +507,7 @@ describe("Home page — adversarial", () => {
     expect(badge?.textContent).toBe("0");
   });
 
-  test("negative health_index renders red badge", () => {
+  test("negative health_index clamps to 0 in a red badge", () => {
     mockUseHomeData.mockReturnValue({
       data: {
         stats: { foods: 1, molecules: 1, studies_analyzed: 1 },
@@ -519,7 +519,24 @@ describe("Home page — adversarial", () => {
     const { container } = renderWithRouter(<Home />);
     const badge = container.querySelector(".bg-red-100");
     expect(badge).not.toBeNull();
-    expect(badge?.textContent).toBe("-10");
+    expect(badge?.textContent).toBe("0");
+    expect(container.textContent).not.toContain("-10");
+  });
+
+  test("health_index above 100 clamps to 100 in a green badge", () => {
+    mockUseHomeData.mockReturnValue({
+      data: {
+        stats: { foods: 1, molecules: 1, studies_analyzed: 1 },
+        foods: [{ id: "1", name: "above max", health_index: 150, category: "Test" }],
+      },
+      isLoading: false,
+      error: null,
+    });
+    const { container } = renderWithRouter(<Home />);
+    const badge = container.querySelector(".bg-green-100");
+    expect(badge).not.toBeNull();
+    expect(badge?.textContent).toBe("100");
+    expect(container.textContent).not.toContain("150");
   });
 
   test("NaN health_index does not render a health badge", () => {
