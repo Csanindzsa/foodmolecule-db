@@ -57,6 +57,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     safe_url = (mobile_root / "src" / "lib" / "safeUrl.ts").read_text(encoding="utf-8")
     confidence_display = (mobile_root / "src" / "lib" / "confidenceDisplay.ts").read_text(encoding="utf-8")
     compare_display = (mobile_root / "src" / "lib" / "compareDisplay.ts").read_text(encoding="utf-8")
+    scan_display = (mobile_root / "src" / "lib" / "scanDisplay.ts").read_text(encoding="utf-8")
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
 
@@ -138,8 +139,15 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "Raw OCR" in scan_screen
             and "Truncated" in scan_screen
             and "No ingredient terms detected." in scan_screen
-            and "No food matches found." in scan_screen,
-            "ScanScreen must show confidence, raw OCR truncation, empty states, and matches",
+            and "No food matches found." in scan_screen
+            and "ingredientTerms(scanResult.ingredients" in scan_screen
+            and "formatHazardLevel(food.max_molecule_harm)" in scan_screen
+            and "rawOcrPreview(scanResult.raw_text)" in scan_screen
+            and "ingredientTerms" in scan_display
+            and "formatHazardLevel" in scan_display
+            and "rawOcrPreview" in scan_display
+            and "Number.isFinite(value)" in scan_display,
+            "ScanScreen must show confidence, sanitized raw OCR/hazard/ingredients, empty states, and matches",
         ),
         MobileCheck(
             "scan-history-contract",

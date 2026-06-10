@@ -28,7 +28,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - `ScanScreen` launches camera/gallery image selection and submits through `api.scanImage`.
 - The mobile API client posts multipart images to `/scan/`.
 - The mobile upload client names scan files and sends JPEG, PNG, or WebP content types.
-- The scan result view preserves OCR confidence, raw-text truncation, empty states, and matched-food navigation.
+- The scan result view preserves OCR confidence, raw-text truncation, empty states, matched-food navigation, and sanitized ingredient/hazard/raw-text displays.
 - Successful scans persist up to five matched foods to local history for offline revisit.
 - Recent scan history preserves food image and health context when available.
 - Search, food detail, and scan result screens surface enriched food images when `image_url` is present.
