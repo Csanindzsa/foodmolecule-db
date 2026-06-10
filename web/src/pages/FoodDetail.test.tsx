@@ -110,8 +110,24 @@ const mockHealth = {
 const mockMolecules = mockFood.molecules;
 
 const mockStudies = [
-  { id: "s1", pmid: "12345", title: "Health Benefits of Apples", ai_summary: "Apples are healthy.", publication_year: 2023 },
-  { id: "s2", pmid: "67890", title: "Apple Nutrition Study", ai_summary: null, publication_year: 2022 },
+  {
+    id: "s1",
+    pmid: "12345",
+    title: "Health Benefits of Apples",
+    ai_summary: "Apples are healthy.",
+    publication_year: 2023,
+    url: "https://pubmed.ncbi.nlm.nih.gov/12345/",
+    ai_confidence: "high",
+  },
+  {
+    id: "s2",
+    pmid: "67890",
+    title: "Apple Nutrition Study",
+    ai_summary: null,
+    publication_year: 2022,
+    url: "https://pubmed.ncbi.nlm.nih.gov/67890/",
+    ai_confidence: null,
+  },
 ];
 
 const mockGuide = {
@@ -272,6 +288,11 @@ describe("FoodDetail page", () => {
     expect(document.body.textContent).toContain("Apple Nutrition Study");
     expect(document.body.textContent).toContain("PMID: 12345");
     expect(document.body.textContent).toContain("2023");
+    const citation = document.querySelector('a[href="https://pubmed.ncbi.nlm.nih.gov/12345/"]');
+    expect(citation).not.toBeNull();
+    expect(citation!.getAttribute("target")).toBe("_blank");
+    expect(citation!.getAttribute("rel")).toBe("noreferrer");
+    expect(document.body.textContent).toContain("AI confidence: high");
   });
 
   // ─── L) Studies loading ───

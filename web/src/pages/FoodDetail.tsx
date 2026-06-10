@@ -214,7 +214,18 @@ export default function FoodDetail() {
                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{s.ai_summary}</p>
                   )}
                   <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                    PMID: {s.pmid} {s.publication_year && `· ${s.publication_year}`}
+                    PMID: {s.url ? (
+                      <a
+                        href={s.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-medium text-green-700 hover:underline dark:text-green-400"
+                      >
+                        {s.pmid}
+                      </a>
+                    ) : (
+                      s.pmid
+                    )} {s.publication_year && `· ${s.publication_year}`}
                     {s.ai_confidence && ` · AI confidence: ${s.ai_confidence}`}
                   </div>
                 </div>

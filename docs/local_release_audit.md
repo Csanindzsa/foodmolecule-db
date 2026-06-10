@@ -29,6 +29,7 @@ CI runs the no-secret version.
 - Static React/Vite web release contract.
 - Static Expo mobile release contract.
 - PubMed/AI research operations contract.
+- PubMed/AI research surface contract.
 - AI prompt/parser/model-routing contract.
 - Image enrichment operations contract.
 - React image surface contract.
