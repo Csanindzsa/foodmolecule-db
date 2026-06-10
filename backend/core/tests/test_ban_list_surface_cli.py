@@ -16,6 +16,7 @@ def test_ban_list_surface_checker_passes_current_draft_contract():
     assert "web-draft-copy" in names
     assert "web-no-verified-badge" in names
     assert "web-lethal-dose-sanitizer" in names
+    assert "web-text-sanitizer" in names
 
 
 def test_ban_list_surface_cli_outputs_live_handoff(capsys):
@@ -25,6 +26,7 @@ def test_ban_list_surface_cli_outputs_live_handoff(capsys):
     assert exit_code == 0
     assert "ok\tweb-draft-copy" in captured.out
     assert "ok\tweb-lethal-dose-sanitizer" in captured.out
+    assert "ok\tweb-text-sanitizer" in captured.out
     assert "skip\tverified-ban-list-live-review" in captured.out
 
 

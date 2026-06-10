@@ -655,6 +655,28 @@ describe("BanList page", () => {
     expect(container.textContent).toContain("<img src=x onerror=alert('xss')>");
   });
 
+  test("malformed food name and reason use safe fallbacks", () => {
+    mockUseBanList.mockReturnValue({
+      data: [{
+        ...mockEntries[0],
+        food: {
+          ...mockEntries[0].food!,
+          name: { text: "trans fat" } as unknown as string,
+        },
+        reason: { text: "unsafe" } as unknown as string,
+      }],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<BanList />);
+
+    expect(container.textContent).toContain("Unknown food");
+    expect(container.textContent).toContain("No reason listed.");
+    expect(container.textContent).not.toContain("[object Object]");
+  });
+
   // ─── H) Retry functionality ───
   test("clicking Retry button calls refetch", () => {
     mockUseBanList.mockReturnValue({

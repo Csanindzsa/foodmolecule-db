@@ -70,6 +70,15 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[BanListSurfaceCheck, 
             "web ban-list page must sanitize lethal dose displays and sorting",
         ),
         BanListSurfaceCheck(
+            "web-text-sanitizer",
+            "formatOptionalText(entry.food?.name)" in web_page
+            and "formatOptionalText(entry.reason)" in web_page
+            and "formatOptionalText(entry.safe_condition)" in web_page
+            and "No reason listed." in web_page
+            and "Unknown food" in web_page,
+            "web ban-list page must sanitize draft food names, reasons, and safe-condition text",
+        ),
+        BanListSurfaceCheck(
             "draft-ops-docs",
             "requires_citation" in conditional_warnings
             and "verified citations" in conditional_warnings

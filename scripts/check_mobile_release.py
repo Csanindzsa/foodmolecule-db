@@ -336,10 +336,12 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "formatOptionalText(food.origin)" in food_detail_screen
             and "formatOptionalText(molecule.molecular_formula)" in search_screen
             and "formatOptionalText(food.category_name)" in compare_screen
+            and "formatOptionalText(entry.food?.name)" in ban_list_screen
             and "formatOptionalText(entry.food?.category)" in ban_list_screen
+            and "formatOptionalText(entry.reason)" in ban_list_screen
             and "formatOptionalText(molecule.molecular_formula)" in molecule_detail_screen
             and "formatOptionalText(food.category)" in molecule_detail_screen,
-            "mobile optional origin, category, and formula text must be sanitized before rendering",
+            "mobile optional origin, category, formula, and ban-list text must be sanitized before rendering",
         ),
         MobileCheck(
             "mobile-ban-list-contract",

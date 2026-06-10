@@ -62,21 +62,23 @@ export default function BanListScreen({ navigation }: Props) {
       {entries.length === 0 ? (
         <Text style={styles.meta}>No ban list entries found.</Text>
       ) : entries.map((entry) => {
+        const foodName = formatOptionalText(entry.food?.name) ?? "Unknown food";
         const category = formatOptionalText(entry.food?.category);
+        const reason = formatOptionalText(entry.reason) ?? "No reason listed.";
         const safeCondition = formatOptionalText(entry.safe_condition);
 
         return (
         <View key={entry.id} style={styles.entry}>
           <View style={styles.entryHeader}>
             <View style={styles.entryTitleWrap}>
-              <Text style={styles.foodName}>{entry.food?.name ?? "Unknown food"}</Text>
+              <Text style={styles.foodName}>{foodName}</Text>
               {category && <Text style={styles.meta}>{category}</Text>}
             </View>
             <Text style={entry.is_conditionally_safe ? styles.conditionalBadge : styles.absoluteBadge}>
               {entry.is_conditionally_safe ? "Conditional" : "Absolute"}
             </Text>
           </View>
-          <Text style={styles.reason}>{entry.reason}</Text>
+          <Text style={styles.reason}>{reason}</Text>
           <Text style={styles.meta}>Lethal dose: {formatLethalDose(entry.lethal_dose_mg)}</Text>
           {safeCondition && <Text style={styles.meta}>Safe condition: {safeCondition}</Text>}
           <Text style={styles.citationBadge}>Citation-required draft</Text>

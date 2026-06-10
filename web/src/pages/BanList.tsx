@@ -44,8 +44,8 @@ export default function BanList() {
 
     switch (sortColumn) {
       case "food_name":
-        aVal = a.food?.name?.toLowerCase() || "";
-        bVal = b.food?.name?.toLowerCase() || "";
+        aVal = formatOptionalText(a.food?.name)?.toLowerCase() || "";
+        bVal = formatOptionalText(b.food?.name)?.toLowerCase() || "";
         break;
       case "category":
         aVal = formatOptionalText(a.food?.category)?.toLowerCase() || "";
@@ -56,8 +56,8 @@ export default function BanList() {
         bVal = normalizeScore(b.food?.health_index) ?? -1;
         break;
       case "reason":
-        aVal = a.reason.toLowerCase();
-        bVal = b.reason.toLowerCase();
+        aVal = formatOptionalText(a.reason)?.toLowerCase() || "";
+        bVal = formatOptionalText(b.reason)?.toLowerCase() || "";
         break;
       case "lethal_dose":
         aVal = lethalDoseSortValue(a.lethal_dose_mg);
@@ -128,7 +128,9 @@ export default function BanList() {
               {sortedEntries.map((entry) => {
                 const healthIndex = normalizeScore(entry.food?.health_index);
                 const lethalDose = formatLethalDose(entry.lethal_dose_mg);
+                const foodName = formatOptionalText(entry.food?.name) ?? "Unknown food";
                 const category = formatOptionalText(entry.food?.category);
+                const reason = formatOptionalText(entry.reason) ?? "No reason listed.";
                 const safeCondition = formatOptionalText(entry.safe_condition);
 
                 return (
@@ -136,7 +138,7 @@ export default function BanList() {
                     <td className="px-4 py-3 text-sm">
                       {entry.food ? (
                         <Link to={`/foods/${entry.food.id}`} className="font-medium capitalize text-blue-600 dark:text-blue-400 hover:underline">
-                          {entry.food.name}
+                          {foodName}
                         </Link>
                       ) : (
                         <span className="italic text-gray-400 dark:text-gray-500">Unknown food</span>
@@ -155,7 +157,7 @@ export default function BanList() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 max-w-xs">
-                      <div className="line-clamp-2">{entry.reason}</div>
+                      <div className="line-clamp-2">{reason}</div>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {lethalDose ? `${lethalDose} mg` : <span className="text-gray-300 dark:text-gray-600">—</span>}
