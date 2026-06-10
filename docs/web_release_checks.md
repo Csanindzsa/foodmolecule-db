@@ -19,6 +19,7 @@ CI and the local release audit run this command before backend tests.
 - The web API client supports `VITE_API_URL`, legacy `VITE_API_BASE_URL`, and same-origin `/api/v1` fallback.
 - `index.html` includes launch SEO, canonical URL, and Open Graph metadata.
 - `robots.txt` and `sitemap.xml` expose the crawlable launch routes.
+- The Compare page sanitizes molecule amount maps and aggregate count displays before rendering.
 - CI installs web dependencies with `bun install --frozen-lockfile`, runs tests, and builds the Vite app.
 
 ## Live Launch Follow-Up

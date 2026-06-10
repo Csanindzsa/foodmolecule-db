@@ -34,6 +34,8 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
     scripts = package.get("scripts", {})
     vite = _read(web_root / "vite.config.ts")
     api_client = _read(web_root / "src" / "lib" / "api.ts")
+    compare_page = _read(web_root / "src" / "pages" / "Compare.tsx")
+    compare_display = _read(web_root / "src" / "lib" / "compareDisplay.ts")
     index = _read(web_root / "index.html")
     robots = _read(web_root / "public" / "robots.txt")
     sitemap = _read(web_root / "public" / "sitemap.xml")
@@ -86,6 +88,16 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "https://nutrii.fit/research" in sitemap
             and "https://nutrii.fit/ban-list" in sitemap,
             "robots.txt and sitemap.xml must expose crawlable static routes",
+        ),
+        WebReleaseCheck(
+            "compare-display-sanitizers",
+            "moleculeAmountEntries(food.molecules)" in compare_page
+            and "formatCount(data.total_unique_molecules)" in compare_page
+            and "moleculeAmountEntries" in compare_display
+            and "Number.isFinite(amount)" in compare_display
+            and "formatCount" in compare_display
+            and "Number.isFinite(value)" in compare_display,
+            "web compare page must sanitize molecule amounts and count displays",
         ),
         WebReleaseCheck(
             "ci-web-build",

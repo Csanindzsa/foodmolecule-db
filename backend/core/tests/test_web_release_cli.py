@@ -15,6 +15,7 @@ def test_web_release_checker_passes_static_launch_contract():
     assert "vite-production-build" in names
     assert "api-base-url-contract" in names
     assert "seo-head-metadata" in names
+    assert "compare-display-sanitizers" in names
     assert "ci-web-build" in names
 
 
@@ -24,6 +25,7 @@ def test_web_release_cli_outputs_live_handoff(capsys):
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "ok\tseo-head-metadata" in captured.out
+    assert "ok\tcompare-display-sanitizers" in captured.out
     assert "skip\tlive-web-deploy" in captured.out
 
 

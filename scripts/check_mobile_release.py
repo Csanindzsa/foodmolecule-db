@@ -56,6 +56,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
     safe_url = (mobile_root / "src" / "lib" / "safeUrl.ts").read_text(encoding="utf-8")
     confidence_display = (mobile_root / "src" / "lib" / "confidenceDisplay.ts").read_text(encoding="utf-8")
+    compare_display = (mobile_root / "src" / "lib" / "compareDisplay.ts").read_text(encoding="utf-8")
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
 
@@ -306,8 +307,14 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "food.category_name" in compare_screen
             and "comparison.shared_molecules" in compare_screen
             and "comparison.total_unique_molecules" in compare_screen
+            and "moleculeAmountEntries(food.molecules)" in compare_screen
+            and "formatCount(comparison.total_unique_molecules)" in compare_screen
+            and "moleculeAmountEntries" in compare_display
+            and "Number.isFinite(amount)" in compare_display
+            and "formatCount" in compare_display
+            and "Number.isFinite(value)" in compare_display
             and 'navigation.navigate("FoodDetail"' in compare_screen,
-            "mobile must support selecting 2-3 foods and calling the compare endpoint",
+            "mobile must support comparing foods with sanitized molecule and count displays",
         ),
         MobileCheck(
             "eas-build-profiles",
