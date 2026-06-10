@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useCompare } from "../hooks/useApi";
+import { formatCount, moleculeAmountEntries } from "../lib/compareDisplay";
 import { formatScore, normalizeScore } from "../lib/scoreDisplay";
 
 function getHealthBarColor(healthIndex: number): string {
@@ -103,7 +104,7 @@ export default function Compare() {
         {data.foods.map((food, index) => {
           const healthIndex = normalizeScore(food.health_index);
           const healthBarValue = healthIndex ?? 0;
-          const moleculeEntries = Object.entries(food.molecules || {}).sort((a, b) => b[1] - a[1]);
+          const moleculeEntries = moleculeAmountEntries(food.molecules);
 
           return (
             <div key={foodCardKey(food, index)} className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5 space-y-4">
@@ -172,6 +173,10 @@ export default function Compare() {
           </div>
         </div>
       )}
+
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        Unique molecules: {formatCount(data.total_unique_molecules)}
+      </p>
     </div>
   );
 }

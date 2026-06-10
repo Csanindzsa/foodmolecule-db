@@ -548,6 +548,41 @@ describe("Compare page", () => {
     expect(container.textContent).toContain("0.5");
   });
 
+  test("malformed molecule amounts and unique counts are hidden from display", () => {
+    mockUseCompare.mockReturnValue({
+      data: {
+        foods: [
+          {
+            id: "apple-id",
+            name: "apple",
+            health_index: 50,
+            safety_score: 60,
+            molecules: { Fiber: 2.4, Bad: Number.NaN },
+          },
+          {
+            id: "banana-id",
+            name: "banana",
+            health_index: 70,
+            safety_score: 80,
+            molecules: {},
+          },
+        ],
+        shared_molecules: [],
+        total_unique_molecules: Number.NaN,
+      },
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<Compare />, ["/compare?ids=apple-id,banana-id"]);
+
+    expect(container.textContent).toContain("Fiber");
+    expect(container.textContent).toContain("Unique molecules: unknown");
+    expect(container.textContent).not.toContain("NaN");
+    expect(container.textContent).not.toContain("Bad");
+  });
+
   test("shared molecules section is shown when present", () => {
     mockUseCompare.mockReturnValue({
       data: mockCompareData,

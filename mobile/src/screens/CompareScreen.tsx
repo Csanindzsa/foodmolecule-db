@@ -4,6 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type CompareResponse, type FoodListItem } from "../lib/api";
 import { asArray, firstItems } from "../lib/array";
+import { formatCount, moleculeAmountEntries } from "../lib/compareDisplay";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -111,19 +112,23 @@ export default function CompareScreen({ navigation }: Props) {
       {comparison && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Comparison</Text>
-          {comparisonFoods.map((food) => (
-            <Pressable
-              key={food.id}
-              style={styles.compareCard}
-              onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
-            >
-              <Text style={styles.foodName}>{food.name}</Text>
-              <Text style={styles.meta}>Health {formatScore(food.health_index)} · Safety {formatScore(food.safety_score)}</Text>
-              <Text style={styles.meta}>Molecules: {Object.keys(food.molecules || {}).length}</Text>
-            </Pressable>
-          ))}
+          {comparisonFoods.map((food) => {
+            const moleculeEntries = moleculeAmountEntries(food.molecules);
+
+            return (
+              <Pressable
+                key={food.id}
+                style={styles.compareCard}
+                onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
+              >
+                <Text style={styles.foodName}>{food.name}</Text>
+                <Text style={styles.meta}>Health {formatScore(food.health_index)} · Safety {formatScore(food.safety_score)}</Text>
+                <Text style={styles.meta}>Molecules: {formatCount(moleculeEntries.length)}</Text>
+              </Pressable>
+            );
+          })}
           <Text style={styles.meta}>Shared molecules: {sharedMolecules.length ? sharedMolecules.join(", ") : "None"}</Text>
-          <Text style={styles.meta}>Unique molecules: {comparison.total_unique_molecules}</Text>
+          <Text style={styles.meta}>Unique molecules: {formatCount(comparison.total_unique_molecules)}</Text>
         </View>
       )}
     </ScrollView>
