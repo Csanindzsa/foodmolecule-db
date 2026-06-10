@@ -19,6 +19,7 @@ export default function Layout() {
             <Link to="/" className="hover:underline">Home</Link>
             <Link to="/search" className="hover:underline">Search</Link>
             <Link to="/compare" className="hover:underline">Compare</Link>
+            <Link to="/research" className="hover:underline">Research</Link>
             <Link to="/ban-list" className="hover:underline">Ban List</Link>
             <button
               onClick={toggle}
@@ -80,6 +81,13 @@ export default function Layout() {
               onClick={() => setMenuOpen(false)}
             >
               Compare
+            </Link>
+            <Link
+              to="/research"
+              className="block px-2 py-2 text-sm hover:bg-white/10 rounded"
+              onClick={() => setMenuOpen(false)}
+            >
+              Research
             </Link>
             <Link
               to="/ban-list"

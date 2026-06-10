@@ -13,8 +13,8 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 WEB_ROOT = PROJECT_ROOT / "web"
-STATIC_SITEMAP_ROUTES = ("/", "/search", "/compare", "/ban-list")
-LAUNCH_ROUTES = ("/", "/search", "/foods/:id", "/molecules/:id", "/compare", "/ban-list")
+STATIC_SITEMAP_ROUTES = ("/", "/search", "/compare", "/research", "/ban-list")
+LAUNCH_ROUTES = ("/", "/search", "/foods/:id", "/molecules/:id", "/compare", "/research", "/ban-list")
 
 
 @dataclass(frozen=True)
@@ -66,10 +66,12 @@ def run_checks(web_root: Path = WEB_ROOT) -> tuple[RouteCheck, ...]:
         RouteCheck(
             "header-nav-routes",
             layout.count('to="/compare"') >= 2
+            and layout.count('to="/research"') >= 2
             and layout.count('to="/ban-list"') >= 2
             and "Compare" in layout
+            and "Research" in layout
             and "Ban List" in layout,
-            "expected desktop and mobile header navigation for compare and ban-list routes",
+            "expected desktop and mobile header navigation for compare, research, and ban-list routes",
         ),
         RouteCheck(
             "vercel-spa-fallback",

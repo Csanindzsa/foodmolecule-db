@@ -39,6 +39,7 @@ const mockFoodHealthIndex = mock(() => Promise.resolve({
   bioavailability_score: 60,
   label: "Good",
 }));
+const mockRecentStudies = mock(() => Promise.resolve({ results: [{ id: "study-recent", title: "Recent Study" }] }));
 const mockMolecule = mock(() => Promise.resolve({
   id: "mol-1",
   name: "Caffeine",
@@ -59,6 +60,7 @@ mock.module("../lib/api", () => ({
     search: mockSearch,
     food: mockFood,
     foodStudies: mockFoodStudies,
+    recentStudies: mockRecentStudies,
     guide: mockGuide,
     foodHealthIndex: mockFoodHealthIndex,
     molecule: mockMolecule,
@@ -77,6 +79,7 @@ import {
   useFoodDetail,
   useFoodMolecules,
   useFoodStudies,
+  useRecentStudies,
   useFoodGuide,
   useFoodHealthIndex,
   useMoleculeDetail,
@@ -111,6 +114,7 @@ describe("useApi hooks", () => {
     mockSearch.mockClear();
     mockFood.mockClear();
     mockFoodStudies.mockClear();
+    mockRecentStudies.mockClear();
     mockGuide.mockClear();
     mockFoodHealthIndex.mockClear();
     mockMolecule.mockClear();
@@ -522,6 +526,32 @@ describe("useApi hooks", () => {
       useBanList();
       const config = lastUseQueryCall();
       expect(config.select({ results: [] })).toEqual([]);
+    });
+  });
+
+  /* ---------------------------------------------------------------- */
+  describe("useRecentStudies", () => {
+    test("happy path - passes correct queryKey and staleTime", () => {
+      useRecentStudies();
+      const config = lastUseQueryCall();
+      expect(config.queryKey).toEqual(["studies", "recent"]);
+      expect(config.staleTime).toBe(5 * 60 * 1000);
+    });
+
+    test("queryFn calls api.recentStudies", async () => {
+      useRecentStudies();
+      const config = lastUseQueryCall();
+      const result = await config.queryFn();
+
+      expect(mockRecentStudies).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ results: [{ id: "study-recent", title: "Recent Study" }] });
+    });
+
+    test("select unwraps data.results", () => {
+      useRecentStudies();
+      const config = lastUseQueryCall();
+      const raw = { results: [{ id: "s1" }, { id: "s2" }] };
+      expect(config.select(raw)).toEqual([{ id: "s1" }, { id: "s2" }]);
     });
   });
 

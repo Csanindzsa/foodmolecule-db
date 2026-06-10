@@ -23,6 +23,9 @@ def _read(path: Path) -> str:
 
 def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ResearchSurfaceCheck, ...]:
     food_detail = _read(project_root / "web" / "src" / "pages" / "FoodDetail.tsx")
+    research_page = _read(project_root / "web" / "src" / "pages" / "Research.tsx")
+    web_api = _read(project_root / "web" / "src" / "lib" / "api.ts")
+    web_hooks = _read(project_root / "web" / "src" / "hooks" / "useApi.ts")
     types = _read(project_root / "web" / "src" / "types" / "index.ts")
     serializers = _read(project_root / "backend" / "core" / "serializers.py")
     runbook = _read(project_root / "docs" / "research_surface_checks.md")
@@ -51,16 +54,40 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ResearchSurfaceCheck,
             "food detail must render the latest study cards with AI summaries",
         ),
         ResearchSurfaceCheck(
+            "recent-research-api-hook",
+            'recentStudies: () => fetcher<{ results: Study[] }>("/studies/recent/")' in web_api
+            and "useRecentStudies" in web_hooks
+            and 'queryKey: ["studies", "recent"]' in web_hooks,
+            "web API client and hook must expose recent AI-analyzed studies",
+        ),
+        ResearchSurfaceCheck(
+            "recent-research-page",
+            "useRecentStudies" in research_page
+            and "Latest Research" in research_page
+            and "AI-analyzed PubMed studies" in research_page
+            and "study.ai_summary" in research_page,
+            "standalone research page must render recent PubMed study summaries",
+        ),
+        ResearchSurfaceCheck(
             "pubmed-citation-link",
             "s.url" in food_detail
             and 'href={s.url}' in food_detail
+            and "study.url" in research_page
+            and 'href={study.url}' in research_page
             and 'target="_blank"' in food_detail
-            and 'rel="noreferrer"' in food_detail,
-            "food detail must link PMID citations to external PubMed URLs safely",
+            and 'target="_blank"' in research_page
+            and 'rel="noreferrer"' in food_detail
+            and 'rel="noreferrer"' in research_page,
+            "research surfaces must link PMID citations to external PubMed URLs safely",
         ),
         ResearchSurfaceCheck(
             "study-context-visible",
-            "s.publication_year" in food_detail and "s.ai_confidence" in food_detail and "PMID:" in food_detail,
+            "s.publication_year" in food_detail
+            and "s.ai_confidence" in food_detail
+            and "study.publication_year" in research_page
+            and "study.ai_confidence" in research_page
+            and "PMID:" in food_detail
+            and "PMID:" in research_page,
             "study cards must keep PMID, publication year, and AI confidence visible",
         ),
         ResearchSurfaceCheck(

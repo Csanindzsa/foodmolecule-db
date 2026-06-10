@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Compare from "./pages/Compare";
 import MoleculeDetail from "./pages/MoleculeDetail";
+import Research from "./pages/Research";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/foods/:id" element={<FoodDetail />} />
         <Route path="/molecules/:id" element={<MoleculeDetail />} />
+        <Route path="/research" element={<Research />} />
         <Route path="/ban-list" element={<BanList />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="*" element={<NotFound />} />

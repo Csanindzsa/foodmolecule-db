@@ -17,6 +17,7 @@ export const api = {
   food: (id: string) => fetcher<Food>(`/foods/${pathId(id)}/`),
   foodHealthIndex: (id: string) => fetcher<HealthIndexBreakdown>(`/foods/${pathId(id)}/health-index/`),
   foodStudies: (id: string) => fetcher<{ results: Study[] }>(`/foods/${pathId(id)}/studies/`),
+  recentStudies: () => fetcher<{ results: Study[] }>("/studies/recent/"),
   search: (q: string) => fetcher<{ foods: Food[]; molecules: Molecule[] }>(`/foods/search/?q=${encodeURIComponent(q)}`),
   molecules: () => fetcher<{ results: Molecule[] }>("/molecules/"),
   molecule: (id: string) => fetcher<Molecule>(`/molecules/${pathId(id)}/`),

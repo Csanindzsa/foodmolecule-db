@@ -152,6 +152,14 @@ describe("Layout component", () => {
     expect(compareLink!.textContent).toContain("Compare");
   });
 
+  test("renders Research navigation link", () => {
+    const { container } = renderWithRouter();
+
+    const researchLink = container.querySelector('a[href="/research"]');
+    expect(researchLink).not.toBeNull();
+    expect(researchLink!.textContent).toContain("Research");
+  });
+
   // ─── F) Footer ───
   test("renders footer with site description", () => {
     const { container } = renderWithRouter();

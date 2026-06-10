@@ -75,6 +75,14 @@ describe("api", () => {
     });
   });
 
+  describe("recentStudies", () => {
+    test("calls /studies/recent/", async () => {
+      await api.recentStudies();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(mockFetch.mock.calls[0][0]).toBe("/api/v1/studies/recent/");
+    });
+  });
+
   describe("search", () => {
     test("calls /foods/search/ with encoded query", async () => {
       await api.search("apple pie");

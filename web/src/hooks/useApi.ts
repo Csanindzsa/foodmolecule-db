@@ -97,6 +97,20 @@ export function useFoodStudies(id: string) {
 }
 
 /**
+ * Fetch the latest AI-analyzed PubMed studies.
+ * QueryKey: `["studies", "recent"]`. Selects `results` array.
+ * staleTime: 5 minutes.
+ */
+export function useRecentStudies() {
+  return useQuery({
+    queryKey: ["studies", "recent"],
+    queryFn: () => api.recentStudies(),
+    select: (data) => data.results,
+    staleTime: STALE_TIME_5_MIN,
+  });
+}
+
+/**
  * Fetch the AI-generated guide for a food.
  * QueryKey: `["food", id, "guide"]`. Enabled when id is truthy.
  * staleTime: 10 minutes.

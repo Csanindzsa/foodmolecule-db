@@ -13,6 +13,8 @@ def test_research_surface_checker_passes_static_web_contract():
     names = {check.name for check in checks}
     assert "study-api-fields" in names
     assert "study-web-types" in names
+    assert "recent-research-api-hook" in names
+    assert "recent-research-page" in names
     assert "pubmed-citation-link" in names
     assert "study-context-visible" in names
 

@@ -27,6 +27,7 @@ def test_web_route_checker_extracts_react_routes_from_app_source():
         "/search",
         "/foods/:id",
         "/molecules/:id",
+        "/research",
         "/ban-list",
         "/compare",
         "*",
