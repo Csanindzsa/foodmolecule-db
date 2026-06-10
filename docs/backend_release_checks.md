@@ -20,7 +20,7 @@ CI and the local release audit run this command before backend tests.
 - Backend requirements include Django, Gunicorn, PostgreSQL, and database URL support.
 - Django settings keep security middleware, `STATIC_ROOT`, and persistent PostgreSQL health checks.
 - Scan API responses sanitize OCR ingredients, malformed raw-text previews, and confidence before returning mobile-facing data.
-- Food and molecule search/list endpoints bound `q`, category, and dietary preference filter lengths before database filters.
+- Food and molecule search/list endpoints bound `q`, category, dietary preference, and UUID filter sizes before database filters.
 
 ## Live Launch Follow-Up
 

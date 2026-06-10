@@ -32,6 +32,7 @@ MAX_SCAN_RAW_TEXT_CHARS = 5_000
 MAX_SEARCH_QUERY_CHARS = 128
 MAX_FOOD_FILTER_VALUE_CHARS = 100
 MAX_FOOD_FILTER_VALUES = 20
+MAX_UUID_FILTER_VALUES = 20
 OCR_SCANNER_PATH = Path(__file__).resolve().parents[2] / "ocr" / "src" / "pipeline" / "scan.py"
 SCAN_IMAGE_CONTENT_TYPES = frozenset({"image/jpeg", "image/jpg", "image/png", "image/webp"})
 FOOD_DEDUPE_MODES = frozenset({
@@ -155,6 +156,8 @@ def _parse_filter_csv_query_param(request, name: str):
 def _parse_uuid_csv_query_param(request, name: str):
     raw_value = request.query_params.get(name, "")
     values = [value.strip() for value in raw_value.split(",") if value.strip()]
+    if len(values) > MAX_UUID_FILTER_VALUES:
+        raise ValueError(f"Query parameter '{name}' must include at most {MAX_UUID_FILTER_VALUES} values.")
     parsed = []
     for value in values:
         try:

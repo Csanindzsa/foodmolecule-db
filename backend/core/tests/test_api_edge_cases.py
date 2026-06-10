@@ -184,6 +184,16 @@ def test_food_list_rejects_invalid_ingredient_uuid_filter():
 
 
 @pytest.mark.django_db
+def test_food_list_rejects_excessive_ingredient_uuid_filter_count():
+    ingredient_ids = ",".join(str(uuid.uuid4()) for _ in range(21))
+
+    response = _get(FoodListView, f"/api/v1/foods/?ingredients={ingredient_ids}")
+
+    assert response.status_code == 400
+    assert response.data["detail"] == "Query parameter 'ingredients' must include at most 20 values."
+
+
+@pytest.mark.django_db
 def test_ban_list_rejects_invalid_conditional_filter():
     response = _get(BanListView, "/api/v1/ban-list/?conditional=maybe")
 

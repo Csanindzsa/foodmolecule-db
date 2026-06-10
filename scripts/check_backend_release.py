@@ -94,15 +94,18 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[BackendReleaseCheck, 
             "MAX_SEARCH_QUERY_CHARS = 128" in views
             and "MAX_FOOD_FILTER_VALUE_CHARS = 100" in views
             and "MAX_FOOD_FILTER_VALUES = 20" in views
+            and "MAX_UUID_FILTER_VALUES = 20" in views
             and "def _parse_search_query_param" in views
             and "def _parse_filter_text_query_param" in views
             and "def _parse_filter_csv_query_param" in views
+            and "def _parse_uuid_csv_query_param" in views
             and "must be at most {MAX_SEARCH_QUERY_CHARS} characters" in views
             and "must be at most {MAX_FOOD_FILTER_VALUE_CHARS} characters" in views
             and "must include at most {MAX_FOOD_FILTER_VALUES} values" in views
+            and "must include at most {MAX_UUID_FILTER_VALUES} values" in views
             and "_parse_search_query_param(request, lowercase=True)" in views
             and "_parse_search_query_param(self.request)" in views,
-            "search and list query filters must bound q/category/dietary lengths before database filters",
+            "search and list query filters must bound q/category/dietary/UUID filters before database filters",
         ),
         BackendReleaseCheck(
             "runbook-linked-from-launch-checklist",
