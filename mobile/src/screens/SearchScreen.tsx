@@ -3,7 +3,7 @@ import { ActivityIndicator, Button, Image, Pressable, ScrollView, StyleSheet, Te
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodListItem, type Molecule } from "../lib/api";
-import { asArray } from "../lib/array";
+import { asArray, stringItems } from "../lib/array";
 import { formatHarmLevel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
@@ -68,6 +68,7 @@ export default function SearchScreen({ navigation }: Props) {
             <Text style={styles.sectionTitle}>Foods</Text>
             {foodResults.map((item) => {
               const imageUrl = externalHttpUrl(item.image_url);
+              const moleculeNames = stringItems(item.molecule_names, 4);
 
               return (
                 <Pressable key={item.id} style={styles.resultItem} onPress={() => navigation.navigate("FoodDetail", { id: item.id })}>
@@ -83,9 +84,9 @@ export default function SearchScreen({ navigation }: Props) {
                     <Text style={styles.resultMeta}>
                       Health {formatScore(item.health_index)} · Safety {formatScore(item.overall_safety_score)}
                     </Text>
-                    {!!item.molecule_names?.length && (
+                    {moleculeNames.length > 0 && (
                       <Text style={styles.resultMeta} numberOfLines={1}>
-                        {item.molecule_names.slice(0, 4).join(", ")}
+                        {moleculeNames.join(", ")}
                       </Text>
                     )}
                   </View>

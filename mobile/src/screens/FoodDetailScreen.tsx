@@ -4,7 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodDetail, type FoodGuide, type HealthBreakdown, type Study } from "../lib/api";
 import { formatAmount } from "../lib/amountDisplay";
-import { asArray, firstItems } from "../lib/array";
+import { asArray, firstItems, stringItems } from "../lib/array";
 import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatHarmLevel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
@@ -106,7 +106,7 @@ export default function FoodDetailScreen({ route }: Props) {
     );
   }
 
-  const aliases = asArray(food.aliases);
+  const aliases = stringItems(food.aliases);
   const foodMolecules = asArray(food.molecules);
   const imageUrl = externalHttpUrl(food.image_url);
 

@@ -55,6 +55,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     history_store = (mobile_root / "src" / "stores" / "useHistoryStore.ts").read_text(encoding="utf-8")
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
     amount_display = (mobile_root / "src" / "lib" / "amountDisplay.ts").read_text(encoding="utf-8")
+    array_utils = (mobile_root / "src" / "lib" / "array.ts").read_text(encoding="utf-8")
     ban_list_display = (mobile_root / "src" / "lib" / "banListDisplay.ts").read_text(encoding="utf-8")
     safe_url = (mobile_root / "src" / "lib" / "safeUrl.ts").read_text(encoding="utf-8")
     confidence_display = (mobile_root / "src" / "lib" / "confidenceDisplay.ts").read_text(encoding="utf-8")
@@ -209,8 +210,10 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "No matching foods or molecules found." in search_screen
             and "molecule.harm_level" in search_screen
             and "formatHarmLevel(molecule.harm_level)" in search_screen
-            and "molecule.molecular_formula" in search_screen,
-            "mobile search must preserve and display molecule matches returned by the API with sanitized harm levels",
+            and "molecule.molecular_formula" in search_screen
+            and "stringItems(item.molecule_names, 4)" in search_screen
+            and "stringItems" in array_utils,
+            "mobile search must preserve and display molecule matches returned by the API with sanitized harm levels and molecule-name snippets",
         ),
         MobileCheck(
             "mobile-molecule-detail-contract",
@@ -224,6 +227,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "api.molecule(id)" in molecule_detail_screen
             and "molecule.structure_image_url" in molecule_detail_screen
             and "molecule.harm_mechanisms" in molecule_detail_screen
+            and "stringItems(molecule.harm_mechanisms)" in molecule_detail_screen
             and "formatHarmLevel(molecule.harm_level" in molecule_detail_screen
             and "formatLinkedFoodCount(molecule.linked_food_count" in molecule_detail_screen
             and "formatMolecularWeight(molecule.molecular_weight)" in molecule_detail_screen
@@ -238,9 +242,11 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "formatMolecularWeight" in molecule_display
             and "formatPubChemCid" in molecule_display
             and "Number.isFinite(value)" in molecule_display
+            and "stringItems(food.aliases)" in food_detail_screen
+            and "stringItems" in array_utils
             and "molecule.foods" in molecule_detail_screen
             and 'navigation.navigate("FoodDetail"' in molecule_detail_screen,
-            "mobile must expose molecule surfaces with structure image, sanitized harm/count/amount/molecular-property context, and linked foods",
+            "mobile must expose molecule surfaces with structure image, sanitized text/harm/count/amount/molecular-property context, and linked foods",
         ),
         MobileCheck(
             "mobile-research-surface-contract",

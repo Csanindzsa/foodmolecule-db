@@ -230,6 +230,21 @@ describe("useApi hooks", () => {
         molecules: [{ id: "mol-1", name: "Quercetin" }],
       });
     });
+
+    test("queryFn normalizes food aliases to displayable strings", async () => {
+      mockFood.mockResolvedValueOnce({
+        id: "food-1",
+        name: "Apple",
+        aliases: [" malus ", "", 42, { name: "bad" }],
+        molecules: [],
+      } as any);
+      useFoodDetail("food-1");
+      const config = lastUseQueryCall();
+
+      await expect(config.queryFn()).resolves.toMatchObject({
+        aliases: ["malus"],
+      });
+    });
   });
 
   /* ---------------------------------------------------------------- */
@@ -447,6 +462,22 @@ describe("useApi hooks", () => {
         foods: [],
         harm_mechanisms: [],
         neutralization_methods: [],
+      });
+    });
+
+    test("queryFn normalizes harm mechanisms to displayable strings", async () => {
+      mockMolecule.mockResolvedValueOnce({
+        id: "mol-1",
+        name: "Caffeine",
+        foods: [],
+        harm_mechanisms: [" stimulant ", "", 42, { name: "bad" }],
+        neutralization_methods: [],
+      } as any);
+      useMoleculeDetail("mol-1");
+      const config = lastUseQueryCall();
+
+      await expect(config.queryFn()).resolves.toMatchObject({
+        harm_mechanisms: ["stimulant"],
       });
     });
   });

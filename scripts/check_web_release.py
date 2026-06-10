@@ -34,6 +34,8 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
     scripts = package.get("scripts", {})
     vite = _read(web_root / "vite.config.ts")
     api_client = _read(web_root / "src" / "lib" / "api.ts")
+    api_hooks = _read(web_root / "src" / "hooks" / "useApi.ts")
+    array_utils = _read(web_root / "src" / "lib" / "array.ts")
     compare_page = _read(web_root / "src" / "pages" / "Compare.tsx")
     amount_display = _read(web_root / "src" / "lib" / "amountDisplay.ts")
     compare_display = _read(web_root / "src" / "lib" / "compareDisplay.ts")
@@ -114,6 +116,9 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "formatPubChemCid(molecule.pubchem_cid)" in molecule_detail
             and "formatReductionPercent(neutralization.reduction_percent_min)" in molecule_detail
             and "formatReductionPercent(neutralization.reduction_percent_max)" in molecule_detail
+            and "stringItems(food.aliases)" in api_hooks
+            and "stringItems(molecule.harm_mechanisms)" in api_hooks
+            and "stringItems" in array_utils
             and "foodMoleculeBadgeClass(fm.molecule.harm_level" in food_detail
             and "foodMoleculeBadgeLabel(fm.molecule.harm_level" in food_detail
             and "formatAmount(fm.amount_per_100g, fm.unit)" in food_detail
@@ -124,7 +129,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "formatPubChemCid" in molecule_display
             and "formatReductionPercent" in molecule_display
             and "Number.isFinite(value)" in molecule_display,
-            "web molecule surfaces must sanitize harm levels, amounts, numeric properties, and neutralization reductions before rendering text or badge classes",
+            "web molecule surfaces must sanitize harm levels, text arrays, amounts, numeric properties, and neutralization reductions before rendering text or badge classes",
         ),
         WebReleaseCheck(
             "ci-web-build",

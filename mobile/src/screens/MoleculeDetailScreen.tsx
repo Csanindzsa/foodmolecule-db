@@ -4,7 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type MoleculeDetail } from "../lib/api";
 import { formatAmount } from "../lib/amountDisplay";
-import { asArray } from "../lib/array";
+import { asArray, stringItems } from "../lib/array";
 import { formatHarmLevel, formatLinkedFoodCount, formatMolecularWeight, formatPubChemCid } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import type { RootStackParamList } from "../navigation/types";
@@ -69,7 +69,7 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
   }
 
   const foods = asArray(molecule.foods);
-  const harmMechanisms = asArray(molecule.harm_mechanisms);
+  const harmMechanisms = stringItems(molecule.harm_mechanisms);
   const imageUrl = externalHttpUrl(molecule.structure_image_url);
   const molecularWeight = formatMolecularWeight(molecule.molecular_weight);
   const pubChemCid = formatPubChemCid(molecule.pubchem_cid);

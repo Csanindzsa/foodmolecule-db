@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { asArray } from "../lib/array";
+import { asArray, stringItems } from "../lib/array";
 import { api } from "../lib/api";
 import type {
   Food,
@@ -24,7 +24,7 @@ const STALE_TIME_10_MIN = 10 * 60 * 1000;
 function normalizeFoodDetail<T extends Food>(food: T): T {
   return {
     ...food,
-    aliases: asArray(food.aliases),
+    aliases: stringItems(food.aliases),
     molecules: asArray(food.molecules),
   };
 }
@@ -33,7 +33,7 @@ function normalizeMoleculeDetail(molecule: MoleculeDetail): MoleculeDetail {
   return {
     ...molecule,
     foods: asArray(molecule.foods),
-    harm_mechanisms: asArray(molecule.harm_mechanisms),
+    harm_mechanisms: stringItems(molecule.harm_mechanisms),
     neutralization_methods: asArray(molecule.neutralization_methods),
   };
 }
