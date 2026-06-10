@@ -6,6 +6,7 @@ import { api, type MoleculeDetail } from "../lib/api";
 import { formatAmount } from "../lib/amountDisplay";
 import { asArray, stringItems } from "../lib/array";
 import { formatHarmLevel, formatLinkedFoodCount, formatMolecularWeight, formatPubChemCid } from "../lib/moleculeDisplay";
+import { validRouteId } from "../lib/routeId";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatOptionalText } from "../lib/textDisplay";
 import type { RootStackParamList } from "../navigation/types";
@@ -20,6 +21,7 @@ function formatBoolean(value?: boolean): string {
 
 export default function MoleculeDetailScreen({ navigation, route }: Props) {
   const { id } = route.params;
+  const routeId = validRouteId(id);
   const [molecule, setMolecule] = useState<MoleculeDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,15 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
     setIsLoading(true);
     setError(null);
 
-    api.molecule(id)
+    if (!routeId) {
+      setError("Invalid molecule link");
+      setIsLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    api.molecule(routeId)
       .then((response) => {
         if (isMounted) setMolecule(response);
       })
@@ -43,7 +53,7 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  }, [routeId]);
 
   if (isLoading) {
     return (

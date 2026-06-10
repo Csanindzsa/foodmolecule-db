@@ -9,6 +9,7 @@ import {
   harmLevelBadgeClass,
   harmLevelLabel,
 } from "../lib/moleculeDisplay";
+import { validRouteId } from "../lib/routeId";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import { formatOptionalText } from "../lib/textDisplay";
@@ -43,7 +44,8 @@ function neutralizationDetails(neutralization: NeutralizationDisplay): string[] 
 
 export default function MoleculeDetail() {
   const { id } = useParams<{ id: string }>();
-  const idStr = id || "";
+  const routeId = validRouteId(id);
+  const idStr = routeId ?? "";
 
   const {
     data: molecule,
@@ -64,6 +66,16 @@ export default function MoleculeDetail() {
     error: neutralizationsError,
     refetch: refetchNeutralizations,
   } = useMoleculeNeutralizations(idStr);
+
+  if (!routeId) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-red-600 dark:text-red-400 mb-2">Invalid molecule link</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Open this molecule from search or a food detail page.</p>
+        <Link to="/" className="text-sm text-blue-600 dark:text-blue-400 underline mt-4 inline-block">Back to Home</Link>
+      </div>
+    );
+  }
 
   // --- Overall loading skeleton ---
   if (moleculeLoading) {

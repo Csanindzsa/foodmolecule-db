@@ -165,6 +165,14 @@ describe("FoodDetail page", () => {
     cleanup();
   });
 
+  test("invalid route ID shows a local invalid-link state", () => {
+    renderWithRouter(<FoodDetail />, [`/foods/${"x".repeat(129)}`]);
+
+    expect(document.body.textContent).toContain("Invalid food link");
+    expect(document.body.textContent).toContain("Open this food from search, compare, or the home page.");
+    expect(mockUseFoodDetail).toHaveBeenCalledWith("");
+  });
+
   // ─── A) Loading state ───
   test("loading state shows skeleton (animate-pulse divs)", () => {
     mockUseFoodDetail.mockReturnValue({ data: undefined, isLoading: true, error: null });

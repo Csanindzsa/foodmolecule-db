@@ -62,6 +62,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     compare_display = (mobile_root / "src" / "lib" / "compareDisplay.ts").read_text(encoding="utf-8")
     guide_display = (mobile_root / "src" / "lib" / "guideDisplay.ts").read_text(encoding="utf-8")
     molecule_display = (mobile_root / "src" / "lib" / "moleculeDisplay.ts").read_text(encoding="utf-8")
+    route_id = (mobile_root / "src" / "lib" / "routeId.ts").read_text(encoding="utf-8")
     scan_display = (mobile_root / "src" / "lib" / "scanDisplay.ts").read_text(encoding="utf-8")
     score_display = (mobile_root / "src" / "lib" / "scoreDisplay.ts").read_text(encoding="utf-8")
     text_display = (mobile_root / "src" / "lib" / "textDisplay.ts").read_text(encoding="utf-8")
@@ -139,6 +140,18 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "API IDs are limited to" in api_client
             and "Array.from(id).length > MAX_PATH_ID_CHARS" in api_client,
             "mobile API client must reject empty and oversized path IDs before fetch",
+        ),
+        MobileCheck(
+            "mobile-route-id-bound",
+            "MAX_ROUTE_ID_CHARS = 128" in route_id
+            and "function validRouteId" in route_id
+            and "value.trim().length === 0" in route_id
+            and "Array.from(value).length > MAX_ROUTE_ID_CHARS" in route_id
+            and "validRouteId(id)" in food_detail_screen
+            and "validRouteId(id)" in molecule_detail_screen
+            and "Invalid food link" in food_detail_screen
+            and "Invalid molecule link" in molecule_detail_screen,
+            "mobile detail screens must reject empty and oversized route IDs before loading",
         ),
         MobileCheck(
             "scan-upload-mime-contract",
@@ -257,7 +270,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "MoleculeDetail: { id: string }" in navigation_types
             and "MoleculeDetailScreen" in app_root
             and 'name="MoleculeDetail"' in app_root
-            and "api.molecule(id)" in molecule_detail_screen
+            and "api.molecule(routeId)" in molecule_detail_screen
             and "molecule.structure_image_url" in molecule_detail_screen
             and "molecule.harm_mechanisms" in molecule_detail_screen
             and "stringItems(molecule.harm_mechanisms)" in molecule_detail_screen
@@ -286,7 +299,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "type Study" in api_client
             and "foodStudies" in api_client
             and "/studies/" in api_client
-            and "api.foodStudies(id)" in food_detail_screen
+            and "api.foodStudies(routeId)" in food_detail_screen
             and "Latest Research" in food_detail_screen
             and "study.ai_summary" in food_detail_screen
             and "study.ai_confidence" in food_detail_screen
@@ -335,8 +348,8 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "foodHealthIndex" in api_client
             and "/guide/" in api_client
             and "/health-index/" in api_client
-            and "api.foodGuide(id)" in food_detail_screen
-            and "api.foodHealthIndex(id)" in food_detail_screen
+            and "api.foodGuide(routeId)" in food_detail_screen
+            and "api.foodHealthIndex(routeId)" in food_detail_screen
             and "Agent Guide" in food_detail_screen
             and "formatGuideText(guide?.guide)" in food_detail_screen
             and "formatGuideMetadata(guide?.generated_by, guide?.version)" in food_detail_screen

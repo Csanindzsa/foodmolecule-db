@@ -5,6 +5,7 @@ import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatDate } from "../lib/dateDisplay";
 import { formatGuideText } from "../lib/guideDisplay";
 import { foodMoleculeBadgeClass, foodMoleculeBadgeLabel } from "../lib/moleculeDisplay";
+import { validRouteId } from "../lib/routeId";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatHealthLabel, formatScore, normalizeScore } from "../lib/scoreDisplay";
 import { formatOptionalText } from "../lib/textDisplay";
@@ -12,7 +13,8 @@ import { formatPublicationYear } from "../lib/yearDisplay";
 
 export default function FoodDetail() {
   const { id } = useParams<{ id: string }>();
-  const idStr = id || "";
+  const routeId = validRouteId(id);
+  const idStr = routeId ?? "";
 
   const { data: food, isLoading: foodLoading, error: foodError } = useFoodDetail(idStr);
   const { data: molecules, isLoading: moleculesLoading, error: moleculesError, refetch: refetchMolecules } = useFoodMolecules(idStr);
@@ -22,6 +24,15 @@ export default function FoodDetail() {
   const visibleStudies = studies?.slice(0, 5) ?? [];
   const healthIndex = health ? normalizeScore(health.health_index) : null;
   const healthLabel = health ? formatHealthLabel(health.label) : null;
+
+  if (!routeId) {
+    return (
+      <div className="text-center py-16 text-red-600 dark:text-red-400">
+        <p>Invalid food link</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Open this food from search, compare, or the home page.</p>
+      </div>
+    );
+  }
 
   if (foodLoading) {
     return (

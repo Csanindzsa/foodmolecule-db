@@ -21,6 +21,7 @@ def test_mobile_release_checker_passes_static_mvp_contract():
         "scan-screen-wiring",
         "scan-api-client",
         "mobile-api-id-bound",
+        "mobile-route-id-bound",
         "scan-upload-mime-contract",
         "scan-result-ux-contract",
         "mobile-search-query-bound",
@@ -57,6 +58,7 @@ def test_mobile_release_cli_outputs_summary(capsys):
     assert "ok\tmobile-ci-typecheck" in captured.out
     assert "ok\tmobile-ci-unit-tests" in captured.out
     assert "ok\tmobile-api-id-bound" in captured.out
+    assert "ok\tmobile-route-id-bound" in captured.out
     assert "ok\tscan-result-ux-contract" in captured.out
     assert "ok\tmobile-search-query-bound" in captured.out
     assert "ok\tscan-history-context-contract" in captured.out

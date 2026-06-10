@@ -136,6 +136,15 @@ describe("MoleculeDetail page", () => {
     cleanup();
   });
 
+  test("invalid route ID shows a local invalid-link state", () => {
+    renderWithRouter(<MoleculeDetail />, [`/molecules/${"x".repeat(129)}`]);
+
+    expect(document.body.textContent).toContain("Invalid molecule link");
+    expect(document.body.textContent).toContain("Open this molecule from search or a food detail page.");
+    expect(document.body.textContent).toContain("Back to Home");
+    expect(mockUseMoleculeDetail).toHaveBeenCalledWith("");
+  });
+
   // ─── Loading state ───
   test("shows skeleton (animate-pulse divs) when useMoleculeDetail isLoading", () => {
     mockUseMoleculeDetail.mockReturnValue({ data: undefined, isLoading: true, error: null });

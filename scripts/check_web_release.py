@@ -46,6 +46,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
     guide_display = _read(web_root / "src" / "lib" / "guideDisplay.ts")
     molecule_detail = _read(web_root / "src" / "pages" / "MoleculeDetail.tsx")
     molecule_display = _read(web_root / "src" / "lib" / "moleculeDisplay.ts")
+    route_id = _read(web_root / "src" / "lib" / "routeId.ts")
     score_display = _read(web_root / "src" / "lib" / "scoreDisplay.ts")
     text_display = _read(web_root / "src" / "lib" / "textDisplay.ts")
     index = _read(web_root / "index.html")
@@ -91,6 +92,18 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "API IDs are limited to" in api_client
             and "Array.from(id).length > MAX_PATH_ID_CHARS" in api_client,
             "web API client must reject empty and oversized path IDs before fetch",
+        ),
+        WebReleaseCheck(
+            "route-id-bound",
+            "MAX_ROUTE_ID_CHARS = 128" in route_id
+            and "function validRouteId" in route_id
+            and "value.trim().length === 0" in route_id
+            and "Array.from(value).length > MAX_ROUTE_ID_CHARS" in route_id
+            and "validRouteId(id)" in food_detail
+            and "validRouteId(id)" in molecule_detail
+            and "Invalid food link" in food_detail
+            and "Invalid molecule link" in molecule_detail,
+            "web detail routes must reject empty and oversized route IDs before loading",
         ),
         WebReleaseCheck(
             "search-query-bound",

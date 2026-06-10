@@ -26,6 +26,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - Mobile Bun installs are reproducible from `mobile/bun.lock`.
 - CI installs locked mobile dependencies, runs Bun unit tests, and runs the Expo TypeScript check.
 - The mobile API client rejects empty and oversized path IDs before building detail-route URLs.
+- Detail screens reject empty and oversized route IDs before loading API-backed views.
 - `ScanScreen` launches camera/gallery image selection and submits through `api.scanImage`.
 - The mobile API client posts multipart images to `/scan/`.
 - The mobile upload client names scan files and sends JPEG, PNG, or WebP content types.

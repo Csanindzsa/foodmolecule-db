@@ -8,6 +8,7 @@ import { asArray, firstItems, stringItems } from "../lib/array";
 import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatGuideMetadata, formatGuideText } from "../lib/guideDisplay";
 import { formatHarmLevel } from "../lib/moleculeDisplay";
+import { validRouteId } from "../lib/routeId";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatHealthLabel, formatScore } from "../lib/scoreDisplay";
 import { formatOptionalText } from "../lib/textDisplay";
@@ -18,6 +19,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "FoodDetail">;
 
 export default function FoodDetailScreen({ route }: Props) {
   const { id } = route.params;
+  const routeId = validRouteId(id);
   const [food, setFood] = useState<FoodDetail | null>(null);
   const [studies, setStudies] = useState<Study[]>([]);
   const [guide, setGuide] = useState<FoodGuide | null>(null);
@@ -41,7 +43,16 @@ export default function FoodDetailScreen({ route }: Props) {
     setGuide(null);
     setBreakdown(null);
 
-    api.food(id)
+    if (!routeId) {
+      setError("Invalid food link");
+      setStudiesLoading(false);
+      setIsLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    api.food(routeId)
       .then((response) => {
         if (isMounted) setFood(response);
       })
@@ -52,7 +63,7 @@ export default function FoodDetailScreen({ route }: Props) {
         if (isMounted) setIsLoading(false);
       });
 
-    api.foodStudies(id)
+    api.foodStudies(routeId)
       .then((response) => {
         if (isMounted) setStudies(firstItems(response.results, 3));
       })
@@ -63,7 +74,7 @@ export default function FoodDetailScreen({ route }: Props) {
         if (isMounted) setStudiesLoading(false);
       });
 
-    api.foodGuide(id)
+    api.foodGuide(routeId)
       .then((response) => {
         if (isMounted) setGuide(response);
       })
@@ -71,7 +82,7 @@ export default function FoodDetailScreen({ route }: Props) {
         if (isMounted) setGuideError(err instanceof Error ? err.message : "Failed to load guide");
       });
 
-    api.foodHealthIndex(id)
+    api.foodHealthIndex(routeId)
       .then((response) => {
         if (isMounted) setBreakdown(response);
       })
@@ -82,7 +93,7 @@ export default function FoodDetailScreen({ route }: Props) {
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  }, [routeId]);
 
   if (isLoading) {
     return (
