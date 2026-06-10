@@ -3,12 +3,8 @@ import { ActivityIndicator, Button, Linking, Pressable, ScrollView, StyleSheet, 
 
 import { api, type Study } from "../lib/api";
 import { firstItems } from "../lib/array";
+import { formatImpact } from "../lib/impactDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
-
-function impactLabel(value?: number | null): string | null {
-  if (value == null) return null;
-  return value > 0 ? `+${value}` : String(value);
-}
 
 export default function ResearchScreen() {
   const [studies, setStudies] = useState<Study[]>([]);
@@ -56,6 +52,8 @@ export default function ResearchScreen() {
         <Text style={styles.meta}>No analyzed research studies found.</Text>
       ) : studies.map((study) => {
         const pubmedUrl = externalHttpUrl(study.url);
+        const safetyImpact = formatImpact(study.ai_safety_impact);
+        const healthImpact = formatImpact(study.ai_health_impact);
 
         return (
           <View key={study.id} style={styles.studyCard}>
@@ -69,9 +67,9 @@ export default function ResearchScreen() {
               </Text>
               {!!study.ai_confidence && <Text style={styles.meta}>AI confidence: {study.ai_confidence}</Text>}
               <Text style={styles.meta}>
-                {impactLabel(study.ai_safety_impact) ? `Safety impact: ${impactLabel(study.ai_safety_impact)}` : "Safety impact: not scored"}
+                {safetyImpact ? `Safety impact: ${safetyImpact}` : "Safety impact: not scored"}
                 {" · "}
-                {impactLabel(study.ai_health_impact) ? `Health impact: ${impactLabel(study.ai_health_impact)}` : "Health impact: not scored"}
+                {healthImpact ? `Health impact: ${healthImpact}` : "Health impact: not scored"}
               </Text>
             </View>
             {pubmedUrl && (

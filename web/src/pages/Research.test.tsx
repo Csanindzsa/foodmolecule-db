@@ -125,4 +125,22 @@ describe("Research page", () => {
     expect(container.textContent).toContain("PMID: 123456");
     expect(container.querySelector("a")).toBeNull();
   });
+
+  test("success state clamps and hides malformed AI impact values", () => {
+    mockUseRecentStudies.mockReturnValue({
+      data: [
+        { ...mockStudies[0], ai_safety_impact: 99, ai_health_impact: Number.NaN },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = render(<Research />);
+
+    expect(container.textContent).toContain("Safety impact: +5");
+    expect(container.textContent).not.toContain("Health impact:");
+    expect(container.textContent).not.toContain("NaN");
+    expect(container.textContent).not.toContain("99");
+  });
 });

@@ -1,11 +1,6 @@
 import { useRecentStudies } from "../hooks/useApi";
+import { formatImpact } from "../lib/impactDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
-
-function impactLabel(value: number | null): string | null {
-  if (value == null) return null;
-  if (value > 0) return `+${value}`;
-  return String(value);
-}
 
 export default function Research() {
   const { data: studies, isLoading, error, refetch } = useRecentStudies();
@@ -61,6 +56,8 @@ export default function Research() {
         <div className="space-y-3">
           {studies.map((study) => {
             const citationUrl = externalHttpUrl(study.url);
+            const safetyImpact = formatImpact(study.ai_safety_impact);
+            const healthImpact = formatImpact(study.ai_health_impact);
 
             return (
               <article key={study.id} className="rounded-xl border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
@@ -95,11 +92,11 @@ export default function Research() {
                   </span>
                   {study.publication_year && <span>{study.publication_year}</span>}
                   {study.journal && <span>{study.journal}</span>}
-                  {impactLabel(study.ai_safety_impact) && (
-                    <span>Safety impact: {impactLabel(study.ai_safety_impact)}</span>
+                  {safetyImpact && (
+                    <span>Safety impact: {safetyImpact}</span>
                   )}
-                  {impactLabel(study.ai_health_impact) && (
-                    <span>Health impact: {impactLabel(study.ai_health_impact)}</span>
+                  {healthImpact && (
+                    <span>Health impact: {healthImpact}</span>
                   )}
                 </div>
               </article>
