@@ -23,7 +23,7 @@
 - [ ] Point `nutrii.fit` DNS to the production frontend host
 - [ ] Deploy to Vercel/Netlify with `VITE_API_URL` pointing to the production backend API; SPA fallback config is present in `web/vercel.json` and `web/public/_redirects`
 - [ ] Run Lighthouse audit: target >90 on Performance, Accessibility, SEO
-- [ ] Test all routes: `/`, `/search`, `/foods/:id`, `/molecules/:id`, `/compare`, `/ban-list`
+- [ ] Verify static route contract with `python scripts/check_web_routes.py` (`docs/web_route_checks.md`), then test deployed routes: `/`, `/search`, `/foods/:id`, `/molecules/:id`, `/compare`, `/ban-list`
 
 ### Mobile
 - [ ] Build Expo app (`cd mobile && npx expo prebuild`)
