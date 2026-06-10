@@ -265,6 +265,24 @@ describe("FoodDetail page", () => {
     expect(document.body.textContent).toContain("0");
   });
 
+  test("health index hides malformed labels", () => {
+    mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });
+    mockUseFoodHealthIndex.mockReturnValue({
+      data: {
+        ...mockHealth,
+        label: { text: "Good" } as unknown as string,
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithRouter(<FoodDetail />);
+
+    expect(document.body.textContent).toContain("75");
+    expect(document.body.textContent).not.toContain("Good");
+    expect(document.body.textContent).not.toContain("[object Object]");
+  });
+
   // ─── G) Molecules list ───
   test("molecules list renders molecule items with name, amount, and harm level badge", () => {
     mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });

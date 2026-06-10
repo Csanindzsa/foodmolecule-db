@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatScore, normalizeScore, scoreBadgeClass } from "./scoreDisplay";
+import { formatHealthLabel, formatScore, normalizeScore, scoreBadgeClass } from "./scoreDisplay";
 
 describe("score display helpers", () => {
   test("normalizeScore preserves finite scores within range", () => {
@@ -31,5 +31,18 @@ describe("score display helpers", () => {
     expect(scoreBadgeClass(80)).toContain("bg-green-100");
     expect(scoreBadgeClass(60)).toContain("bg-yellow-100");
     expect(scoreBadgeClass(20)).toContain("bg-red-100");
+  });
+
+  test("formatHealthLabel keeps known backend labels", () => {
+    expect(formatHealthLabel(" Good ")).toBe("Good");
+    expect(formatHealthLabel("excellent")).toBe("Excellent");
+    expect(formatHealthLabel("AVOID")).toBe("Avoid");
+  });
+
+  test("formatHealthLabel hides malformed and unknown labels", () => {
+    expect(formatHealthLabel(null)).toBeNull();
+    expect(formatHealthLabel("")).toBeNull();
+    expect(formatHealthLabel("superb")).toBeNull();
+    expect(formatHealthLabel({ label: "Good" })).toBeNull();
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatPercent, formatScore, normalizeScore } from "./scoreDisplay";
+import { formatHealthLabel, formatPercent, formatScore, normalizeScore } from "./scoreDisplay";
 
 describe("score display helpers", () => {
   test("normalizeScore keeps finite scores within 0 to 100", () => {
@@ -45,5 +45,18 @@ describe("score display helpers", () => {
   test("formatPercent returns fallback text for unavailable values", () => {
     expect(formatPercent(NaN)).toBe("unknown");
     expect(formatPercent(Infinity, "?")).toBe("?");
+  });
+
+  test("formatHealthLabel keeps known backend labels", () => {
+    expect(formatHealthLabel(" Good ")).toBe("Good");
+    expect(formatHealthLabel("excellent")).toBe("Excellent");
+    expect(formatHealthLabel("AVOID")).toBe("Avoid");
+  });
+
+  test("formatHealthLabel hides malformed and unknown labels", () => {
+    expect(formatHealthLabel(null)).toBeNull();
+    expect(formatHealthLabel("")).toBeNull();
+    expect(formatHealthLabel("superb")).toBeNull();
+    expect(formatHealthLabel({ label: "Good" })).toBeNull();
   });
 });

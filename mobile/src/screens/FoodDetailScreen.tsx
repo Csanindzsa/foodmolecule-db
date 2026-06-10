@@ -9,7 +9,7 @@ import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatGuideMetadata, formatGuideText } from "../lib/guideDisplay";
 import { formatHarmLevel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
-import { formatScore } from "../lib/scoreDisplay";
+import { formatHealthLabel, formatScore } from "../lib/scoreDisplay";
 import { formatPublicationYear } from "../lib/yearDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -112,6 +112,7 @@ export default function FoodDetailScreen({ route }: Props) {
   const imageUrl = externalHttpUrl(food.image_url);
   const guideText = formatGuideText(guide?.guide);
   const guideMetadata = formatGuideMetadata(guide?.generated_by, guide?.version);
+  const breakdownLabel = formatHealthLabel(breakdown?.label);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -154,7 +155,7 @@ export default function FoodDetailScreen({ route }: Props) {
       ) : (
         <Text style={styles.meta}>{breakdownError ? "Health breakdown is unavailable right now." : "Loading health breakdown..."}</Text>
       )}
-      {!!breakdown?.label && <Text style={styles.meta}>Rating: {breakdown.label}</Text>}
+      {breakdownLabel && <Text style={styles.meta}>Rating: {breakdownLabel}</Text>}
       <Text style={styles.sectionTitle}>Agent Guide</Text>
       {guideText ? (
         <View style={styles.guideBox}>

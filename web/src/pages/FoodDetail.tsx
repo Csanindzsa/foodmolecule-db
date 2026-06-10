@@ -6,7 +6,7 @@ import { formatDate } from "../lib/dateDisplay";
 import { formatGuideText } from "../lib/guideDisplay";
 import { foodMoleculeBadgeClass, foodMoleculeBadgeLabel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
-import { formatScore, normalizeScore } from "../lib/scoreDisplay";
+import { formatHealthLabel, formatScore, normalizeScore } from "../lib/scoreDisplay";
 import { formatPublicationYear } from "../lib/yearDisplay";
 
 export default function FoodDetail() {
@@ -20,6 +20,7 @@ export default function FoodDetail() {
   const { data: health, isLoading: healthLoading, error: healthError } = useFoodHealthIndex(idStr);
   const visibleStudies = studies?.slice(0, 5) ?? [];
   const healthIndex = health ? normalizeScore(health.health_index) : null;
+  const healthLabel = health ? formatHealthLabel(health.label) : null;
 
   if (foodLoading) {
     return (
@@ -83,7 +84,7 @@ export default function FoodDetail() {
             }`}>
               {healthIndex}
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">{health.label}</div>
+            {healthLabel && <div className="text-sm text-gray-500 dark:text-gray-400">{healthLabel}</div>}
           </div>
         ) : null}
       </div>

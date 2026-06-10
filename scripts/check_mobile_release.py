@@ -63,6 +63,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     guide_display = (mobile_root / "src" / "lib" / "guideDisplay.ts").read_text(encoding="utf-8")
     molecule_display = (mobile_root / "src" / "lib" / "moleculeDisplay.ts").read_text(encoding="utf-8")
     scan_display = (mobile_root / "src" / "lib" / "scanDisplay.ts").read_text(encoding="utf-8")
+    score_display = (mobile_root / "src" / "lib" / "scoreDisplay.ts").read_text(encoding="utf-8")
     year_display = (mobile_root / "src" / "lib" / "yearDisplay.ts").read_text(encoding="utf-8")
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
@@ -317,6 +318,15 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "breakdown.benefit_score" in food_detail_screen
             and "breakdown.bioavailability_score" in food_detail_screen,
             "mobile food detail must surface sanitized AI guide copy/metadata and health-index breakdowns",
+        ),
+        MobileCheck(
+            "mobile-health-label-sanitizer",
+            "formatHealthLabel(breakdown?.label)" in food_detail_screen
+            and "formatHealthLabel" in score_display
+            and "HEALTH_LABELS" in score_display
+            and '"Excellent", "Good", "Fair", "Caution", "Poor", "Avoid"' in score_display
+            and 'typeof value !== "string"' in score_display,
+            "mobile food detail must render health-index labels through the backend label allowlist",
         ),
         MobileCheck(
             "mobile-ban-list-contract",

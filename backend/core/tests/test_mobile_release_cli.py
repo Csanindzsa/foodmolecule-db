@@ -31,6 +31,7 @@ def test_mobile_release_checker_passes_static_mvp_contract():
         "mobile-recent-research-contract",
         "mobile-ai-confidence-sanitizer",
         "mobile-ai-guide-contract",
+        "mobile-health-label-sanitizer",
         "mobile-ban-list-contract",
         "mobile-compare-contract",
         "eas-build-profiles",
@@ -61,6 +62,7 @@ def test_mobile_release_cli_outputs_summary(capsys):
     assert "ok\tmobile-recent-research-contract" in captured.out
     assert "ok\tmobile-ai-confidence-sanitizer" in captured.out
     assert "ok\tmobile-ai-guide-contract" in captured.out
+    assert "ok\tmobile-health-label-sanitizer" in captured.out
     assert "ok\tmobile-ban-list-contract" in captured.out
     assert "ok\tmobile-compare-contract" in captured.out
     assert "skip\tstore-identifiers" in captured.out

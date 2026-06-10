@@ -43,6 +43,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
     guide_display = _read(web_root / "src" / "lib" / "guideDisplay.ts")
     molecule_detail = _read(web_root / "src" / "pages" / "MoleculeDetail.tsx")
     molecule_display = _read(web_root / "src" / "lib" / "moleculeDisplay.ts")
+    score_display = _read(web_root / "src" / "lib" / "scoreDisplay.ts")
     index = _read(web_root / "index.html")
     robots = _read(web_root / "public" / "robots.txt")
     sitemap = _read(web_root / "public" / "sitemap.xml")
@@ -122,6 +123,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "stringItems" in array_utils
             and "foodMoleculeBadgeClass(fm.molecule.harm_level" in food_detail
             and "foodMoleculeBadgeLabel(fm.molecule.harm_level" in food_detail
+            and "formatHealthLabel(health.label)" in food_detail
             and "formatAmount(fm.amount_per_100g, fm.unit)" in food_detail
             and "formatAmount" in amount_display
             and "Number.isFinite(parsed)" in amount_display
@@ -131,6 +133,14 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "formatReductionPercent" in molecule_display
             and "Number.isFinite(value)" in molecule_display,
             "web molecule surfaces must sanitize harm levels, text arrays, amounts, numeric properties, and neutralization reductions before rendering text or badge classes",
+        ),
+        WebReleaseCheck(
+            "health-label-sanitizers",
+            "formatHealthLabel" in score_display
+            and "HEALTH_LABELS" in score_display
+            and '"Excellent", "Good", "Fair", "Caution", "Poor", "Avoid"' in score_display
+            and 'typeof value !== "string"' in score_display,
+            "web food detail must render health-index labels through the backend label allowlist",
         ),
         WebReleaseCheck(
             "guide-display-sanitizers",

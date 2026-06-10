@@ -21,6 +21,7 @@ CI and the local release audit run this command before backend tests.
 - `robots.txt` and `sitemap.xml` expose the crawlable launch routes.
 - The Compare page sanitizes molecule amount maps, shared molecule names, and aggregate count displays before rendering.
 - Food and molecule detail pages sanitize text arrays, molecule harm levels, amount values, numeric properties, and neutralization reductions before rendering badge text or classes.
+- Food detail renders health-index labels through the backend label allowlist.
 - Food detail sanitizes AI guide copy before rendering.
 - CI installs web dependencies with `bun install --frozen-lockfile`, runs tests, and builds the Vite app.
 
