@@ -44,10 +44,20 @@ export default function FoodDetail() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold capitalize">{food.name}</h1>
-          {food.category && <p className="text-gray-500 dark:text-gray-400">{food.category}</p>}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-4 min-w-0">
+          {food.image_url && (
+            <img
+              src={food.image_url}
+              alt={`Food photo: ${food.name}`}
+              loading="lazy"
+              className="h-24 w-24 shrink-0 rounded-lg border bg-gray-50 object-cover dark:border-gray-700 dark:bg-gray-800"
+            />
+          )}
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold capitalize">{food.name}</h1>
+            {food.category && <p className="text-gray-500 dark:text-gray-400">{food.category}</p>}
+          </div>
         </div>
         {healthLoading && !foodLoading ? (
           <div className="h-16 w-16 bg-gray-200 dark:bg-gray-600 rounded-full animate-pulse" />

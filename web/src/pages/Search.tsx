@@ -47,8 +47,16 @@ export default function Search() {
               <Link
                 key={f.id}
                 to={`/foods/${f.id}`}
-                className="block p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow transition"
+                className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow transition"
               >
+                {f.image_url && (
+                  <img
+                    src={f.image_url}
+                    alt={`Food photo: ${f.name}`}
+                    loading="lazy"
+                    className="h-12 w-12 shrink-0 rounded-md object-cover"
+                  />
+                )}
                 <span className="font-medium capitalize">{f.name}</span>
               </Link>
             ))}
@@ -61,11 +69,21 @@ export default function Search() {
           <h2 className="text-lg font-semibold mb-2">Molecules</h2>
           <div className="grid gap-2">
             {data.molecules.map((m) => (
-              <div key={m.id} className="p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800">
-                <span className="font-medium">{m.name}</span>
-                {m.molecular_formula && (
-                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{m.molecular_formula}</span>
+              <div key={m.id} className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800">
+                {m.structure_image_url && (
+                  <img
+                    src={m.structure_image_url}
+                    alt={`Molecular structure: ${m.name}`}
+                    loading="lazy"
+                    className="h-12 w-12 shrink-0 rounded-md bg-white object-contain p-1 dark:bg-gray-900"
+                  />
                 )}
+                <div>
+                  <span className="font-medium">{m.name}</span>
+                  {m.molecular_formula && (
+                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{m.molecular_formula}</span>
+                  )}
+                </div>
               </div>
             ))}
           </div>

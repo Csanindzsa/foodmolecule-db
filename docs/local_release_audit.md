@@ -31,6 +31,7 @@ CI runs the no-secret version.
 - PubMed/AI research operations contract.
 - AI prompt/parser/model-routing contract.
 - Image enrichment operations contract.
+- React image surface contract.
 - Ban-list surface citation-gate contract.
 - Production logging and privacy-preserving analytics contract.
 - Optional launch environment preflight when `--env-file` is provided.

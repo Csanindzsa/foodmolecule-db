@@ -97,10 +97,20 @@ export default function MoleculeDetail() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">{molecule.name}</h1>
-        {molecule.iupac_name && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{molecule.iupac_name}</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">{molecule.name}</h1>
+          {molecule.iupac_name && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{molecule.iupac_name}</p>
+          )}
+        </div>
+        {molecule.structure_image_url && (
+          <img
+            src={molecule.structure_image_url}
+            alt={`Molecular structure: ${molecule.name}`}
+            loading="lazy"
+            className="h-40 w-40 rounded-lg border bg-white object-contain p-3 dark:border-gray-700 dark:bg-gray-800"
+          />
         )}
       </div>
 

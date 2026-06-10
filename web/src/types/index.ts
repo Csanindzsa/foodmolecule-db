@@ -7,7 +7,7 @@ export interface Food {
   overall_safety_score: number | null;
   health_index: number | null;
   ban_listed: boolean;
-  image_url: string;
+  image_url?: string;
   metadata: Record<string, unknown>;
   molecules: FoodMolecule[];
 }
@@ -28,6 +28,7 @@ export interface Molecule {
   cas_number: string;
   molecular_formula: string;
   molecular_weight: string | null;
+  structure_image_url?: string;
   harm_level: number;
   harm_mechanisms: string[];
   is_heat_stable: boolean;
@@ -86,7 +87,7 @@ export interface FoodListItem {
   overall_safety_score: number | null;
   health_index: number | null;
   ban_listed: boolean;
-  image_url: string;
+  image_url?: string;
 }
 
 export interface BanListEntry {

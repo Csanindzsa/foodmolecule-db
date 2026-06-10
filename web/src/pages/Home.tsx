@@ -48,6 +48,14 @@ export default function Home() {
                 to={`/foods/${food.id}`}
                 className="block p-4 rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow dark:hover:border-gray-600 transition"
               >
+                {food.image_url && (
+                  <img
+                    src={food.image_url}
+                    alt={`Food photo: ${food.name}`}
+                    loading="lazy"
+                    className="mb-3 h-28 w-full rounded-lg object-cover"
+                  />
+                )}
                 <div className="flex items-center justify-between">
                   <span className="font-medium capitalize">{food.name}</span>
                   {food.health_index !== null && (

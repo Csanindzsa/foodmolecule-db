@@ -54,6 +54,8 @@ jobs:
         run: python ../scripts/check_ai_contract.py
       - name: Check image operations contract
         run: python ../scripts/check_image_ops.py
+      - name: Check image surface contract
+        run: python ../scripts/check_image_surface.py
       - name: Check ban-list surface citation gate
         run: python ../scripts/check_ban_list_surface.py
       - name: Check observability contract

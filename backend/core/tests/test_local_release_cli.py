@@ -24,6 +24,7 @@ def test_local_release_audit_default_commands_are_no_credential_checks():
         "ban-list-surface-contract",
         "observability-contract",
         "ai-contract",
+        "image-surface-contract",
     ]
 
 
