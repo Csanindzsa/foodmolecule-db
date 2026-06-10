@@ -31,10 +31,31 @@ export type FoodListItem = {
 export type Molecule = {
   id: string;
   name: string;
+  pubchem_cid?: number | null;
+  iupac_name?: string;
+  cas_number?: string;
   harm_level?: number;
+  harm_mechanisms?: string[];
   molecular_formula?: string;
+  molecular_weight?: string | null;
   structure_image_url?: string;
   linked_food_count?: number;
+  is_heat_stable?: boolean;
+  is_neutralizable?: boolean;
+};
+
+export type MoleculeFood = {
+  id: string;
+  name: string;
+  category?: string | null;
+  amount_per_100g?: string | null;
+  unit?: string;
+  amount_notes?: string;
+  is_beneficial?: boolean;
+};
+
+export type MoleculeDetail = Molecule & {
+  foods: MoleculeFood[];
 };
 
 export type Study = {
@@ -147,6 +168,7 @@ export const api = {
     `/foods/search/?q=${encodeURIComponent(query)}&dedupe=ingredient_signature`,
   ),
   food: (id: string) => request<FoodDetail>(`/foods/${pathId(id)}/`),
+  molecule: (id: string) => request<MoleculeDetail>(`/molecules/${pathId(id)}/`),
   foodStudies: (id: string) => request<{ results: Study[] }>(`/foods/${pathId(id)}/studies/`),
   foodGuide: (id: string) => request<FoodGuide>(`/foods/${pathId(id)}/guide/`),
   foodHealthIndex: (id: string) => request<HealthBreakdown>(`/foods/${pathId(id)}/health-index/`),

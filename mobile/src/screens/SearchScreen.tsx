@@ -91,7 +91,7 @@ export default function SearchScreen({ navigation }: Props) {
           <View style={styles.resultSection}>
             <Text style={styles.sectionTitle}>Molecules</Text>
             {moleculeResults.map((molecule) => (
-              <View key={molecule.id} style={styles.resultItem}>
+              <Pressable key={molecule.id} style={styles.resultItem} onPress={() => navigation.navigate("MoleculeDetail", { id: molecule.id })}>
                 {molecule.structure_image_url && (
                   <Image
                     source={{ uri: molecule.structure_image_url }}
@@ -106,7 +106,7 @@ export default function SearchScreen({ navigation }: Props) {
                     {molecule.molecular_formula ? ` · ${molecule.molecular_formula}` : ""}
                   </Text>
                 </View>
-              </View>
+              </Pressable>
             ))}
           </View>
         )}

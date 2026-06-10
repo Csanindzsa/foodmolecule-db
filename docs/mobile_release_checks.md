@@ -31,6 +31,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - Recent scan history preserves food image and health context when available.
 - Search, food detail, and scan result screens surface enriched food images when `image_url` is present.
 - Search preserves and displays molecule matches returned by the API, including harm and formula context.
+- Molecule detail is reachable from search and surfaces structure image, harm context, and linked foods.
 - Food detail surfaces linked research summaries and PubMed citation links when study data is present.
 - Food detail surfaces AI guide copy and health-index breakdowns from the existing backend endpoints.
 - Ban List is reachable from Home and surfaces draft/citation-required safety entries with food-detail navigation.

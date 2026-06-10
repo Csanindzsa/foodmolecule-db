@@ -47,6 +47,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     search_screen = (mobile_root / "src" / "screens" / "SearchScreen.tsx").read_text(encoding="utf-8")
     compare_screen = (mobile_root / "src" / "screens" / "CompareScreen.tsx").read_text(encoding="utf-8")
     food_detail_screen = (mobile_root / "src" / "screens" / "FoodDetailScreen.tsx").read_text(encoding="utf-8")
+    molecule_detail_screen = (mobile_root / "src" / "screens" / "MoleculeDetailScreen.tsx").read_text(encoding="utf-8")
     ban_list_screen = (mobile_root / "src" / "screens" / "BanListScreen.tsx").read_text(encoding="utf-8")
     home_screen = (mobile_root / "src" / "screens" / "HomeScreen.tsx").read_text(encoding="utf-8")
     history_store = (mobile_root / "src" / "stores" / "useHistoryStore.ts").read_text(encoding="utf-8")
@@ -152,10 +153,27 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "response.molecules" in search_screen
             and "moleculeResults" in search_screen
             and "Molecules" in search_screen
+            and 'navigation.navigate("MoleculeDetail"' in search_screen
             and "No matching foods or molecules found." in search_screen
             and "molecule.harm_level" in search_screen
             and "molecule.molecular_formula" in search_screen,
             "mobile search must preserve and display molecule matches returned by the API",
+        ),
+        MobileCheck(
+            "mobile-molecule-detail-contract",
+            "type MoleculeDetail" in api_client
+            and "type MoleculeFood" in api_client
+            and "molecule:" in api_client
+            and "/molecules/" in api_client
+            and "MoleculeDetail: { id: string }" in navigation_types
+            and "MoleculeDetailScreen" in app_root
+            and 'name="MoleculeDetail"' in app_root
+            and "api.molecule(id)" in molecule_detail_screen
+            and "molecule.structure_image_url" in molecule_detail_screen
+            and "molecule.harm_mechanisms" in molecule_detail_screen
+            and "molecule.foods" in molecule_detail_screen
+            and 'navigation.navigate("FoodDetail"' in molecule_detail_screen,
+            "mobile must expose molecule detail with structure image, harm context, and linked foods",
         ),
         MobileCheck(
             "mobile-research-surface-contract",

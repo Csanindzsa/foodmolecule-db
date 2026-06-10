@@ -5,4 +5,5 @@ export type RootStackParamList = {
   Scan: undefined;
   BanList: undefined;
   FoodDetail: { id: string };
+  MoleculeDetail: { id: string };
 };
