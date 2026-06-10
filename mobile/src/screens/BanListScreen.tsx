@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type BanListEntry } from "../lib/api";
+import { asArray } from "../lib/array";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "BanList">;
@@ -25,7 +26,7 @@ export default function BanListScreen({ navigation }: Props) {
 
     api.banList()
       .then((response) => {
-        if (isMounted) setEntries(response.results);
+        if (isMounted) setEntries(asArray(response.results));
       })
       .catch((err) => {
         if (isMounted) setError(err instanceof Error ? err.message : "Failed to load ban list");

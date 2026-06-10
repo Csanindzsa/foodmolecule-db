@@ -3,6 +3,7 @@ import { ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, Tex
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type CompareResponse, type FoodListItem } from "../lib/api";
+import { asArray, firstItems } from "../lib/array";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -20,6 +21,8 @@ export default function CompareScreen({ navigation }: Props) {
   const [isSearching, setIsSearching] = useState(false);
   const [isComparing, setIsComparing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const comparisonFoods = comparison ? asArray(comparison.foods) : [];
+  const sharedMolecules = comparison ? asArray(comparison.shared_molecules) : [];
 
   const runSearch = () => {
     const trimmed = query.trim();
@@ -27,7 +30,7 @@ export default function CompareScreen({ navigation }: Props) {
     setIsSearching(true);
     setError(null);
     api.search(trimmed)
-      .then((response) => setResults(response.foods.slice(0, 8)))
+      .then((response) => setResults(firstItems(response.foods, 8)))
       .catch((err) => setError(err instanceof Error ? err.message : "Search failed"))
       .finally(() => setIsSearching(false));
   };
@@ -108,7 +111,7 @@ export default function CompareScreen({ navigation }: Props) {
       {comparison && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Comparison</Text>
-          {comparison.foods.map((food) => (
+          {comparisonFoods.map((food) => (
             <Pressable
               key={food.id}
               style={styles.compareCard}
@@ -119,7 +122,7 @@ export default function CompareScreen({ navigation }: Props) {
               <Text style={styles.meta}>Molecules: {Object.keys(food.molecules || {}).length}</Text>
             </Pressable>
           ))}
-          <Text style={styles.meta}>Shared molecules: {comparison.shared_molecules.length ? comparison.shared_molecules.join(", ") : "None"}</Text>
+          <Text style={styles.meta}>Shared molecules: {sharedMolecules.length ? sharedMolecules.join(", ") : "None"}</Text>
           <Text style={styles.meta}>Unique molecules: {comparison.total_unique_molecules}</Text>
         </View>
       )}

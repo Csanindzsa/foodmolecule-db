@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Button, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { api, type Study } from "../lib/api";
+import { firstItems } from "../lib/array";
 import { externalHttpUrl } from "../lib/safeUrl";
 
 function impactLabel(value?: number | null): string | null {
@@ -18,7 +19,7 @@ export default function ResearchScreen() {
     setIsLoading(true);
     setError(null);
     api.recentStudies()
-      .then((response) => setStudies(response.results.slice(0, 25)))
+      .then((response) => setStudies(firstItems(response.results, 25)))
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load research"))
       .finally(() => setIsLoading(false));
   }, []);

@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type MoleculeDetail } from "../lib/api";
+import { asArray } from "../lib/array";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MoleculeDetail">;
@@ -64,6 +65,9 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
     );
   }
 
+  const foods = asArray(molecule.foods);
+  const harmMechanisms = asArray(molecule.harm_mechanisms);
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       {molecule.structure_image_url && (
@@ -81,7 +85,7 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
         </View>
         <View style={styles.scoreBox}>
           <Text style={styles.scoreLabel}>Foods</Text>
-          <Text style={styles.scoreValue}>{molecule.linked_food_count ?? molecule.foods.length}</Text>
+          <Text style={styles.scoreValue}>{molecule.linked_food_count ?? foods.length}</Text>
         </View>
       </View>
       {!!molecule.molecular_formula && <Text style={styles.meta}>Formula: {molecule.molecular_formula}</Text>}
@@ -92,14 +96,14 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
       </Text>
 
       <Text style={styles.sectionTitle}>Harm mechanisms</Text>
-      {!!molecule.harm_mechanisms?.length ? molecule.harm_mechanisms.map((mechanism) => (
+      {harmMechanisms.length > 0 ? harmMechanisms.map((mechanism) => (
         <Text key={mechanism} style={styles.bullet}>- {mechanism}</Text>
       )) : (
         <Text style={styles.meta}>No harm mechanisms listed.</Text>
       )}
 
       <Text style={styles.sectionTitle}>Linked foods</Text>
-      {molecule.foods.length > 0 ? molecule.foods.map((food) => (
+      {foods.length > 0 ? foods.map((food) => (
         <Pressable
           key={food.id}
           style={styles.foodItem}

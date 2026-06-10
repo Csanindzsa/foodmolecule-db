@@ -3,6 +3,7 @@ import { ActivityIndicator, Button, Image, Pressable, ScrollView, StyleSheet, Te
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodListItem, type Molecule } from "../lib/api";
+import { asArray } from "../lib/array";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -30,8 +31,8 @@ export default function SearchScreen({ navigation }: Props) {
     setIsLoading(true);
     try {
       const response = await api.search(trimmed);
-      setFoodResults(response.foods);
-      setMoleculeResults(response.molecules);
+      setFoodResults(asArray(response.foods));
+      setMoleculeResults(asArray(response.molecules));
     } catch (err) {
       setFoodResults([]);
       setMoleculeResults([]);

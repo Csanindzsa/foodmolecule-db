@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, T
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodDetail, type FoodGuide, type HealthBreakdown, type Study } from "../lib/api";
+import { asArray, firstItems } from "../lib/array";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
@@ -47,7 +48,7 @@ export default function FoodDetailScreen({ route }: Props) {
 
     api.foodStudies(id)
       .then((response) => {
-        if (isMounted) setStudies(response.results.slice(0, 3));
+        if (isMounted) setStudies(firstItems(response.results, 3));
       })
       .catch((err) => {
         if (isMounted) setStudiesError(err instanceof Error ? err.message : "Failed to load research");
@@ -101,6 +102,9 @@ export default function FoodDetailScreen({ route }: Props) {
     );
   }
 
+  const aliases = asArray(food.aliases);
+  const foodMolecules = asArray(food.molecules);
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       {food.image_url && (
@@ -122,7 +126,7 @@ export default function FoodDetailScreen({ route }: Props) {
         </View>
       </View>
       {!!food.origin && <Text style={styles.meta}>Origin: {food.origin}</Text>}
-      {!!food.aliases?.length && <Text style={styles.meta}>Also known as: {food.aliases.join(", ")}</Text>}
+      {aliases.length > 0 && <Text style={styles.meta}>Also known as: {aliases.join(", ")}</Text>}
       <Text style={styles.sectionTitle}>Health Breakdown</Text>
       {breakdown ? (
         <View style={styles.breakdownGrid}>
@@ -155,7 +159,7 @@ export default function FoodDetailScreen({ route }: Props) {
         </Text>
       )}
       <Text style={styles.sectionTitle}>Molecules</Text>
-      {food.molecules.length > 0 ? food.molecules.map((entry) => (
+      {foodMolecules.length > 0 ? foodMolecules.map((entry) => (
         <View key={entry.molecule.id} style={styles.moleculeItem}>
           <Text style={styles.moleculeName}>{entry.molecule.name}</Text>
           <Text style={styles.meta}>
