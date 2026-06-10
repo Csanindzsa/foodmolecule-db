@@ -45,6 +45,7 @@ describe("Search page", () => {
     const input = document.querySelector('input[type="text"]') as HTMLInputElement;
     expect(input).not.toBeNull();
     expect(input.placeholder).toBe("Search foods, molecules, ingredients...");
+    expect(input.maxLength).toBe(128);
   });
 
   test("reads initial query from URL search params", () => {
@@ -608,13 +609,14 @@ describe("Search page — ADVERSARIAL / ATTACK VECTORS", () => {
 
   // ─── 2. Very long search queries (10K chars) ───
 
-  test("10K character query in URL does not crash", () => {
+  test("10K character query in URL is capped before search", () => {
     const longQuery = "a".repeat(10000);
     renderWithRouter(<Search />, [`/search?q=${encodeURIComponent(longQuery)}`]);
 
     const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-    expect(input.defaultValue).toBe(longQuery);
-    expect(mockUseSearch).toHaveBeenCalledWith(longQuery);
+    expect(input.defaultValue).toBe("a".repeat(128));
+    expect(mockUseSearch).toHaveBeenCalledWith("a".repeat(128));
+    expect(document.body.textContent).toContain("Search queries are limited to 128 characters.");
   });
 
   test("10K character result name renders without crashing", () => {
@@ -916,12 +918,13 @@ describe("Search page — ADVERSARIAL / ATTACK VECTORS", () => {
 
   // ─── Boundary / stress ───
 
-  test("extremely long unicode string in URL does not crash", () => {
+  test("extremely long unicode string in URL is capped", () => {
     const longUnicode = "🎉".repeat(1000);
     renderWithRouter(<Search />, [`/search?q=${encodeURIComponent(longUnicode)}`]);
 
     const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-    expect(input.defaultValue).toBe(longUnicode);
+    expect(input.defaultValue).toBe("🎉".repeat(128));
+    expect(document.body.textContent).toContain("Search queries are limited to 128 characters.");
   });
 
   test("mix of all special characters in single query", () => {

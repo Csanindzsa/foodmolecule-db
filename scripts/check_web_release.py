@@ -84,6 +84,15 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             "web API client must support production VITE_API_URL with same-origin fallback",
         ),
         WebReleaseCheck(
+            "search-query-bound",
+            "MAX_SEARCH_QUERY_CHARS = 128" in search_page
+            and "function limitSearchQuery" in search_page
+            and "Array.from(value).slice(0, MAX_SEARCH_QUERY_CHARS).join(\"\")" in search_page
+            and "maxLength={MAX_SEARCH_QUERY_CHARS}" in search_page
+            and "Search queries are limited to" in search_page,
+            "web search must cap client queries to the backend search limit",
+        ),
+        WebReleaseCheck(
             "seo-head-metadata",
             '<html lang="en">' in index
             and '<meta name="description"' in index

@@ -12,6 +12,12 @@ import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Search">;
 
+const MAX_SEARCH_QUERY_CHARS = 128;
+
+function searchQueryLength(value: string) {
+  return Array.from(value).length;
+}
+
 export default function SearchScreen({ navigation }: Props) {
   const [query, setQuery] = useState("");
   const [foodResults, setFoodResults] = useState<FoodListItem[]>([]);
@@ -28,6 +34,12 @@ export default function SearchScreen({ navigation }: Props) {
     if (!trimmed) {
       setFoodResults([]);
       setMoleculeResults([]);
+      return;
+    }
+    if (searchQueryLength(trimmed) > MAX_SEARCH_QUERY_CHARS) {
+      setFoodResults([]);
+      setMoleculeResults([]);
+      setError(`Search queries are limited to ${MAX_SEARCH_QUERY_CHARS} characters.`);
       return;
     }
 
@@ -54,6 +66,7 @@ export default function SearchScreen({ navigation }: Props) {
         onChangeText={setQuery}
         autoCapitalize="none"
         autoCorrect={false}
+        maxLength={MAX_SEARCH_QUERY_CHARS}
         returnKeyType="search"
         onSubmitEditing={handleSearch}
       />

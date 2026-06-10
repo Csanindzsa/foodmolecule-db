@@ -11,6 +11,12 @@ import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Compare">;
 
+const MAX_SEARCH_QUERY_CHARS = 128;
+
+function searchQueryLength(value: string) {
+  return Array.from(value).length;
+}
+
 function displayCategory(food: FoodListItem): string | null {
   return formatOptionalText(food.category_name) ?? formatOptionalText(food.category);
 }
@@ -29,6 +35,11 @@ export default function CompareScreen({ navigation }: Props) {
   const runSearch = () => {
     const trimmed = query.trim();
     if (!trimmed) return;
+    if (searchQueryLength(trimmed) > MAX_SEARCH_QUERY_CHARS) {
+      setResults([]);
+      setError(`Search queries are limited to ${MAX_SEARCH_QUERY_CHARS} characters.`);
+      return;
+    }
     setIsSearching(true);
     setError(null);
     api.search(trimmed)
@@ -70,6 +81,7 @@ export default function CompareScreen({ navigation }: Props) {
           onChangeText={setQuery}
           placeholder="Search foods to compare"
           autoCapitalize="none"
+          maxLength={MAX_SEARCH_QUERY_CHARS}
           returnKeyType="search"
           onSubmitEditing={runSearch}
           style={styles.input}

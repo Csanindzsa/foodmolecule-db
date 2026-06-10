@@ -5,9 +5,17 @@ import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import { formatOptionalText } from "../lib/textDisplay";
 
+const MAX_SEARCH_QUERY_CHARS = 128;
+
+function limitSearchQuery(value: string) {
+  return Array.from(value).slice(0, MAX_SEARCH_QUERY_CHARS).join("");
+}
+
 export default function Search() {
   const [params, setParams] = useSearchParams();
-  const q = params.get("q") || "";
+  const rawQ = params.get("q") || "";
+  const q = limitSearchQuery(rawQ);
+  const queryWasTruncated = Array.from(rawQ).length > MAX_SEARCH_QUERY_CHARS;
   const [debouncedQ, setDebouncedQ] = useState(q);
 
   useEffect(() => {
@@ -23,14 +31,21 @@ export default function Search() {
       <input
         type="text"
         defaultValue={q}
+        maxLength={MAX_SEARCH_QUERY_CHARS}
         placeholder="Search foods, molecules, ingredients..."
         className="w-full px-4 py-3 rounded-lg border dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-nutrii-green"
         onChange={(e) => {
-          const value = e.target.value;
+          const value = limitSearchQuery(e.target.value);
           if (value) setParams({ q: value });
           else setParams({});
         }}
       />
+
+      {queryWasTruncated && (
+        <p className="text-sm text-amber-700 dark:text-amber-300">
+          Search queries are limited to {MAX_SEARCH_QUERY_CHARS} characters.
+        </p>
+      )}
 
       {isLoading && debouncedQ.length > 0 && (
         <p className="text-gray-500 dark:text-gray-400">Searching...</p>

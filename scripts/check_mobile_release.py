@@ -158,6 +158,22 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "ScanScreen must show confidence, sanitized raw OCR/hazard/ingredients, empty states, and matches",
         ),
         MobileCheck(
+            "mobile-search-query-bound",
+            "MAX_SEARCH_QUERY_CHARS = 128" in search_screen
+            and "MAX_SEARCH_QUERY_CHARS = 128" in compare_screen
+            and "function searchQueryLength" in search_screen
+            and "function searchQueryLength" in compare_screen
+            and "Array.from(value).length" in search_screen
+            and "Array.from(value).length" in compare_screen
+            and "searchQueryLength(trimmed) > MAX_SEARCH_QUERY_CHARS" in search_screen
+            and "searchQueryLength(trimmed) > MAX_SEARCH_QUERY_CHARS" in compare_screen
+            and "maxLength={MAX_SEARCH_QUERY_CHARS}" in search_screen
+            and "maxLength={MAX_SEARCH_QUERY_CHARS}" in compare_screen
+            and "Search queries are limited to" in search_screen
+            and "Search queries are limited to" in compare_screen,
+            "mobile search and compare must cap client queries to the backend search limit",
+        ),
+        MobileCheck(
             "scan-history-contract",
             "useHistoryStore" in scan_screen
             and "addHistory" in scan_screen
