@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, T
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodDetail, type FoodGuide, type HealthBreakdown, type Study } from "../lib/api";
+import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -169,26 +170,30 @@ export default function FoodDetailScreen({ route }: Props) {
         <Text style={styles.meta}>Loading research...</Text>
       ) : studiesError ? (
         <Text style={styles.meta}>Research is unavailable right now.</Text>
-      ) : studies.length > 0 ? studies.map((study) => (
-        <View key={study.id} style={styles.researchItem}>
-          <Text style={styles.researchTitle}>{study.title}</Text>
-          {!!study.ai_summary && <Text style={styles.researchSummary}>{study.ai_summary}</Text>}
-          <Text style={styles.meta}>
-            PMID {study.pmid}
-            {study.publication_year ? ` · ${study.publication_year}` : ""}
-            {study.ai_confidence ? ` · AI confidence: ${study.ai_confidence}` : ""}
-          </Text>
-          {!!study.url && (
-            <Pressable
-              accessibilityRole="link"
-              onPress={() => Linking.openURL(study.url as string)}
-              style={styles.pubmedLink}
-            >
-              <Text style={styles.pubmedLinkText}>Open PubMed</Text>
-            </Pressable>
-          )}
-        </View>
-      )) : (
+      ) : studies.length > 0 ? studies.map((study) => {
+        const pubmedUrl = externalHttpUrl(study.url);
+
+        return (
+          <View key={study.id} style={styles.researchItem}>
+            <Text style={styles.researchTitle}>{study.title}</Text>
+            {!!study.ai_summary && <Text style={styles.researchSummary}>{study.ai_summary}</Text>}
+            <Text style={styles.meta}>
+              PMID {study.pmid}
+              {study.publication_year ? ` · ${study.publication_year}` : ""}
+              {study.ai_confidence ? ` · AI confidence: ${study.ai_confidence}` : ""}
+            </Text>
+            {pubmedUrl && (
+              <Pressable
+                accessibilityRole="link"
+                onPress={() => Linking.openURL(pubmedUrl)}
+                style={styles.pubmedLink}
+              >
+                <Text style={styles.pubmedLinkText}>Open PubMed</Text>
+              </Pressable>
+            )}
+          </View>
+        );
+      }) : (
         <Text style={styles.meta}>No linked research available.</Text>
       )}
     </ScrollView>

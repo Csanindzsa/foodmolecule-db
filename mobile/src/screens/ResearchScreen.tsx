@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Button, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { api, type Study } from "../lib/api";
+import { externalHttpUrl } from "../lib/safeUrl";
 
 function impactLabel(value?: number | null): string | null {
   if (value == null) return null;
@@ -52,34 +53,38 @@ export default function ResearchScreen() {
 
       {studies.length === 0 ? (
         <Text style={styles.meta}>No analyzed research studies found.</Text>
-      ) : studies.map((study) => (
-        <View key={study.id} style={styles.studyCard}>
-          <Text style={styles.studyTitle}>{study.title}</Text>
-          {!!study.ai_summary && <Text style={styles.summary}>{study.ai_summary}</Text>}
-          <View style={styles.metaBlock}>
-            <Text style={styles.meta}>
-              PMID {study.pmid}
-              {study.publication_year ? ` · ${study.publication_year}` : ""}
-              {study.journal ? ` · ${study.journal}` : ""}
-            </Text>
-            {!!study.ai_confidence && <Text style={styles.meta}>AI confidence: {study.ai_confidence}</Text>}
-            <Text style={styles.meta}>
-              {impactLabel(study.ai_safety_impact) ? `Safety impact: ${impactLabel(study.ai_safety_impact)}` : "Safety impact: not scored"}
-              {" · "}
-              {impactLabel(study.ai_health_impact) ? `Health impact: ${impactLabel(study.ai_health_impact)}` : "Health impact: not scored"}
-            </Text>
+      ) : studies.map((study) => {
+        const pubmedUrl = externalHttpUrl(study.url);
+
+        return (
+          <View key={study.id} style={styles.studyCard}>
+            <Text style={styles.studyTitle}>{study.title}</Text>
+            {!!study.ai_summary && <Text style={styles.summary}>{study.ai_summary}</Text>}
+            <View style={styles.metaBlock}>
+              <Text style={styles.meta}>
+                PMID {study.pmid}
+                {study.publication_year ? ` · ${study.publication_year}` : ""}
+                {study.journal ? ` · ${study.journal}` : ""}
+              </Text>
+              {!!study.ai_confidence && <Text style={styles.meta}>AI confidence: {study.ai_confidence}</Text>}
+              <Text style={styles.meta}>
+                {impactLabel(study.ai_safety_impact) ? `Safety impact: ${impactLabel(study.ai_safety_impact)}` : "Safety impact: not scored"}
+                {" · "}
+                {impactLabel(study.ai_health_impact) ? `Health impact: ${impactLabel(study.ai_health_impact)}` : "Health impact: not scored"}
+              </Text>
+            </View>
+            {pubmedUrl && (
+              <Pressable
+                accessibilityRole="link"
+                onPress={() => Linking.openURL(pubmedUrl)}
+                style={styles.pubmedLink}
+              >
+                <Text style={styles.pubmedLinkText}>Open PubMed</Text>
+              </Pressable>
+            )}
           </View>
-          {!!study.url && (
-            <Pressable
-              accessibilityRole="link"
-              onPress={() => Linking.openURL(study.url as string)}
-              style={styles.pubmedLink}
-            >
-              <Text style={styles.pubmedLinkText}>Open PubMed</Text>
-            </Pressable>
-          )}
-        </View>
-      ))}
+        );
+      })}
     </ScrollView>
   );
 }
