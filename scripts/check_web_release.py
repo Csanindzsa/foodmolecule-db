@@ -36,6 +36,9 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
     api_client = _read(web_root / "src" / "lib" / "api.ts")
     compare_page = _read(web_root / "src" / "pages" / "Compare.tsx")
     compare_display = _read(web_root / "src" / "lib" / "compareDisplay.ts")
+    food_detail = _read(web_root / "src" / "pages" / "FoodDetail.tsx")
+    molecule_detail = _read(web_root / "src" / "pages" / "MoleculeDetail.tsx")
+    molecule_display = _read(web_root / "src" / "lib" / "moleculeDisplay.ts")
     index = _read(web_root / "index.html")
     robots = _read(web_root / "public" / "robots.txt")
     sitemap = _read(web_root / "public" / "sitemap.xml")
@@ -98,6 +101,17 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "formatCount" in compare_display
             and "Number.isFinite(value)" in compare_display,
             "web compare page must sanitize molecule amounts and count displays",
+        ),
+        WebReleaseCheck(
+            "molecule-display-sanitizers",
+            "formatHarmLevel(molecule.harm_level" in molecule_detail
+            and "harmLevelLabel(molecule.harm_level)" in molecule_detail
+            and "harmLevelBadgeClass(molecule.harm_level)" in molecule_detail
+            and "foodMoleculeBadgeClass(fm.molecule.harm_level" in food_detail
+            and "foodMoleculeBadgeLabel(fm.molecule.harm_level" in food_detail
+            and "normalizeHarmLevel" in molecule_display
+            and "Number.isFinite(value)" in molecule_display,
+            "web molecule surfaces must sanitize harm levels before rendering text or badge classes",
         ),
         WebReleaseCheck(
             "ci-web-build",

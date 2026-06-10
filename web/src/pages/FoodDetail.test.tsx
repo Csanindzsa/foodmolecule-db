@@ -278,6 +278,26 @@ describe("FoodDetail page", () => {
     expect(document.body.textContent).toContain("Beneficial");
   });
 
+  test("molecule harm badges hide malformed harm values", () => {
+    mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });
+    mockUseFoodMolecules.mockReturnValue({
+      data: [{
+        ...mockMolecules[0],
+        is_beneficial: false,
+        molecule: { ...mockMolecules[0].molecule, harm_level: Number.NaN },
+      }],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetchMolecules,
+    });
+
+    renderWithRouter(<FoodDetail />);
+
+    expect(document.body.textContent).toContain("Vitamin C");
+    expect(document.body.textContent).toContain("Neutral");
+    expect(document.body.textContent).not.toContain("NaN");
+  });
+
   // ─── H) Molecules loading ───
   test("molecules loading shows 3 skeleton items", () => {
     mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });

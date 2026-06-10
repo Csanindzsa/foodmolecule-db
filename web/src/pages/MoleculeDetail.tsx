@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useMoleculeDetail, useMoleculeFoods, useMoleculeNeutralizations } from "../hooks/useApi";
+import { formatHarmLevel, harmLevelBadgeClass, harmLevelLabel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import type { MoleculeNeutralization } from "../types";
@@ -97,11 +98,9 @@ export default function MoleculeDetail() {
 
   if (!molecule) return null;
 
-  // Harm level helpers
-  const harmLabel = molecule.harm_level >= 4 ? "High" : molecule.harm_level >= 2 ? "Moderate" : "Low";
-  const harmColor = molecule.harm_level >= 4 ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400" :
-    molecule.harm_level >= 2 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400" :
-    "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400";
+  const harmLevel = formatHarmLevel(molecule.harm_level, "?");
+  const harmLabel = harmLevelLabel(molecule.harm_level);
+  const harmColor = harmLevelBadgeClass(molecule.harm_level);
   const molecularWeight = formatMolecularWeight(molecule.molecular_weight);
   const structureImageUrl = externalHttpUrl(molecule.structure_image_url);
 
@@ -128,7 +127,7 @@ export default function MoleculeDetail() {
       {/* Harm level badge */}
       <div className="flex items-center gap-3">
         <span className={`text-sm font-bold px-3 py-1 rounded-full ${harmColor}`}>
-          Harm Level: {molecule.harm_level} — {harmLabel}
+          Harm Level: {harmLevel} — {harmLabel}
         </span>
         {molecule.is_heat_stable && (
           <span className="text-xs bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 px-2 py-1 rounded-full">

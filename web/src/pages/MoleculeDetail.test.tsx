@@ -241,6 +241,20 @@ describe("MoleculeDetail page", () => {
     expect(container.querySelector(".bg-green-100")).not.toBeNull();
   });
 
+  test("hides malformed harm levels without rendering NaN", () => {
+    mockUseMoleculeDetail.mockReturnValue({
+      data: { ...mockMolecule, harm_level: Number.NaN },
+      isLoading: false,
+      error: null,
+    });
+
+    const { container } = renderWithRouter(<MoleculeDetail />);
+
+    expect(document.body.textContent).toContain("Harm Level: ? — Unknown");
+    expect(document.body.textContent).not.toContain("NaN");
+    expect(container.querySelector(".bg-gray-100")).not.toBeNull();
+  });
+
   test("shows 'Heat Stable' badge when is_heat_stable is true", () => {
     mockUseMoleculeDetail.mockReturnValue({ data: mockMolecule, isLoading: false, error: null });
 
