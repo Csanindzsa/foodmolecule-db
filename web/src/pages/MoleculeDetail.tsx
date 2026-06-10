@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useMoleculeDetail, useMoleculeFoods, useMoleculeNeutralizations } from "../hooks/useApi";
+import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import type { MoleculeNeutralization } from "../types";
 
 type NeutralizationDisplay = MoleculeNeutralization | string | null;
@@ -225,27 +226,27 @@ export default function MoleculeDetail() {
           </div>
         ) : foods && foods.length > 0 ? (
           <div className="space-y-2">
-            {foods.map((food) => (
-              <Link
-                key={food.id}
-                to={`/foods/${food.id}`}
-                className="flex items-center justify-between p-3 rounded-lg border bg-white dark:border-gray-700 dark:bg-gray-800 hover:shadow dark:hover:border-gray-600 transition"
-              >
-                <div>
-                  <span className="font-medium capitalize">{food.name}</span>
-                  {food.category && <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">{food.category}</span>}
-                </div>
-                {food.health_index != null && (
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                    food.health_index >= 75 ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" :
-                    food.health_index >= 50 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400" :
-                    "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"
-                  }`}>
-                    {food.health_index}
-                  </span>
-                )}
-              </Link>
-            ))}
+            {foods.map((food) => {
+              const healthIndex = normalizeScore(food.health_index);
+
+              return (
+                <Link
+                  key={food.id}
+                  to={`/foods/${food.id}`}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-white dark:border-gray-700 dark:bg-gray-800 hover:shadow dark:hover:border-gray-600 transition"
+                >
+                  <div>
+                    <span className="font-medium capitalize">{food.name}</span>
+                    {food.category && <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">{food.category}</span>}
+                  </div>
+                  {healthIndex !== null && (
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${scoreBadgeClass(healthIndex)}`}>
+                      {healthIndex}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <p className="text-gray-400 dark:text-gray-500 text-sm">No food data available.</p>

@@ -229,6 +229,29 @@ describe("FoodDetail page", () => {
     expect(document.body.textContent).not.toContain("Good");
   });
 
+  test("health scores never render non-finite or out-of-range display values", () => {
+    mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });
+    mockUseFoodHealthIndex.mockReturnValue({
+      data: {
+        ...mockHealth,
+        health_index: NaN,
+        benefit_score: NaN,
+        safety_score: 150,
+        bioavailability_score: -10,
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithRouter(<FoodDetail />);
+
+    expect(document.body.textContent).not.toContain("NaN");
+    expect(document.body.textContent).not.toContain("Good");
+    expect(document.body.textContent).toContain("—");
+    expect(document.body.textContent).toContain("100");
+    expect(document.body.textContent).toContain("0");
+  });
+
   // ─── G) Molecules list ───
   test("molecules list renders molecule items with name, amount, and harm level badge", () => {
     mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });

@@ -383,6 +383,26 @@ describe("MoleculeDetail page", () => {
     expect(document.body.textContent).toContain("80");
   });
 
+  test("food health badges clamp out-of-range scores and hide non-finite scores", () => {
+    mockUseMoleculeDetail.mockReturnValue({ data: mockMolecule, isLoading: false, error: null });
+    mockUseMoleculeFoods.mockReturnValue({
+      data: [
+        { ...mockFoods[0], id: "high-score", name: "high score", health_index: 150 },
+        { ...mockFoods[1], id: "invalid-score", name: "invalid score", health_index: NaN },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetchFoods,
+    });
+
+    renderWithRouter(<MoleculeDetail />);
+
+    expect(document.body.textContent).toContain("high score");
+    expect(document.body.textContent).toContain("100");
+    expect(document.body.textContent).toContain("invalid score");
+    expect(document.body.textContent).not.toContain("NaN");
+  });
+
   test("shows 'No food data available.' when foods array is empty", () => {
     mockUseMoleculeDetail.mockReturnValue({ data: mockMolecule, isLoading: false, error: null });
     mockUseMoleculeFoods.mockReturnValue({ data: [], isLoading: false, error: null, refetch: mockRefetchFoods });

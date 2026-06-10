@@ -374,6 +374,58 @@ describe("BanList page", () => {
     expect(healthCell!.textContent).toContain("—");
   });
 
+  test("does not render non-finite health index values", () => {
+    mockUseBanList.mockReturnValue({
+      data: [
+        {
+          id: "5",
+          food: { id: "f5", name: "invalid health food", category: "Test", health_index: NaN },
+          reason: "Test reason",
+          lethal_dose_mg: null,
+          is_conditionally_safe: false,
+          safe_condition: "",
+          regulatory_status: {},
+        },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<BanList />);
+
+    const healthCell = container.querySelector("tbody tr td:nth-child(3)");
+    expect(healthCell).not.toBeNull();
+    expect(healthCell!.textContent).toContain("—");
+    expect(document.body.textContent).not.toContain("NaN");
+  });
+
+  test("clamps out-of-range health index values for display", () => {
+    mockUseBanList.mockReturnValue({
+      data: [
+        {
+          id: "6",
+          food: { id: "f6", name: "high health food", category: "Test", health_index: 150 },
+          reason: "Test reason",
+          lethal_dose_mg: null,
+          is_conditionally_safe: false,
+          safe_condition: "",
+          regulatory_status: {},
+        },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<BanList />);
+
+    const healthBadge = container.querySelector("tbody tr td:nth-child(3) span");
+    expect(healthBadge).not.toBeNull();
+    expect(healthBadge!.textContent).toContain("100");
+    expect(healthBadge!.classList.contains("bg-green-100")).toBe(true);
+  });
+
   // ─── E) Sorting ───
   test("clicking Food header toggles sort to descending", () => {
     mockUseBanList.mockReturnValue({

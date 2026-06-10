@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useFoodDetail, useFoodMolecules, useFoodStudies, useFoodGuide, useFoodHealthIndex } from "../hooks/useApi";
+import { formatScore, normalizeScore } from "../lib/scoreDisplay";
 
 export default function FoodDetail() {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +12,7 @@ export default function FoodDetail() {
   const { data: guide, isLoading: guideLoading, error: guideError, refetch: refetchGuide } = useFoodGuide(idStr);
   const { data: health, isLoading: healthLoading, error: healthError } = useFoodHealthIndex(idStr);
   const visibleStudies = studies?.slice(0, 5) ?? [];
+  const healthIndex = health ? normalizeScore(health.health_index) : null;
 
   if (foodLoading) {
     return (
@@ -62,14 +64,14 @@ export default function FoodDetail() {
         </div>
         {healthLoading && !foodLoading ? (
           <div className="h-16 w-16 bg-gray-200 dark:bg-gray-600 rounded-full animate-pulse" />
-        ) : health && !healthError ? (
+        ) : health && !healthError && healthIndex !== null ? (
           <div className="text-center">
             <div className={`text-4xl font-bold ${
-              health.health_index >= 75 ? "text-safety-excellent" :
-              health.health_index >= 50 ? "text-safety-caution" :
+              healthIndex >= 75 ? "text-safety-excellent" :
+              healthIndex >= 50 ? "text-safety-caution" :
               "text-safety-avoid"
             }`}>
-              {health.health_index}
+              {healthIndex}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">{health.label}</div>
           </div>
@@ -88,15 +90,15 @@ export default function FoodDetail() {
       ) : health && !healthError ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
           <div className="p-4 rounded-xl border bg-white dark:border-gray-700 dark:bg-gray-800">
-            <div className="text-2xl font-bold">{health.benefit_score}</div>
+            <div className="text-2xl font-bold">{formatScore(health.benefit_score, "—")}</div>
             <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Benefit</div>
           </div>
           <div className="p-4 rounded-xl border bg-white dark:border-gray-700 dark:bg-gray-800">
-            <div className="text-2xl font-bold">{health.safety_score}</div>
+            <div className="text-2xl font-bold">{formatScore(health.safety_score, "—")}</div>
             <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Safety</div>
           </div>
           <div className="p-4 rounded-xl border bg-white dark:border-gray-700 dark:bg-gray-800">
-            <div className="text-2xl font-bold">{health.bioavailability_score}</div>
+            <div className="text-2xl font-bold">{formatScore(health.bioavailability_score, "—")}</div>
             <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Bioavailability</div>
           </div>
         </div>
