@@ -24,7 +24,7 @@
 - [ ] Point `nutrii.fit` DNS to the production frontend host
 - [ ] Verify static web release contract with `python scripts/check_web_release.py` (`docs/web_release_checks.md`), then deploy to Vercel/Netlify with `VITE_API_URL=https://api.nutrii.fit/api/v1`
 - [ ] Run Lighthouse audit: target >90 on Performance, Accessibility, SEO
-- [ ] Verify static route contract with `python scripts/check_web_routes.py` (`docs/web_route_checks.md`), then test deployed routes: `/`, `/search`, `/foods/:id`, `/molecules/:id`, `/compare`, `/ban-list`
+- [ ] Verify static route contract with `python scripts/check_web_routes.py` (`docs/web_route_checks.md`), then test deployed routes: `/`, `/search`, `/foods/:id`, `/molecules/:id`, `/compare`, `/research`, `/ban-list`
 
 ### Mobile
 - [ ] Verify static Expo release contract with `python scripts/check_mobile_release.py` (`docs/mobile_release_checks.md`); rerun with `--require-store-ids` after bundle/package IDs are chosen

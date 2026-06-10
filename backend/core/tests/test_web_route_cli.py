@@ -50,3 +50,4 @@ def test_web_route_runbook_is_linked_from_launch_checklist():
 
     assert "python scripts/check_web_routes.py" in runbook
     assert "docs/web_route_checks.md" in checklist
+    assert "`/compare`, `/research`, `/ban-list`" in checklist
