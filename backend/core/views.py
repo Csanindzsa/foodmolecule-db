@@ -86,14 +86,19 @@ def _molecule_query(ingredients: list[str]) -> Q:
     return query
 
 
-def _parse_int_query_param(request, name: str):
+def _parse_int_query_param(request, name: str, *, minimum: int | None = None, maximum: int | None = None):
     raw_value = request.query_params.get(name)
     if raw_value in (None, ""):
         return None
     try:
-        return int(raw_value)
+        value = int(raw_value)
     except ValueError:
         raise ValueError(f"Query parameter '{name}' must be an integer.")
+    if minimum is not None and value < minimum:
+        raise ValueError(f"Query parameter '{name}' must be at least {minimum}.")
+    if maximum is not None and value > maximum:
+        raise ValueError(f"Query parameter '{name}' must be at most {maximum}.")
+    return value
 
 
 def _parse_choice_query_param(request, name: str, choices, default=None):
@@ -220,9 +225,9 @@ class FoodListView(generics.ListAPIView):
             )
         if category:
             qs = qs.filter(category__name__iexact=category)
-        min_score_value = _parse_int_query_param(self.request, "min_health_index")
-        max_score_value = _parse_int_query_param(self.request, "max_health_index")
-        max_hazard_value = _parse_int_query_param(self.request, "max_hazard_level")
+        min_score_value = _parse_int_query_param(self.request, "min_health_index", minimum=0, maximum=100)
+        max_score_value = _parse_int_query_param(self.request, "max_health_index", minimum=0, maximum=100)
+        max_hazard_value = _parse_int_query_param(self.request, "max_hazard_level", minimum=0, maximum=5)
         if min_score_value is not None:
             qs = qs.filter(health_index__gte=min_score_value)
         if max_score_value is not None:
@@ -446,8 +451,8 @@ class MoleculeListView(generics.ListAPIView):
             if q.isdigit():
                 search_filter |= Q(pubchem_cid=q)
             qs = qs.filter(search_filter)
-        harm_value = _parse_int_query_param(self.request, "harm_level")
-        max_harm_value = _parse_int_query_param(self.request, "max_harm_level")
+        harm_value = _parse_int_query_param(self.request, "harm_level", minimum=0, maximum=5)
+        max_harm_value = _parse_int_query_param(self.request, "max_harm_level", minimum=0, maximum=5)
         if harm_value is not None:
             qs = qs.filter(harm_level=harm_value)
         if max_harm_value is not None:

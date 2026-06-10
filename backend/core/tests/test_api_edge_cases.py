@@ -56,12 +56,45 @@ def test_food_list_rejects_invalid_integer_filters(param):
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("param", "value", "detail"),
+    [
+        ("min_health_index", "-1", "Query parameter 'min_health_index' must be at least 0."),
+        ("max_health_index", "101", "Query parameter 'max_health_index' must be at most 100."),
+        ("max_hazard_level", "6", "Query parameter 'max_hazard_level' must be at most 5."),
+    ],
+)
+def test_food_list_rejects_out_of_range_numeric_filters(param, value, detail):
+    response = _get(FoodListView, f"/api/v1/foods/?{param}={value}")
+
+    assert response.status_code == 400
+    assert response.data["detail"] == detail
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize("param", ["harm_level", "max_harm_level"])
 def test_molecule_list_rejects_invalid_integer_filters(param):
     response = _get(MoleculeListView, f"/api/v1/molecules/?{param}=bad")
 
     assert response.status_code == 400
     assert response.data["detail"] == f"Query parameter '{param}' must be an integer."
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("param", "value", "detail"),
+    [
+        ("harm_level", "-1", "Query parameter 'harm_level' must be at least 0."),
+        ("harm_level", "6", "Query parameter 'harm_level' must be at most 5."),
+        ("max_harm_level", "-1", "Query parameter 'max_harm_level' must be at least 0."),
+        ("max_harm_level", "6", "Query parameter 'max_harm_level' must be at most 5."),
+    ],
+)
+def test_molecule_list_rejects_out_of_range_harm_filters(param, value, detail):
+    response = _get(MoleculeListView, f"/api/v1/molecules/?{param}={value}")
+
+    assert response.status_code == 400
+    assert response.data["detail"] == detail
 
 
 @pytest.mark.django_db
