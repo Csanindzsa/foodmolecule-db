@@ -27,6 +27,7 @@ CI runs the no-secret version.
 - Static web route contract.
 - Static Expo mobile release contract.
 - PubMed/AI research operations contract.
+- AI prompt/parser/model-routing contract.
 - Image enrichment operations contract.
 - Ban-list surface citation-gate contract.
 - Production logging and privacy-preserving analytics contract.

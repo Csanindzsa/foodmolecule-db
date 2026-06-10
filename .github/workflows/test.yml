@@ -46,6 +46,8 @@ jobs:
         run: python ../scripts/check_mobile_release.py
       - name: Check research operations contract
         run: python ../scripts/check_research_ops.py
+      - name: Check AI prompt/parser contract
+        run: python ../scripts/check_ai_contract.py
       - name: Check image operations contract
         run: python ../scripts/check_image_ops.py
       - name: Check ban-list surface citation gate
