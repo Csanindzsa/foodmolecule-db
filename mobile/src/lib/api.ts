@@ -11,10 +11,17 @@ const localApiUrl = Platform.OS === "android"
 
 const API_BASE = (configuredApiUrl || localApiUrl).replace(/\/$/, "");
 const MAX_SEARCH_QUERY_CHARS = 128;
+const MAX_PATH_ID_CHARS = 128;
 const MIN_COMPARE_IDS = 2;
 const MAX_COMPARE_IDS = 3;
 
 function pathId(id: string): string {
+  if (id.trim().length === 0) {
+    throw new Error("API IDs must be non-empty.");
+  }
+  if (Array.from(id).length > MAX_PATH_ID_CHARS) {
+    throw new Error(`API IDs are limited to ${MAX_PATH_ID_CHARS} characters.`);
+  }
   return encodeURIComponent(id);
 }
 

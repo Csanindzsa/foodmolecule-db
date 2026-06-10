@@ -384,24 +384,26 @@ describe("api", () => {
       expect(url).toBe("/api/v1/foods/..%2F..%2Fapi%2Fv1%2Fban-list%2F/studies/");
     });
 
-    test("food handles empty string ID", async () => {
-      await api.food("");
-      const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/foods//");
+    test("food rejects empty string ID before fetch", async () => {
+      expect(() => api.food("")).toThrow("API IDs must be non-empty.");
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
-    test("molecule handles empty string ID", async () => {
-      await api.molecule("");
-      const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/molecules//");
+    test("molecule rejects empty string ID before fetch", async () => {
+      expect(() => api.molecule("")).toThrow("API IDs must be non-empty.");
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
-    test("food handles very long ID", async () => {
+    test("food rejects very long ID before fetch", async () => {
       const longId = "x".repeat(5000);
-      await api.food(longId);
-      const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe(`/api/v1/foods/${longId}/`);
-      expect(url.length).toBeGreaterThan(5000);
+      expect(() => api.food(longId)).toThrow("API IDs are limited to 128 characters.");
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    test("molecule rejects very long unicode ID before fetch", async () => {
+      const longId = "🎉".repeat(129);
+      expect(() => api.molecule(longId)).toThrow("API IDs are limited to 128 characters.");
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     test("compare rejects too many IDs before fetch", async () => {

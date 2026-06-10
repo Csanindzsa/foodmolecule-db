@@ -1,5 +1,6 @@
 const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
 const MAX_SEARCH_QUERY_CHARS = 128;
+const MAX_PATH_ID_CHARS = 128;
 const MIN_COMPARE_IDS = 2;
 const MAX_COMPARE_IDS = 3;
 
@@ -19,6 +20,12 @@ async function fetcher<T>(path: string): Promise<T> {
 }
 
 function pathId(id: string): string {
+  if (id.trim().length === 0) {
+    throw new Error("API IDs must be non-empty.");
+  }
+  if (Array.from(id).length > MAX_PATH_ID_CHARS) {
+    throw new Error(`API IDs are limited to ${MAX_PATH_ID_CHARS} characters.`);
+  }
   return encodeURIComponent(id);
 }
 

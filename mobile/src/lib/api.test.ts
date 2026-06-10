@@ -87,6 +87,16 @@ describe("mobile API client", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  test("detail endpoints reject empty and oversized IDs before fetch", () => {
+    const fetchMock = mock(async () => jsonResponse({ id: "unused" }));
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    expect(() => api.food("")).toThrow("API IDs must be non-empty.");
+    expect(() => api.molecule("🎉".repeat(129))).toThrow("API IDs are limited to 128 characters.");
+    expect(() => api.foodStudies(" ".repeat(4))).toThrow("API IDs must be non-empty.");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   test("throws server detail text for non-ok JSON responses", async () => {
     globalThis.fetch = mock(async () => jsonResponse({ detail: "Research temporarily unavailable" }, 503)) as unknown as typeof fetch;
 

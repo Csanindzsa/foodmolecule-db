@@ -84,6 +84,15 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             "web API client must support production VITE_API_URL with same-origin fallback",
         ),
         WebReleaseCheck(
+            "api-id-bound",
+            "MAX_PATH_ID_CHARS = 128" in api_client
+            and "function pathId" in api_client
+            and "API IDs must be non-empty." in api_client
+            and "API IDs are limited to" in api_client
+            and "Array.from(id).length > MAX_PATH_ID_CHARS" in api_client,
+            "web API client must reject empty and oversized path IDs before fetch",
+        ),
+        WebReleaseCheck(
             "search-query-bound",
             "MAX_SEARCH_QUERY_CHARS = 128" in search_page
             and "MAX_SEARCH_QUERY_CHARS = 128" in api_client
