@@ -7,6 +7,10 @@ import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Compare">;
 
+function displayCategory(food: FoodListItem): string | null | undefined {
+  return food.category_name ?? food.category;
+}
+
 export default function CompareScreen({ navigation }: Props) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<FoodListItem[]>([]);
@@ -91,7 +95,7 @@ export default function CompareScreen({ navigation }: Props) {
                 <Text style={styles.foodName}>{food.name}</Text>
                 <Text style={styles.meta}>
                   Health {food.health_index ?? "?"}
-                  {food.category ? ` · ${food.category}` : ""}
+                  {displayCategory(food) ? ` · ${displayCategory(food)}` : ""}
                 </Text>
               </View>
               <Text style={styles.addText}>{selected.some((item) => item.id === food.id) ? "Added" : "Add"}</Text>

@@ -218,6 +218,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "api.compare(selected.map" in compare_screen
             and "Compare requires 2-3 foods." in compare_screen
             and "Compare selected" in compare_screen
+            and "food.category_name" in compare_screen
             and "comparison.shared_molecules" in compare_screen
             and "comparison.total_unique_molecules" in compare_screen
             and 'navigation.navigate("FoodDetail"' in compare_screen,
