@@ -32,8 +32,8 @@ python scripts/check_mobile_release.py --require-store-ids
 - Successful scans persist up to five matched foods to local history for offline revisit.
 - Recent scan history preserves food image and health context when available.
 - Search, food detail, and scan result screens surface enriched food images when `image_url` is present.
-- Search preserves and displays molecule matches returned by the API, including harm and formula context.
-- Molecule detail is reachable from search and surfaces structure image, harm context, and linked foods.
+- Search preserves and displays molecule matches returned by the API, including sanitized harm and formula context.
+- Molecule detail is reachable from search and surfaces structure image, sanitized harm/count context, and linked foods.
 - Food detail surfaces linked research summaries and PubMed citation links when study data is present.
 - Recent Research is reachable from Home and surfaces recent AI-analyzed PubMed studies with impact context.
 - Food detail and Recent Research render AI confidence labels through the high/medium/low display allowlist.

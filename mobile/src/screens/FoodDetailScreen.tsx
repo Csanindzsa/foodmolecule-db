@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { api, type FoodDetail, type FoodGuide, type HealthBreakdown, type Study } from "../lib/api";
 import { asArray, firstItems } from "../lib/array";
 import { formatConfidence } from "../lib/confidenceDisplay";
+import { formatHarmLevel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
@@ -165,7 +166,7 @@ export default function FoodDetailScreen({ route }: Props) {
         <View key={entry.molecule.id} style={styles.moleculeItem}>
           <Text style={styles.moleculeName}>{entry.molecule.name}</Text>
           <Text style={styles.meta}>
-            Harm {entry.molecule.harm_level ?? "unknown"} · {entry.amount_per_100g ?? "unknown"} {entry.unit || ""}
+            Harm {formatHarmLevel(entry.molecule.harm_level)} · {entry.amount_per_100g ?? "unknown"} {entry.unit || ""}
           </Text>
         </View>
       )) : (

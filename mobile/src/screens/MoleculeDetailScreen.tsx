@@ -4,6 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type MoleculeDetail } from "../lib/api";
 import { asArray } from "../lib/array";
+import { formatHarmLevel, formatLinkedFoodCount } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -83,11 +84,11 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
       <View style={styles.scoreRow}>
         <View style={styles.scoreBox}>
           <Text style={styles.scoreLabel}>Harm</Text>
-          <Text style={styles.scoreValue}>{molecule.harm_level ?? "?"}</Text>
+          <Text style={styles.scoreValue}>{formatHarmLevel(molecule.harm_level, "?")}</Text>
         </View>
         <View style={styles.scoreBox}>
           <Text style={styles.scoreLabel}>Foods</Text>
-          <Text style={styles.scoreValue}>{molecule.linked_food_count ?? foods.length}</Text>
+          <Text style={styles.scoreValue}>{formatLinkedFoodCount(molecule.linked_food_count ?? foods.length, "?")}</Text>
         </View>
       </View>
       {!!molecule.molecular_formula && <Text style={styles.meta}>Formula: {molecule.molecular_formula}</Text>}

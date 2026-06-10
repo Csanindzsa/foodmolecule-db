@@ -4,6 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodListItem, type Molecule } from "../lib/api";
 import { asArray } from "../lib/array";
+import { formatHarmLevel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
@@ -112,7 +113,7 @@ export default function SearchScreen({ navigation }: Props) {
                   <View style={styles.resultContent}>
                     <Text style={styles.resultTitle}>{molecule.name}</Text>
                     <Text style={styles.resultMeta}>
-                      Harm {molecule.harm_level ?? "unknown"}
+                      Harm {formatHarmLevel(molecule.harm_level)}
                       {molecule.molecular_formula ? ` · ${molecule.molecular_formula}` : ""}
                     </Text>
                   </View>
