@@ -19,6 +19,7 @@ CI and the local release audit run this command before backend tests.
 - Production host, CORS, logging, database, AI key, and Django secret settings are represented in `render.yaml`.
 - Backend requirements include Django, Gunicorn, PostgreSQL, and database URL support.
 - Django settings keep security middleware, `STATIC_ROOT`, and persistent PostgreSQL health checks.
+- Scan API responses sanitize OCR ingredients, malformed raw-text previews, and confidence before returning mobile-facing data.
 
 ## Live Launch Follow-Up
 

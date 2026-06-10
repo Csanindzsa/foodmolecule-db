@@ -25,6 +25,7 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[BackendReleaseCheck, 
     render = _read(project_root / "render.yaml")
     requirements = _read(project_root / "backend" / "requirements.txt")
     settings = _read(project_root / "backend" / "nutrii" / "settings.py")
+    views = _read(project_root / "backend" / "core" / "views.py")
     runbook = _read(project_root / "docs" / "backend_release_checks.md")
     checklist = _read(project_root / "docs" / "launch_checklist.md")
 
@@ -76,6 +77,17 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[BackendReleaseCheck, 
             and "conn_max_age=60" in settings
             and "conn_health_checks=True" in settings,
             "Django settings must keep security middleware, static root, and persistent DB health checks",
+        ),
+        BackendReleaseCheck(
+            "scan-response-sanitizers",
+            "def _scan_ingredients" in views
+            and "if not isinstance(ingredient, str)" in views
+            and "def _scan_raw_text_preview" in views
+            and "if not isinstance(raw_text, str):" in views
+            and "return \"\", False" in views
+            and "def _scan_confidence" in views
+            and "math.isfinite(confidence)" in views,
+            "scan API must sanitize OCR ingredients, malformed raw text, and confidence before responding",
         ),
         BackendReleaseCheck(
             "runbook-linked-from-launch-checklist",

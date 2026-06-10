@@ -158,10 +158,8 @@ def _scan_ingredients(value) -> list[str]:
 
 
 def _scan_raw_text_preview(raw_text) -> tuple[str, bool]:
-    if raw_text is None:
-        raw_text = ""
-    elif not isinstance(raw_text, str):
-        raw_text = str(raw_text)
+    if not isinstance(raw_text, str):
+        return "", False
     if len(raw_text) <= MAX_SCAN_RAW_TEXT_CHARS:
         return raw_text, False
     return raw_text[:MAX_SCAN_RAW_TEXT_CHARS], True

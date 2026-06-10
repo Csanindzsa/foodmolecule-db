@@ -274,7 +274,7 @@ def test_scan_normalizes_malformed_scanner_output(monkeypatch):
     assert response.data["count"] == 0
 
 
-def test_scan_defaults_nonlist_ingredients_and_stringifies_raw_text(monkeypatch):
+def test_scan_defaults_nonlist_ingredients_and_hides_malformed_raw_text(monkeypatch):
     monkeypatch.setattr("core.views._build_label_scanner", lambda: NumericRawTextScanner())
     monkeypatch.setattr("core.views.Food", SimpleNamespace(objects=FakeManager([])))
     monkeypatch.setattr("core.views.Molecule", SimpleNamespace(objects=FakeManager([])))
@@ -287,7 +287,8 @@ def test_scan_defaults_nonlist_ingredients_and_stringifies_raw_text(monkeypatch)
     assert response.status_code == 200
     assert response.data["ingredients"] == []
     assert response.data["confidence"] == 0.0
-    assert response.data["raw_text"] == "12345"
+    assert response.data["raw_text"] == ""
+    assert response.data["raw_text_truncated"] is False
 
 
 def test_scan_truncates_long_raw_ocr_text(monkeypatch):
