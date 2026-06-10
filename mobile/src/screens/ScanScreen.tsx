@@ -6,6 +6,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { api, type ScanResponse } from "../lib/api";
 import { asArray } from "../lib/array";
 import { externalHttpUrl } from "../lib/safeUrl";
+import { formatHazardLevel, ingredientTerms, rawOcrPreview } from "../lib/scanDisplay";
 import { formatPercent, formatScore, normalizeScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 import { useHistoryStore } from "../stores/useHistoryStore";
@@ -60,8 +61,9 @@ export default function ScanScreen({ navigation }: Props) {
     }
   }
 
-  const detectedIngredients = scanResult ? asArray(scanResult.ingredients) : [];
+  const detectedIngredients = scanResult ? ingredientTerms(scanResult.ingredients, 16) : [];
   const matchedFoods = scanResult ? asArray(scanResult.foods) : [];
+  const rawText = scanResult ? rawOcrPreview(scanResult.raw_text) : null;
 
   async function takePictureAndScan() {
     try {
@@ -105,7 +107,7 @@ export default function ScanScreen({ navigation }: Props) {
           <Text style={styles.meta}>OCR confidence {formatPercent(scanResult.confidence)}</Text>
           {detectedIngredients.length > 0 ? (
             <View style={styles.chipWrap}>
-              {detectedIngredients.slice(0, 16).map((ingredient) => (
+              {detectedIngredients.map((ingredient) => (
                 <Text key={ingredient} style={styles.chip}>{ingredient}</Text>
               ))}
             </View>
@@ -133,7 +135,7 @@ export default function ScanScreen({ navigation }: Props) {
                 <View style={styles.matchContent}>
                   <Text style={styles.matchTitle}>{food.name}</Text>
                   <Text style={styles.meta}>
-                    Health {formatScore(food.health_index)} · Hazard {food.max_molecule_harm ?? "unknown"}
+                    Health {formatScore(food.health_index)} · Hazard {formatHazardLevel(food.max_molecule_harm)}
                   </Text>
                 </View>
               </Pressable>
@@ -142,7 +144,7 @@ export default function ScanScreen({ navigation }: Props) {
             <Text style={styles.meta}>No food matches found.</Text>
           )}
 
-          {!!scanResult.raw_text && (
+          {!!rawText && (
             <>
               <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, styles.sectionTitleInline]}>
@@ -153,7 +155,7 @@ export default function ScanScreen({ navigation }: Props) {
               {scanResult.raw_text_truncated && (
                 <Text style={styles.meta}>The full OCR text was longer than the API response limit.</Text>
               )}
-              <Text style={styles.rawText}>{scanResult.raw_text}</Text>
+              <Text style={styles.rawText}>{rawText}</Text>
             </>
           )}
         </View>
