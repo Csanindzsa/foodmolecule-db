@@ -26,6 +26,7 @@ def test_mobile_release_checker_passes_static_mvp_contract():
         "mobile-research-surface-contract",
         "mobile-ai-guide-contract",
         "mobile-ban-list-contract",
+        "mobile-compare-contract",
         "eas-build-profiles",
     }
 
@@ -50,6 +51,7 @@ def test_mobile_release_cli_outputs_summary(capsys):
     assert "ok\tmobile-research-surface-contract" in captured.out
     assert "ok\tmobile-ai-guide-contract" in captured.out
     assert "ok\tmobile-ban-list-contract" in captured.out
+    assert "ok\tmobile-compare-contract" in captured.out
     assert "skip\tstore-identifiers" in captured.out
 
 

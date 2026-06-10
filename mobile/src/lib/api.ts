@@ -103,6 +103,18 @@ export type ScanResponse = SearchResponse & {
   raw_text_truncated?: boolean;
 };
 
+export type CompareResponse = {
+  foods: Array<{
+    id: string;
+    name: string;
+    health_index: number;
+    safety_score: number;
+    molecules: Record<string, number>;
+  }>;
+  shared_molecules: string[];
+  total_unique_molecules: number;
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, init);
   if (!response.ok) {
@@ -139,6 +151,7 @@ export const api = {
   foodGuide: (id: string) => request<FoodGuide>(`/foods/${pathId(id)}/guide/`),
   foodHealthIndex: (id: string) => request<HealthBreakdown>(`/foods/${pathId(id)}/health-index/`),
   banList: () => request<{ results: BanListEntry[] }>("/ban-list/"),
+  compare: (ids: string[]) => request<CompareResponse>(`/foods/compare/?ids=${ids.map(encodeURIComponent).join(",")}`),
   scanImage: (uri: string) => {
     const body = new FormData();
     body.append("image", {

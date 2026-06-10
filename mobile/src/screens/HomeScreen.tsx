@@ -24,7 +24,8 @@ export default function HomeScreen({ navigation }: Props) {
         <Button title="Search" onPress={() => navigation.navigate("Search")} />
         <Button title="Scan Label" onPress={() => navigation.navigate("Scan")} />
       </View>
-      <View style={styles.secondaryAction}>
+      <View style={styles.secondaryRow}>
+        <Button title="Compare" onPress={() => navigation.navigate("Compare")} />
         <Button title="Ban List" onPress={() => navigation.navigate("BanList")} />
       </View>
       {history.length > 0 && (
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 48, fontWeight: "bold", marginBottom: 8 },
   subtitle: { fontSize: 18, color: "#666", marginBottom: 24 },
   buttonRow: { flexDirection: "row", gap: 16 },
-  secondaryAction: { marginTop: 12 },
+  secondaryRow: { flexDirection: "row", gap: 16, marginTop: 12 },
   historyPanel: { alignSelf: "stretch", marginTop: 32, gap: 10 },
   historyHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   historyTitle: { fontSize: 18, fontWeight: "700" },

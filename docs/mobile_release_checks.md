@@ -34,6 +34,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - Food detail surfaces linked research summaries and PubMed citation links when study data is present.
 - Food detail surfaces AI guide copy and health-index breakdowns from the existing backend endpoints.
 - Ban List is reachable from Home and surfaces draft/citation-required safety entries with food-detail navigation.
+- Compare is reachable from Home, searches foods, selects 2-3 foods, and calls the backend compare endpoint.
 - Development, preview, and production EAS build profiles exist.
 
 ## What It Does Not Prove

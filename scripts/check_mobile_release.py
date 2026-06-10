@@ -45,6 +45,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     navigation_types = (mobile_root / "src" / "navigation" / "types.ts").read_text(encoding="utf-8")
     scan_screen = (mobile_root / "src" / "screens" / "ScanScreen.tsx").read_text(encoding="utf-8")
     search_screen = (mobile_root / "src" / "screens" / "SearchScreen.tsx").read_text(encoding="utf-8")
+    compare_screen = (mobile_root / "src" / "screens" / "CompareScreen.tsx").read_text(encoding="utf-8")
     food_detail_screen = (mobile_root / "src" / "screens" / "FoodDetailScreen.tsx").read_text(encoding="utf-8")
     ban_list_screen = (mobile_root / "src" / "screens" / "BanListScreen.tsx").read_text(encoding="utf-8")
     home_screen = (mobile_root / "src" / "screens" / "HomeScreen.tsx").read_text(encoding="utf-8")
@@ -203,6 +204,24 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "entry.is_conditionally_safe" in ban_list_screen
             and 'navigation.navigate("FoodDetail"' in ban_list_screen,
             "mobile must expose the draft/citation-gated ban list with food-detail navigation",
+        ),
+        MobileCheck(
+            "mobile-compare-contract",
+            "type CompareResponse" in api_client
+            and "compare:" in api_client
+            and "/foods/compare/?ids=" in api_client
+            and "Compare: undefined" in navigation_types
+            and "CompareScreen" in app_root
+            and 'name="Compare"' in app_root
+            and 'navigation.navigate("Compare")' in home_screen
+            and "api.search(trimmed)" in compare_screen
+            and "api.compare(selected.map" in compare_screen
+            and "Compare requires 2-3 foods." in compare_screen
+            and "Compare selected" in compare_screen
+            and "comparison.shared_molecules" in compare_screen
+            and "comparison.total_unique_molecules" in compare_screen
+            and 'navigation.navigate("FoodDetail"' in compare_screen,
+            "mobile must support selecting 2-3 foods and calling the compare endpoint",
         ),
         MobileCheck(
             "eas-build-profiles",
