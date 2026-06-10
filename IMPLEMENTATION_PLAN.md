@@ -777,7 +777,7 @@ GET  /api/v1/stats                         → platform stats (food count, molec
   - Search results
 - Database query optimization:
   - `select_related` + `prefetch_related` on all list endpoints
-  - Cursor pagination for large lists
+  - Bounded DRF page-number pagination for list endpoints
 
 ### Deliverables
 - [ ] Complete Django project in `backend/`
@@ -853,49 +853,48 @@ The flagship consumer product. No login required. All data is local or fetched a
 
 ### 12.1 Tech Stack
 - **Framework:** React Native (Expo) with TypeScript
-- **State:** Zustand + TanStack Query
-- **Navigation:** Expo Router
-- **Camera / OCR:** Expo Camera + `expo-ml-kit`
-- **Offline Support:** SQLite for local caching
+- **State:** Zustand + AsyncStorage for local scan history
+- **Navigation:** React Navigation native stack
+- **Camera / OCR:** Expo Image Picker capture/gallery upload to backend `/api/v1/scan/`
+- **Offline Support:** Recent scan history is local; API-backed search/detail require network
 - **Push Notifications:** None (no user accounts to push to)
 
 ### 12.2 Core User Flows
 
 #### Flow 1: Ingredient Label Scan
-1. Open app → Camera view with overlay guide
-2. Tap shutter → capture image
-3. Image sent to `/api/v1/scans` (anonymous, rate-limited by IP)
-4. Backend OCR extracts text
-5. Text parsed into ingredient list via fuzzy matching
-6. Results screen:
-   - Overall product score (0–100)
-   - Color-coded ingredient list
-   - Tap any ingredient → full nutrii detail page with latest AI summaries
-   - "How to make safer" tips
+1. Open app → Scan Label
+2. Capture a label with the camera or choose an image from the gallery
+3. Image posts to `/api/v1/scan/` through the mobile API client
+4. Backend OCR extracts raw text and matches likely foods/molecules
+5. Scan screen shows OCR confidence, sanitized raw text, hazard summary, matches, and empty states
+6. Valid food matches link to the API-backed food detail screen and recent scans are stored locally
 
 #### Flow 2: Manual Ingredient Search
-- Search bar with autocomplete against public API
-- Full food/molecule detail pages
+- Search bar queries the public API for foods and molecules
+- Food and molecule result cards include image thumbnails and reject malformed navigation IDs
 
-#### Flow 3: Browse & Discover
-- Curated lists: "Top 10 Safest Breakfast Foods", "Foods You Should Never Eat Raw"
+#### Flow 3: Compare & Review
+- Compare 2-3 foods through the backend compare endpoint
+- Review draft ban-list entries with citation-required context and valid food-detail navigation
 
-#### Flow 4: Local History & Favorites
-- Scan history stored **locally** on device (SQLite / AsyncStorage)
-- Favorites stored **locally**
-- Settings stored **locally**
+#### Flow 4: Local History
+- Recent scan history is stored **locally** on device with AsyncStorage
+- History entries include matched food image and health context when available
 - No cloud sync, no accounts, no data collection
 
 ### 12.3 Offline Strategy
-- Sync top 500 most-searched foods to local SQLite on first install
-- Cache recent searches and detail pages
-- Queue scans when offline; process when connection restored
+- Keep the five most recent scan results locally for quick recall
+- Surface network/API failures in search, detail, compare, ban-list, and scan flows
+- Full offline food cache and queued scan processing are future enhancements, not MVP launch scope
 
 ### Deliverables
-- [ ] `mobile/` Expo project
-- [ ] iOS build (TestFlight)
-- [ ] Android build (Play Store Internal Testing)
-- [ ] On-device OCR fallback
+- [x] `mobile/` Expo project
+- [x] API-backed search, compare, food detail, molecule detail, ban list, and scan flows
+- [x] Local recent-scan history
+- [x] EAS build profiles
+- [ ] Native iOS build validation
+- [ ] Native Android build validation
+- [ ] Physical-device camera/OCR validation
 
 ---
 
@@ -904,22 +903,21 @@ The flagship consumer product. No login required. All data is local or fetched a
 ### Goal
 Accurately extract ingredient lists from photos of product labels.
 
-### 13.1 Hybrid Architecture
+### 13.1 Backend OCR Architecture
 
 | Approach | Pros | Cons | Decision |
 |----------|------|------|----------|
-| **Cloud OCR** (Google Vision) | Highest accuracy, multilingual | Cost per scan, latency | Primary for complex images |
-| **On-device ML** (ML Kit) | Free, instant, private | Lower accuracy | Fallback for simple labels |
-| **Hybrid** | Best of both | More complex | **Chosen** |
+| **Backend OCR** (Tesseract pipeline) | No cloud OCR account required, works with existing Django scan API | Requires server image-processing runtime | **MVP path** |
+| **On-device OCR** | Private and fast for simple labels | Native dependency and store-build validation needed | Future enhancement |
+| **Cloud OCR provider** | Higher accuracy on difficult labels | Credential, cost, and privacy review required | Future enhancement after MVP validation |
 
 ### 13.2 Pipeline
 ```
-1. Image capture → preprocess (deskew, contrast boost, binarize)
-2. Try on-device OCR (fast path)
-3. If confidence < 0.85 → upload to cloud OCR
-4. Raw text → NLP parser
-5. Fuzzy match against `foods.name` and `foods.aliases`
-6. Return matched ingredients + confidence scores
+1. Image capture/gallery selection in Expo
+2. Multipart upload to `/api/v1/scan/`
+3. Backend OCR preprocessing and Tesseract text extraction
+4. Rule-based ingredient parsing and fuzzy matching against `foods.name`/aliases
+5. Return raw text, confidence, hazards, matched foods, and matched molecules
 ```
 
 ### 13.3 NLP Ingredient Parser
@@ -927,10 +925,11 @@ Accurately extract ingredient lists from photos of product labels.
 - Handle: "May contain traces of...", "Produced in a facility...", parentheticals, percentages
 
 ### Deliverables
-- [ ] `ai/ocr_pipeline.py`
-- [ ] `ai/ingredient_parser.py`
-- [ ] `ai/fuzzy_matcher.py`
-- [ ] `ai/tests/` with real label photos
+- [x] `ocr/src/pipeline/scan.py`
+- [x] Backend `/api/v1/scan/` endpoint
+- [x] Mobile camera/gallery scan flow
+- [x] Static OCR release checks
+- [ ] Real-label physical-device validation
 
 ---
 
@@ -990,7 +989,7 @@ Measure, iterate, and scale.
 | **Search** | PostgreSQL pg_trgm | Full-text search via GIN indexes |
 | **Web Frontend** | React 19 + Vite + Tailwind v4 | Fast DX, modern CSS |
 | **Mobile** | Expo (React Native) | Single TS codebase, OTA updates |
-| **OCR** | Google Vision API + ML Kit | Hybrid accuracy/speed |
+| **OCR** | Tesseract backend pipeline | No cloud OCR account required for MVP |
 | **AI Inference** | OpenRouter API | Access to strongest available LLMs dynamically |
 | **AI Orchestration** | Python + Pydantic | Structured output parsing, prompt versioning |
 | **Auth** | **None** | Fully public, no login walls |
@@ -1262,32 +1261,26 @@ decisions without ambiguity.
 ### B.1 Screen List
 | Screen | Purpose |
 |--------|---------|
-| `HomeScreen` | Featured lists, recent scans (local), search bar |
-| `ScanScreen` | Camera view, capture button, gallery picker |
-| `ScanResultScreen` | Parsed ingredients, overall score, color list |
-| `IngredientDetailScreen` | Full food/molecule info + latest AI summaries + studies |
-| `FoodDetailScreen` | Rich food page with agent guide viewer |
-| `CompareScreen` | Side-by-side comparison |
-| `HistoryScreen` | Past scans (local SQLite) |
-| `FavoritesScreen` | Saved foods (local SQLite) |
-| `SettingsScreen` | Dietary prefs, allergen alerts, offline mode, about |
-| `OnboardingScreen` | First-launch tutorial |
+| `HomeScreen` | Entry actions plus five-item recent scan history |
+| `SearchScreen` | API-backed food and molecule search with thumbnails |
+| `FoodDetailScreen` | API-backed food images, molecules, health breakdown, AI guide, and research |
+| `MoleculeDetailScreen` | API-backed molecule detail with structure image, harms, research, and linked foods |
+| `CompareScreen` | API-backed 2-3 food comparison with guarded navigation |
+| `ScanScreen` | Camera/gallery upload to backend OCR with confidence, matches, hazards, and raw text |
+| `BanListScreen` | API-backed draft safety entries with citation-required labels |
 
 ### B.2 State Management (No Auth)
 ```typescript
 interface AppState {
-  dietaryPrefs: DietaryPreference[];
-  allergenAlerts: string[];
-  scanHistory: Scan[];        // local SQLite
-  favorites: string[];        // local SQLite
-  offlineMode: boolean;
-  cachedFoods: Food[];        // top 500 for offline
+  recentScans: ScanHistoryItem[]; // local AsyncStorage, max 5
+  addScan(scan: ScanHistoryItem): void;
+  clearHistory(): void;
 }
 ```
 
 ### B.3 Performance Targets
 - Time to first scan: <2 seconds from app open
-- OCR result: <3 seconds (cloud), <1 second (on-device)
+- OCR result: <3 seconds for backend scan response on typical production labels
 - Ingredient list render: <100ms for 50 items
 - App bundle size: <50MB (iOS), <40MB (Android)
 

@@ -3,6 +3,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 CURRENT_STATE_DOCS = [
+    PROJECT_ROOT / "IMPLEMENTATION_PLAN.md",
     PROJECT_ROOT / "docs" / "launch_checklist.md",
     PROJECT_ROOT / "obsidian" / "nutrii - API Reference.md",
     PROJECT_ROOT / "obsidian" / "nutrii - Development Guide.md",
@@ -42,6 +43,16 @@ def test_current_state_docs_do_not_contain_stale_platform_claims():
         "The mobile app supports API-backed search, food details, and camera/gallery label scanning through the backend OCR pipeline.",
         "Camera/OCR integration not implemented",
         "No API calls wired up yet",
+        "ScanResultScreen | Parsed ingredients, overall score, color list",
+        "IngredientDetailScreen | Full food/molecule info + latest AI summaries + studies",
+        "HistoryScreen | Past scans (local SQLite)",
+        "FavoritesScreen | Saved foods (local SQLite)",
+        "SettingsScreen | Dietary prefs, allergen alerts, offline mode, about",
+        "OnboardingScreen | First-launch tutorial",
+        "expo-ml-kit",
+        "SQLite for local caching",
+        "Sync top 500 most-searched foods to local SQLite",
+        "Queue scans when offline; process when connection restored",
         "Phase 9 | ban_list.md, BanListEntry model | Doc + model done, data empty",
         "Phase 10 | 16 views, 9 serializers, settings.py, urls.py, admin.py",
         "Phase 11 | 3 pages, Layout, API client, types | Pages complete, 3 pages missing",
@@ -61,3 +72,20 @@ def test_current_state_docs_do_not_contain_stale_platform_claims():
 
     for claim in stale_claims:
         assert claim not in docs
+
+
+def test_current_state_docs_describe_mobile_release_scope():
+    docs = "\n".join(path.read_text(encoding="utf-8") for path in CURRENT_STATE_DOCS)
+
+    required_claims = [
+        "App.tsx navigation | ✅ Complete | Stack navigator with Home, Search, Compare, Food Detail, Molecule Detail, Scan, and Ban List screens",
+        "FoodDetailScreen | ✅ Complete | API-backed detail screen with images, molecules, health breakdown, AI guide, and linked research",
+        "MoleculeDetailScreen | ✅ Complete | API-backed detail screen with structure image, harm mechanisms, and linked foods",
+        "ScanScreen | ✅ Complete | Camera/gallery image scan posts to backend `/scan/` and surfaces OCR confidence, matches, and images",
+        "Phase 12 | 7 screens, API client, compare, scan flow, ban list, history store, EAS profiles | App code ready for native build validation",
+        "API-backed search, compare, food detail, molecule detail, ban list, and scan flows",
+        "Recent scan history is stored **locally** on device with AsyncStorage",
+    ]
+
+    for claim in required_claims:
+        assert claim in docs
