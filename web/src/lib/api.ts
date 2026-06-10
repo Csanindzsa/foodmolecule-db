@@ -1,4 +1,5 @@
 const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
+const MAX_SEARCH_QUERY_CHARS = 128;
 
 async function fetcher<T>(path: string): Promise<T> {
   const resp = await fetch(`${API_BASE}${path}`);
@@ -19,13 +20,20 @@ function pathId(id: string): string {
   return encodeURIComponent(id);
 }
 
+function searchQueryPath(q: string): string {
+  if (Array.from(q).length > MAX_SEARCH_QUERY_CHARS) {
+    throw new Error(`Search queries are limited to ${MAX_SEARCH_QUERY_CHARS} characters.`);
+  }
+  return `/foods/search/?q=${encodeURIComponent(q)}`;
+}
+
 export const api = {
   foods: () => fetcher<{ results: Food[] }>("/foods/"),
   food: (id: string) => fetcher<Food>(`/foods/${pathId(id)}/`),
   foodHealthIndex: (id: string) => fetcher<HealthIndexBreakdown>(`/foods/${pathId(id)}/health-index/`),
   foodStudies: (id: string) => fetcher<{ results: Study[] }>(`/foods/${pathId(id)}/studies/`),
   recentStudies: () => fetcher<{ results: Study[] }>("/studies/recent/"),
-  search: (q: string) => fetcher<{ foods: Food[]; molecules: Molecule[] }>(`/foods/search/?q=${encodeURIComponent(q)}`),
+  search: (q: string) => fetcher<{ foods: Food[]; molecules: Molecule[] }>(searchQueryPath(q)),
   molecules: () => fetcher<{ results: Molecule[] }>("/molecules/"),
   molecule: (id: string) => fetcher<Molecule>(`/molecules/${pathId(id)}/`),
   stats: () => fetcher<Record<string, number>>("/stats/"),

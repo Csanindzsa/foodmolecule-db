@@ -17,7 +17,7 @@ CI and the local release audit run this command before backend tests.
 - `web/package.json` keeps locked Bun install, isolated test, and production build commands.
 - Vite builds to `dist`, uses React and Tailwind, and does not emit public production source maps.
 - The web API client supports `VITE_API_URL`, legacy `VITE_API_BASE_URL`, and same-origin `/api/v1` fallback.
-- Search input and URL query handling cap client-side queries to the backend 128-character limit.
+- Search input, URL query handling, and the web API client cap client-side queries to the backend 128-character limit.
 - `index.html` includes launch SEO, canonical URL, and Open Graph metadata.
 - `robots.txt` and `sitemap.xml` expose the crawlable launch routes.
 - The Compare page sanitizes molecule amount maps, shared molecule names, and aggregate count displays before rendering.

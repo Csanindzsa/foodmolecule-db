@@ -161,10 +161,13 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "mobile-search-query-bound",
             "MAX_SEARCH_QUERY_CHARS = 128" in search_screen
             and "MAX_SEARCH_QUERY_CHARS = 128" in compare_screen
+            and "MAX_SEARCH_QUERY_CHARS = 128" in api_client
             and "function searchQueryLength" in search_screen
             and "function searchQueryLength" in compare_screen
+            and "function searchQueryPath" in api_client
             and "Array.from(value).length" in search_screen
             and "Array.from(value).length" in compare_screen
+            and "Array.from(query).length > MAX_SEARCH_QUERY_CHARS" in api_client
             and "searchQueryLength(trimmed) > MAX_SEARCH_QUERY_CHARS" in search_screen
             and "searchQueryLength(trimmed) > MAX_SEARCH_QUERY_CHARS" in compare_screen
             and "maxLength={MAX_SEARCH_QUERY_CHARS}" in search_screen

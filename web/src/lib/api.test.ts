@@ -333,12 +333,16 @@ describe("api", () => {
       expect(url).not.toContain("\x00");
     });
 
-    test("search handles very long query string", async () => {
+    test("search rejects very long query strings before fetch", async () => {
       const longQuery = "a".repeat(10000);
-      await api.search(longQuery);
-      const url = mockFetch.mock.calls[0][0] as string;
-      expect(url.startsWith("/api/v1/foods/search/?q=")).toBe(true);
-      expect(url.length).toBeGreaterThan(10000);
+      expect(() => api.search(longQuery)).toThrow("Search queries are limited to 128 characters.");
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    test("search counts unicode queries by code point before fetch", async () => {
+      const longQuery = "🎉".repeat(129);
+      expect(() => api.search(longQuery)).toThrow("Search queries are limited to 128 characters.");
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     test("food encodes path traversal in ID", async () => {

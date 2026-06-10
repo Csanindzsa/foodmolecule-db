@@ -10,9 +10,17 @@ const localApiUrl = Platform.OS === "android"
   : "http://localhost:8000/api/v1";
 
 const API_BASE = (configuredApiUrl || localApiUrl).replace(/\/$/, "");
+const MAX_SEARCH_QUERY_CHARS = 128;
 
 function pathId(id: string): string {
   return encodeURIComponent(id);
+}
+
+function searchQueryPath(query: string): string {
+  if (Array.from(query).length > MAX_SEARCH_QUERY_CHARS) {
+    throw new Error(`Search queries are limited to ${MAX_SEARCH_QUERY_CHARS} characters.`);
+  }
+  return `/foods/search/?q=${encodeURIComponent(query)}&dedupe=ingredient_signature`;
 }
 
 export type FoodListItem = {
@@ -171,9 +179,7 @@ export function imageType(uri: string): string {
 }
 
 export const api = {
-  search: (query: string) => request<SearchResponse>(
-    `/foods/search/?q=${encodeURIComponent(query)}&dedupe=ingredient_signature`,
-  ),
+  search: (query: string) => request<SearchResponse>(searchQueryPath(query)),
   food: (id: string) => request<FoodDetail>(`/foods/${pathId(id)}/`),
   molecule: (id: string) => request<MoleculeDetail>(`/molecules/${pathId(id)}/`),
   foodStudies: (id: string) => request<{ results: Study[] }>(`/foods/${pathId(id)}/studies/`),

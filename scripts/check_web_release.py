@@ -86,8 +86,11 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
         WebReleaseCheck(
             "search-query-bound",
             "MAX_SEARCH_QUERY_CHARS = 128" in search_page
+            and "MAX_SEARCH_QUERY_CHARS = 128" in api_client
             and "function limitSearchQuery" in search_page
             and "Array.from(value).slice(0, MAX_SEARCH_QUERY_CHARS).join(\"\")" in search_page
+            and "function searchQueryPath" in api_client
+            and "Array.from(q).length > MAX_SEARCH_QUERY_CHARS" in api_client
             and "maxLength={MAX_SEARCH_QUERY_CHARS}" in search_page
             and "Search queries are limited to" in search_page,
             "web search must cap client queries to the backend search limit",

@@ -56,6 +56,14 @@ describe("mobile API client", () => {
     );
   });
 
+  test("search rejects oversized queries before fetch", () => {
+    const fetchMock = mock(async () => jsonResponse({ foods: [], molecules: [], count: 0 }));
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    expect(() => api.search("🎉".repeat(129))).toThrow("Search queries are limited to 128 characters.");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   test("compare encodes each selected food ID", async () => {
     const fetchMock = mock(async () => jsonResponse({ foods: [], shared_molecules: [], total_unique_molecules: 0 }));
     globalThis.fetch = fetchMock as unknown as typeof fetch;
