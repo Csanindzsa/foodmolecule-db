@@ -13,6 +13,7 @@ def test_web_route_checker_passes_current_static_contract():
     assert {check.name for check in checks} == {
         "react-launch-routes",
         "sitemap-static-routes",
+        "header-nav-routes",
         "vercel-spa-fallback",
         "netlify-spa-fallback",
     }
@@ -38,6 +39,7 @@ def test_web_route_cli_outputs_summary(capsys):
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "ok\treact-launch-routes" in captured.out
+    assert "ok\theader-nav-routes" in captured.out
     assert "ok\tvercel-spa-fallback" in captured.out
 
 

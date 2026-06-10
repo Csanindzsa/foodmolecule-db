@@ -144,6 +144,14 @@ describe("Layout component", () => {
     expect(banListLink!.textContent).toContain("Ban List");
   });
 
+  test("renders Compare navigation link", () => {
+    const { container } = renderWithRouter();
+
+    const compareLink = container.querySelector('a[href="/compare"]');
+    expect(compareLink).not.toBeNull();
+    expect(compareLink!.textContent).toContain("Compare");
+  });
+
   // ─── F) Footer ───
   test("renders footer with site description", () => {
     const { container } = renderWithRouter();

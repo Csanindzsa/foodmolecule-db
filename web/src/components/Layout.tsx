@@ -18,6 +18,7 @@ export default function Layout() {
           <nav className="hidden md:flex items-center gap-4 text-sm">
             <Link to="/" className="hover:underline">Home</Link>
             <Link to="/search" className="hover:underline">Search</Link>
+            <Link to="/compare" className="hover:underline">Compare</Link>
             <Link to="/ban-list" className="hover:underline">Ban List</Link>
             <button
               onClick={toggle}
@@ -72,6 +73,13 @@ export default function Layout() {
               onClick={() => setMenuOpen(false)}
             >
               Search
+            </Link>
+            <Link
+              to="/compare"
+              className="block px-2 py-2 text-sm hover:bg-white/10 rounded"
+              onClick={() => setMenuOpen(false)}
+            >
+              Compare
             </Link>
             <Link
               to="/ban-list"

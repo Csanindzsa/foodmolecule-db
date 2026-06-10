@@ -47,6 +47,7 @@ def vercel_rewrites(vercel_path: Path) -> list[dict]:
 
 def run_checks(web_root: Path = WEB_ROOT) -> tuple[RouteCheck, ...]:
     react_routes = extract_react_routes(web_root / "src" / "App.tsx")
+    layout = (web_root / "src" / "components" / "Layout.tsx").read_text(encoding="utf-8")
     sitemap = sitemap_routes(web_root / "public" / "sitemap.xml")
     rewrites = vercel_rewrites(web_root / "vercel.json")
     redirects = (web_root / "public" / "_redirects").read_text(encoding="utf-8")
@@ -61,6 +62,14 @@ def run_checks(web_root: Path = WEB_ROOT) -> tuple[RouteCheck, ...]:
             "sitemap-static-routes",
             tuple(sitemap) == STATIC_SITEMAP_ROUTES,
             f"expected={','.join(STATIC_SITEMAP_ROUTES)} actual={','.join(sitemap)}",
+        ),
+        RouteCheck(
+            "header-nav-routes",
+            layout.count('to="/compare"') >= 2
+            and layout.count('to="/ban-list"') >= 2
+            and "Compare" in layout
+            and "Ban List" in layout,
+            "expected desktop and mobile header navigation for compare and ban-list routes",
         ),
         RouteCheck(
             "vercel-spa-fallback",
