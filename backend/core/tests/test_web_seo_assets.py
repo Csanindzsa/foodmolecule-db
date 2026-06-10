@@ -18,6 +18,7 @@ def test_static_sitemap_covers_public_react_routes():
         "https://nutrii.fit/",
         "https://nutrii.fit/search",
         "https://nutrii.fit/compare",
+        "https://nutrii.fit/research",
         "https://nutrii.fit/ban-list",
     }
 

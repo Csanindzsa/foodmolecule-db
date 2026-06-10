@@ -2,6 +2,10 @@ import json
 import os
 import subprocess
 import sys
+from pathlib import Path
+
+
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _load_rest_framework_settings(extra_env: dict[str, str]) -> dict:
@@ -26,6 +30,7 @@ def _load_rest_framework_settings(extra_env: dict[str, str]) -> dict:
         ],
         check=True,
         capture_output=True,
+        cwd=BACKEND_ROOT,
         env=env,
         text=True,
     )
