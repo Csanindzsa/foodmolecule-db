@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatScore, normalizeScore } from "./scoreDisplay";
+import { formatPercent, formatScore, normalizeScore } from "./scoreDisplay";
 
 describe("score display helpers", () => {
   test("normalizeScore keeps finite scores within 0 to 100", () => {
@@ -34,5 +34,16 @@ describe("score display helpers", () => {
   test("formatScore returns clamped display text", () => {
     expect(formatScore(52.8)).toBe("53");
     expect(formatScore(200)).toBe("100");
+  });
+
+  test("formatPercent returns clamped percentage text", () => {
+    expect(formatPercent(88.5)).toBe("89%");
+    expect(formatPercent(120)).toBe("100%");
+    expect(formatPercent(-10)).toBe("0%");
+  });
+
+  test("formatPercent returns fallback text for unavailable values", () => {
+    expect(formatPercent(NaN)).toBe("unknown");
+    expect(formatPercent(Infinity, "?")).toBe("?");
   });
 });

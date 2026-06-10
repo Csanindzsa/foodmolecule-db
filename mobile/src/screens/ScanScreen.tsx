@@ -4,7 +4,7 @@ import { ActivityIndicator, Button, Image, Pressable, ScrollView, StyleSheet, Te
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type ScanResponse } from "../lib/api";
-import { formatScore, normalizeScore } from "../lib/scoreDisplay";
+import { formatPercent, formatScore, normalizeScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 import { useHistoryStore } from "../stores/useHistoryStore";
 
@@ -95,7 +95,7 @@ export default function ScanScreen({ navigation }: Props) {
       {scanResult && (
         <View style={styles.resultPanel}>
           <Text style={styles.sectionTitle}>Detected ingredients</Text>
-          <Text style={styles.meta}>OCR confidence {Math.round(scanResult.confidence)}%</Text>
+          <Text style={styles.meta}>OCR confidence {formatPercent(scanResult.confidence)}</Text>
           {scanResult.ingredients.length > 0 ? (
             <View style={styles.chipWrap}>
               {scanResult.ingredients.slice(0, 16).map((ingredient) => (

@@ -7,3 +7,8 @@ export function formatScore(value: number | null | undefined, fallback = "unknow
   const score = normalizeScore(value);
   return score === null ? fallback : String(score);
 }
+
+export function formatPercent(value: number | null | undefined, fallback = "unknown"): string {
+  const score = normalizeScore(value);
+  return score === null ? fallback : `${score}%`;
+}
