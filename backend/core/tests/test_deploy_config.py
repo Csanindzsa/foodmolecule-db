@@ -81,6 +81,12 @@ def test_ci_checks_static_web_route_contract():
     assert "python ../scripts/check_web_routes.py" in workflow
 
 
+def test_ci_checks_static_web_release_contract():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "python ../scripts/check_web_release.py" in workflow
+
+
 def test_ci_checks_static_mobile_release_contract():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 

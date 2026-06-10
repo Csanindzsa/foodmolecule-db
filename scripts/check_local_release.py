@@ -24,6 +24,7 @@ LOCAL_AUDIT_COMMANDS = (
     AuditCommand("api-smoke-probe-list", ("scripts/smoke_api.py", "--list-probes")),
     AuditCommand("query-plan-target-list", ("scripts/check_query_plans.py", "--list")),
     AuditCommand("web-route-contract", ("scripts/check_web_routes.py",)),
+    AuditCommand("web-release-contract", ("scripts/check_web_release.py",)),
     AuditCommand("mobile-release-contract", ("scripts/check_mobile_release.py",)),
     AuditCommand("research-ops-contract", ("scripts/check_research_ops.py",)),
     AuditCommand("image-ops-contract", ("scripts/check_image_ops.py",)),

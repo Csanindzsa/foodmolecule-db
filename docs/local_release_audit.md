@@ -25,6 +25,7 @@ CI runs the no-secret version.
 - API smoke probe coverage list.
 - Query-plan target list.
 - Static web route contract.
+- Static React/Vite web release contract.
 - Static Expo mobile release contract.
 - PubMed/AI research operations contract.
 - AI prompt/parser/model-routing contract.
