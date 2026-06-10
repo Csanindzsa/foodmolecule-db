@@ -4,15 +4,10 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type BanListEntry } from "../lib/api";
 import { asArray } from "../lib/array";
+import { formatLethalDose } from "../lib/banListDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "BanList">;
-
-function formatDose(value?: string | null): string {
-  if (!value) return "No dose listed";
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? `${parsed} mg` : value;
-}
 
 export default function BanListScreen({ navigation }: Props) {
   const [entries, setEntries] = useState<BanListEntry[]>([]);
@@ -77,7 +72,7 @@ export default function BanListScreen({ navigation }: Props) {
             </Text>
           </View>
           <Text style={styles.reason}>{entry.reason}</Text>
-          <Text style={styles.meta}>Lethal dose: {formatDose(entry.lethal_dose_mg)}</Text>
+          <Text style={styles.meta}>Lethal dose: {formatLethalDose(entry.lethal_dose_mg)}</Text>
           {!!entry.safe_condition && <Text style={styles.meta}>Safe condition: {entry.safe_condition}</Text>}
           <Text style={styles.citationBadge}>Citation-required draft</Text>
           {!!entry.food && (

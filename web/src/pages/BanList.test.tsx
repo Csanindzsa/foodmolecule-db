@@ -299,6 +299,24 @@ describe("BanList page", () => {
     expect(emDashes.length).toBeGreaterThanOrEqual(2);
   });
 
+  test("hides malformed lethal dose values", () => {
+    mockUseBanList.mockReturnValue({
+      data: [{
+        ...mockEntries[0],
+        lethal_dose_mg: "not-a-dose",
+      }],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<BanList />);
+
+    expect(container.textContent).not.toContain("not-a-dose");
+    expect(container.textContent).not.toContain("NaN");
+    expect(container.querySelector(".text-gray-300")).not.toBeNull();
+  });
+
   test("shows 'Unknown food' in italic for entries with null food", () => {
     mockUseBanList.mockReturnValue({
       data: mockEntries,

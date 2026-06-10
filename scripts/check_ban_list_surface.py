@@ -31,6 +31,7 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[BanListSurfaceCheck, 
     ban_list = _load_json(project_root / "ban_list" / "ban_list.json")
     entries = ban_list.get("entries", [])
     web_page = _read(project_root / "web" / "src" / "pages" / "BanList.tsx")
+    web_ban_list_display = _read(project_root / "web" / "src" / "lib" / "banListDisplay.ts")
     checklist = _read(project_root / "docs" / "launch_checklist.md")
     runbook = _read(project_root / "docs" / "ban_list_surface_checks.md")
     conditional_warnings = _read(project_root / "ban_list" / "conditional_warnings.md")
@@ -58,6 +59,15 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[BanListSurfaceCheck, 
             "web-no-verified-badge",
             "Verified</" not in web_page and ">Verified<" not in web_page,
             "web ban-list page must not display a generic Verified badge for draft entries",
+        ),
+        BanListSurfaceCheck(
+            "web-lethal-dose-sanitizer",
+            "formatLethalDose(entry.lethal_dose_mg)" in web_page
+            and "lethalDoseSortValue(a.lethal_dose_mg)" in web_page
+            and "formatLethalDose" in web_ban_list_display
+            and "lethalDoseSortValue" in web_ban_list_display
+            and "Number.isFinite(parsed)" in web_ban_list_display,
+            "web ban-list page must sanitize lethal dose displays and sorting",
         ),
         BanListSurfaceCheck(
             "draft-ops-docs",

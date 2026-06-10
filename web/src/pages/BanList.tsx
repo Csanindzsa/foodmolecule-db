@@ -1,22 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useBanList } from "../hooks/useApi";
+import { formatLethalDose, lethalDoseSortValue } from "../lib/banListDisplay";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import type { BanListEntry } from "../types";
 
 type SortKey = "food_name" | "category" | "health_index" | "reason" | "lethal_dose" | "status";
-
-function lethalDoseSortValue(value: string | null): number {
-  if (value == null) return -1;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : -1;
-}
-
-function formatLethalDose(value: string): string {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return value;
-  return String(parsed);
-}
 
 function SortIcon({ column, activeColumn, activeDirection }: { column: SortKey; activeColumn: SortKey; activeDirection: "asc" | "desc" }) {
   if (activeColumn !== column) return <span className="text-gray-300 dark:text-gray-600 ml-1">&#8597;</span>;
@@ -137,6 +126,7 @@ export default function BanList() {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {sortedEntries.map((entry) => {
                 const healthIndex = normalizeScore(entry.food?.health_index);
+                const lethalDose = formatLethalDose(entry.lethal_dose_mg);
 
                 return (
                   <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -165,7 +155,7 @@ export default function BanList() {
                       <div className="line-clamp-2">{entry.reason}</div>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {entry.lethal_dose_mg != null ? `${formatLethalDose(entry.lethal_dose_mg)} mg` : <span className="text-gray-300 dark:text-gray-600">—</span>}
+                      {lethalDose ? `${lethalDose} mg` : <span className="text-gray-300 dark:text-gray-600">—</span>}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {entry.is_conditionally_safe ? (

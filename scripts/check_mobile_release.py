@@ -54,6 +54,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     home_screen = (mobile_root / "src" / "screens" / "HomeScreen.tsx").read_text(encoding="utf-8")
     history_store = (mobile_root / "src" / "stores" / "useHistoryStore.ts").read_text(encoding="utf-8")
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
+    ban_list_display = (mobile_root / "src" / "lib" / "banListDisplay.ts").read_text(encoding="utf-8")
     safe_url = (mobile_root / "src" / "lib" / "safeUrl.ts").read_text(encoding="utf-8")
     confidence_display = (mobile_root / "src" / "lib" / "confidenceDisplay.ts").read_text(encoding="utf-8")
     compare_display = (mobile_root / "src" / "lib" / "compareDisplay.ts").read_text(encoding="utf-8")
@@ -308,9 +309,12 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "Citation verification required" in ban_list_screen
             and "Citation-required draft" in ban_list_screen
             and "entry.lethal_dose_mg" in ban_list_screen
+            and "formatLethalDose(entry.lethal_dose_mg)" in ban_list_screen
+            and "formatLethalDose" in ban_list_display
+            and "Number.isFinite(parsed)" in ban_list_display
             and "entry.is_conditionally_safe" in ban_list_screen
             and 'navigation.navigate("FoodDetail"' in ban_list_screen,
-            "mobile must expose the draft/citation-gated ban list with food-detail navigation",
+            "mobile must expose the draft/citation-gated ban list with sanitized dose displays and food-detail navigation",
         ),
         MobileCheck(
             "mobile-compare-contract",

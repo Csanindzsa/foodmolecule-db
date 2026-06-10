@@ -18,6 +18,7 @@ CI and the local release audit run this command before backend tests.
 - Every current structured entry keeps `metadata.requires_citation` set to `true`.
 - The React ban-list page visibly labels the current rows as draft safety signals that require citation and regulatory verification.
 - The React ban-list page does not show a generic verified badge for draft entries.
+- The React ban-list page sanitizes lethal-dose displays and sorting before rendering.
 - The conditional warning and regulatory tracker docs keep the citation gate documented.
 
 ## Live Launch Follow-Up
