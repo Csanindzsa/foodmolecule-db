@@ -3,6 +3,7 @@ import { ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, Tex
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type CompareResponse, type FoodListItem } from "../lib/api";
+import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Compare">;
@@ -94,7 +95,7 @@ export default function CompareScreen({ navigation }: Props) {
               <View style={styles.resultContent}>
                 <Text style={styles.foodName}>{food.name}</Text>
                 <Text style={styles.meta}>
-                  Health {food.health_index ?? "?"}
+                  Health {formatScore(food.health_index, "?")}
                   {displayCategory(food) ? ` · ${displayCategory(food)}` : ""}
                 </Text>
               </View>
@@ -114,8 +115,8 @@ export default function CompareScreen({ navigation }: Props) {
               onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
             >
               <Text style={styles.foodName}>{food.name}</Text>
-              <Text style={styles.meta}>Health {food.health_index} · Safety {food.safety_score}</Text>
-              <Text style={styles.meta}>Molecules: {Object.keys(food.molecules).length}</Text>
+              <Text style={styles.meta}>Health {formatScore(food.health_index)} · Safety {formatScore(food.safety_score)}</Text>
+              <Text style={styles.meta}>Molecules: {Object.keys(food.molecules || {}).length}</Text>
             </Pressable>
           ))}
           <Text style={styles.meta}>Shared molecules: {comparison.shared_molecules.length ? comparison.shared_molecules.join(", ") : "None"}</Text>

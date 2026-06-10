@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { normalizeScore } from "../lib/scoreDisplay";
+
 interface HistoryItem {
   id: string;
   name: string;
@@ -34,7 +36,7 @@ function normalizeHistory(raw: string | null): HistoryItem[] {
         name: item.name,
         scannedAt: item.scannedAt,
         image_url: typeof item.image_url === "string" ? item.image_url : undefined,
-        health_index: typeof item.health_index === "number" ? item.health_index : null,
+        health_index: normalizeScore(item.health_index),
       }))
       .slice(0, 50);
   } catch {
@@ -46,7 +48,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   history: [],
   add: (item) => {
     const deduped = get().history.filter((existing) => existing.id !== item.id);
-    const next = [item, ...deduped].slice(0, 50);
+    const next = [{ ...item, health_index: normalizeScore(item.health_index) }, ...deduped].slice(0, 50);
     set({ history: next });
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => undefined);
   },

@@ -142,7 +142,10 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "image_url?: string" in history_store
             and "health_index?: number | null" in history_store
             and "image_url: food.image_url" in scan_screen
-            and "health_index: food.health_index ?? null" in scan_screen
+            and (
+                "health_index: food.health_index ?? null" in scan_screen
+                or "health_index: normalizeScore(food.health_index)" in scan_screen
+            )
             and "item.image_url" in home_screen
             and "historyImage" in home_screen
             and "item.health_index" in home_screen

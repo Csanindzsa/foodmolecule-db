@@ -3,6 +3,7 @@ import { ActivityIndicator, Button, Image, Pressable, ScrollView, StyleSheet, Te
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodListItem, type Molecule } from "../lib/api";
+import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Search">;
@@ -74,7 +75,7 @@ export default function SearchScreen({ navigation }: Props) {
                 <View style={styles.resultContent}>
                   <Text style={styles.resultTitle}>{item.name}</Text>
                   <Text style={styles.resultMeta}>
-                    Health {item.health_index ?? "unknown"} · Safety {item.overall_safety_score ?? "unknown"}
+                    Health {formatScore(item.health_index)} · Safety {formatScore(item.overall_safety_score)}
                   </Text>
                   {!!item.molecule_names?.length && (
                     <Text style={styles.resultMeta} numberOfLines={1}>

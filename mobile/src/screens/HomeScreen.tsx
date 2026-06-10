@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Button, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { normalizeScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 import { useHistoryStore } from "../stores/useHistoryStore";
 
@@ -35,28 +36,32 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={styles.historyTitle}>Recent scans</Text>
             <Button title="Clear" onPress={clearHistory} />
           </View>
-          {history.slice(0, 5).map((item) => (
-            <Pressable
-              key={`${item.id}-${item.scannedAt}`}
-              style={styles.historyItem}
-              onPress={() => navigation.navigate("FoodDetail", { id: item.id })}
-            >
-              {item.image_url && (
-                <Image
-                  source={{ uri: item.image_url }}
-                  style={styles.historyImage}
-                  accessibilityLabel={`Food photo: ${item.name}`}
-                />
-              )}
-              <View style={styles.historyContent}>
-                <Text style={styles.historyName}>{item.name}</Text>
-                <Text style={styles.historyDate}>{new Date(item.scannedAt).toLocaleString()}</Text>
-              </View>
-              {item.health_index != null && (
-                <Text style={styles.historyScore}>{item.health_index}</Text>
-              )}
-            </Pressable>
-          ))}
+          {history.slice(0, 5).map((item) => {
+            const score = normalizeScore(item.health_index);
+
+            return (
+              <Pressable
+                key={`${item.id}-${item.scannedAt}`}
+                style={styles.historyItem}
+                onPress={() => navigation.navigate("FoodDetail", { id: item.id })}
+              >
+                {item.image_url && (
+                  <Image
+                    source={{ uri: item.image_url }}
+                    style={styles.historyImage}
+                    accessibilityLabel={`Food photo: ${item.name}`}
+                  />
+                )}
+                <View style={styles.historyContent}>
+                  <Text style={styles.historyName}>{item.name}</Text>
+                  <Text style={styles.historyDate}>{new Date(item.scannedAt).toLocaleString()}</Text>
+                </View>
+                {score !== null && (
+                  <Text style={styles.historyScore}>{score}</Text>
+                )}
+              </Pressable>
+            );
+          })}
         </View>
       )}
     </ScrollView>

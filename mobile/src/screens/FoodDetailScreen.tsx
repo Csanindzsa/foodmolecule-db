@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, T
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodDetail, type FoodGuide, type HealthBreakdown, type Study } from "../lib/api";
+import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "FoodDetail">;
@@ -112,11 +113,11 @@ export default function FoodDetailScreen({ route }: Props) {
       <View style={styles.scoreRow}>
         <View style={styles.scoreBox}>
           <Text style={styles.scoreLabel}>Health</Text>
-          <Text style={styles.scoreValue}>{food.health_index ?? "?"}</Text>
+          <Text style={styles.scoreValue}>{formatScore(food.health_index, "?")}</Text>
         </View>
         <View style={styles.scoreBox}>
           <Text style={styles.scoreLabel}>Safety</Text>
-          <Text style={styles.scoreValue}>{food.overall_safety_score ?? "?"}</Text>
+          <Text style={styles.scoreValue}>{formatScore(food.overall_safety_score, "?")}</Text>
         </View>
       </View>
       {!!food.origin && <Text style={styles.meta}>Origin: {food.origin}</Text>}
@@ -126,15 +127,15 @@ export default function FoodDetailScreen({ route }: Props) {
         <View style={styles.breakdownGrid}>
           <View style={styles.breakdownItem}>
             <Text style={styles.scoreLabel}>Benefit</Text>
-            <Text style={styles.breakdownValue}>{breakdown.benefit_score}</Text>
+            <Text style={styles.breakdownValue}>{formatScore(breakdown.benefit_score, "?")}</Text>
           </View>
           <View style={styles.breakdownItem}>
             <Text style={styles.scoreLabel}>Safety</Text>
-            <Text style={styles.breakdownValue}>{breakdown.safety_score}</Text>
+            <Text style={styles.breakdownValue}>{formatScore(breakdown.safety_score, "?")}</Text>
           </View>
           <View style={styles.breakdownItem}>
             <Text style={styles.scoreLabel}>Bioavailability</Text>
-            <Text style={styles.breakdownValue}>{breakdown.bioavailability_score}</Text>
+            <Text style={styles.breakdownValue}>{formatScore(breakdown.bioavailability_score, "?")}</Text>
           </View>
         </View>
       ) : (

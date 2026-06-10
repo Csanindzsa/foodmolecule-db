@@ -4,6 +4,7 @@ import { ActivityIndicator, Button, Image, Pressable, ScrollView, StyleSheet, Te
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type ScanResponse } from "../lib/api";
+import { formatScore, normalizeScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 import { useHistoryStore } from "../stores/useHistoryStore";
 
@@ -43,7 +44,7 @@ export default function ScanScreen({ navigation }: Props) {
           id: food.id,
           name: food.name,
           image_url: food.image_url,
-          health_index: food.health_index ?? null,
+          health_index: normalizeScore(food.health_index),
           scannedAt: new Date().toISOString(),
         });
       }
@@ -122,7 +123,7 @@ export default function ScanScreen({ navigation }: Props) {
               <View style={styles.matchContent}>
                 <Text style={styles.matchTitle}>{food.name}</Text>
                 <Text style={styles.meta}>
-                  Health {food.health_index ?? "unknown"} · Hazard {food.max_molecule_harm ?? "unknown"}
+                  Health {formatScore(food.health_index)} · Hazard {food.max_molecule_harm ?? "unknown"}
                 </Text>
               </View>
             </Pressable>
