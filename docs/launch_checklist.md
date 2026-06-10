@@ -28,6 +28,7 @@
 
 ### Mobile
 - [ ] Verify static Expo release contract with `python scripts/check_mobile_release.py` (`docs/mobile_release_checks.md`); rerun with `--require-store-ids` after bundle/package IDs are chosen
+- [ ] Install mobile dependencies with `cd mobile && bun install --frozen-lockfile`, then run `bun run typecheck`
 - [ ] Build Expo app (`cd mobile && npx expo prebuild`)
 - [ ] Test on physical iOS and Android devices
 - [ ] Verify camera permission flow and OCR accuracy on real labels

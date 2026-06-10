@@ -41,6 +41,7 @@ def _plugin_names(config: dict) -> set[str]:
 def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = False) -> tuple[MobileCheck, ...]:
     app = _load_json(mobile_root / "app.json")["expo"]
     eas = _load_json(mobile_root / "eas.json")
+    package = _load_json(mobile_root / "package.json")
     app_root = (mobile_root / "App.tsx").read_text(encoding="utf-8")
     navigation_types = (mobile_root / "src" / "navigation" / "types.ts").read_text(encoding="utf-8")
     scan_screen = (mobile_root / "src" / "screens" / "ScanScreen.tsx").read_text(encoding="utf-8")
@@ -53,6 +54,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     home_screen = (mobile_root / "src" / "screens" / "HomeScreen.tsx").read_text(encoding="utf-8")
     history_store = (mobile_root / "src" / "stores" / "useHistoryStore.ts").read_text(encoding="utf-8")
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
 
     preview_api = eas["build"]["preview"]["env"].get("EXPO_PUBLIC_API_URL", "")
@@ -87,6 +89,15 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and '"name": "nutrii-mobile"' in (mobile_root / "bun.lock").read_text(encoding="utf-8")
             and '"expo": "~52.0.0"' in (mobile_root / "bun.lock").read_text(encoding="utf-8"),
             "mobile Bun installs must be reproducible from a committed lockfile",
+        ),
+        MobileCheck(
+            "mobile-ci-typecheck",
+            package.get("scripts", {}).get("typecheck") == "tsc --noEmit"
+            and "name: Mobile typecheck" in workflow
+            and "working-directory: mobile" in workflow
+            and "bun install --frozen-lockfile" in workflow
+            and "bun run typecheck" in workflow,
+            "CI must install locked mobile dependencies and run the Expo TypeScript check",
         ),
         MobileCheck(
             "scan-screen-wiring",

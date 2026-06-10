@@ -16,6 +16,7 @@ def test_mobile_release_checker_passes_static_mvp_contract():
         "camera-and-library-plugins",
         "ios-permission-copy",
         "mobile-bun-lockfile",
+        "mobile-ci-typecheck",
         "scan-screen-wiring",
         "scan-api-client",
         "scan-upload-mime-contract",
@@ -47,6 +48,7 @@ def test_mobile_release_cli_outputs_summary(capsys):
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "ok\tproduction-api-url" in captured.out
+    assert "ok\tmobile-ci-typecheck" in captured.out
     assert "ok\tscan-result-ux-contract" in captured.out
     assert "ok\tscan-history-context-contract" in captured.out
     assert "ok\tmobile-image-surface-contract" in captured.out
