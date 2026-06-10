@@ -284,6 +284,7 @@ describe("FoodDetail page", () => {
       data: [{
         ...mockMolecules[0],
         is_beneficial: false,
+        amount_per_100g: "not-an-amount",
         molecule: { ...mockMolecules[0].molecule, harm_level: Number.NaN },
       }],
       isLoading: false,
@@ -295,6 +296,7 @@ describe("FoodDetail page", () => {
 
     expect(document.body.textContent).toContain("Vitamin C");
     expect(document.body.textContent).toContain("Neutral");
+    expect(document.body.textContent).not.toContain("not-an-amount");
     expect(document.body.textContent).not.toContain("NaN");
   });
 

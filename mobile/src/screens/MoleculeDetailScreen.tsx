@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type MoleculeDetail } from "../lib/api";
+import { formatAmount } from "../lib/amountDisplay";
 import { asArray } from "../lib/array";
 import { formatHarmLevel, formatLinkedFoodCount } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
@@ -115,7 +116,7 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
           <Text style={styles.foodName}>{food.name}</Text>
           <Text style={styles.meta}>
             {food.category ?? "Uncategorized"}
-            {food.amount_per_100g ? ` · ${food.amount_per_100g} ${food.unit || ""}` : ""}
+            {food.amount_per_100g ? ` · ${formatAmount(food.amount_per_100g, food.unit)}` : ""}
             {food.is_beneficial ? " · beneficial" : ""}
           </Text>
         </Pressable>

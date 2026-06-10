@@ -54,6 +54,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     home_screen = (mobile_root / "src" / "screens" / "HomeScreen.tsx").read_text(encoding="utf-8")
     history_store = (mobile_root / "src" / "stores" / "useHistoryStore.ts").read_text(encoding="utf-8")
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
+    amount_display = (mobile_root / "src" / "lib" / "amountDisplay.ts").read_text(encoding="utf-8")
     ban_list_display = (mobile_root / "src" / "lib" / "banListDisplay.ts").read_text(encoding="utf-8")
     safe_url = (mobile_root / "src" / "lib" / "safeUrl.ts").read_text(encoding="utf-8")
     confidence_display = (mobile_root / "src" / "lib" / "confidenceDisplay.ts").read_text(encoding="utf-8")
@@ -225,13 +226,17 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "molecule.harm_mechanisms" in molecule_detail_screen
             and "formatHarmLevel(molecule.harm_level" in molecule_detail_screen
             and "formatLinkedFoodCount(molecule.linked_food_count" in molecule_detail_screen
+            and "formatAmount(food.amount_per_100g, food.unit)" in molecule_detail_screen
             and "formatHarmLevel(entry.molecule.harm_level)" in food_detail_screen
+            and "formatAmount(entry.amount_per_100g, entry.unit)" in food_detail_screen
+            and "formatAmount" in amount_display
+            and "Number.isFinite(parsed)" in amount_display
             and "formatHarmLevel" in molecule_display
             and "formatLinkedFoodCount" in molecule_display
             and "Number.isFinite(value)" in molecule_display
             and "molecule.foods" in molecule_detail_screen
             and 'navigation.navigate("FoodDetail"' in molecule_detail_screen,
-            "mobile must expose molecule surfaces with structure image, sanitized harm/count context, and linked foods",
+            "mobile must expose molecule surfaces with structure image, sanitized harm/count/amount context, and linked foods",
         ),
         MobileCheck(
             "mobile-research-surface-contract",

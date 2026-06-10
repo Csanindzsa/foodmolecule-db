@@ -35,6 +35,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
     vite = _read(web_root / "vite.config.ts")
     api_client = _read(web_root / "src" / "lib" / "api.ts")
     compare_page = _read(web_root / "src" / "pages" / "Compare.tsx")
+    amount_display = _read(web_root / "src" / "lib" / "amountDisplay.ts")
     compare_display = _read(web_root / "src" / "lib" / "compareDisplay.ts")
     food_detail = _read(web_root / "src" / "pages" / "FoodDetail.tsx")
     molecule_detail = _read(web_root / "src" / "pages" / "MoleculeDetail.tsx")
@@ -109,9 +110,12 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "harmLevelBadgeClass(molecule.harm_level)" in molecule_detail
             and "foodMoleculeBadgeClass(fm.molecule.harm_level" in food_detail
             and "foodMoleculeBadgeLabel(fm.molecule.harm_level" in food_detail
+            and "formatAmount(fm.amount_per_100g, fm.unit)" in food_detail
+            and "formatAmount" in amount_display
+            and "Number.isFinite(parsed)" in amount_display
             and "normalizeHarmLevel" in molecule_display
             and "Number.isFinite(value)" in molecule_display,
-            "web molecule surfaces must sanitize harm levels before rendering text or badge classes",
+            "web molecule surfaces must sanitize harm levels and amounts before rendering text or badge classes",
         ),
         WebReleaseCheck(
             "ci-web-build",

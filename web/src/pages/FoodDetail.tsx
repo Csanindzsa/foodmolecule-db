@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useFoodDetail, useFoodMolecules, useFoodStudies, useFoodGuide, useFoodHealthIndex } from "../hooks/useApi";
+import { formatAmount } from "../lib/amountDisplay";
 import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatDate } from "../lib/dateDisplay";
 import { foodMoleculeBadgeClass, foodMoleculeBadgeLabel } from "../lib/moleculeDisplay";
@@ -165,13 +166,16 @@ export default function FoodDetail() {
           </div>
         ) : molecules && molecules.length > 0 ? (
           <div className="space-y-2">
-            {molecules.map((fm) => (
+            {molecules.map((fm) => {
+              const amount = formatAmount(fm.amount_per_100g, fm.unit);
+
+              return (
               <div key={fm.molecule.id} className="flex items-center justify-between p-3 rounded-lg border bg-white dark:border-gray-700 dark:bg-gray-800">
                 <div>
                   <span className="font-medium">{fm.molecule.name}</span>
-                  {fm.amount_per_100g !== null && (
+                  {amount && (
                     <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                      {fm.amount_per_100g} {fm.unit}
+                      {amount}
                     </span>
                   )}
                 </div>
@@ -181,7 +185,8 @@ export default function FoodDetail() {
                   {foodMoleculeBadgeLabel(fm.molecule.harm_level, fm.is_beneficial)}
                 </span>
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="text-gray-400 dark:text-gray-500">No molecule data available.</p>
