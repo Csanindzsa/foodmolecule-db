@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { api, type MoleculeDetail } from "../lib/api";
 import { formatAmount } from "../lib/amountDisplay";
 import { asArray } from "../lib/array";
-import { formatHarmLevel, formatLinkedFoodCount, formatPubChemCid } from "../lib/moleculeDisplay";
+import { formatHarmLevel, formatLinkedFoodCount, formatMolecularWeight, formatPubChemCid } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -71,6 +71,7 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
   const foods = asArray(molecule.foods);
   const harmMechanisms = asArray(molecule.harm_mechanisms);
   const imageUrl = externalHttpUrl(molecule.structure_image_url);
+  const molecularWeight = formatMolecularWeight(molecule.molecular_weight);
   const pubChemCid = formatPubChemCid(molecule.pubchem_cid);
 
   return (
@@ -94,6 +95,7 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
         </View>
       </View>
       {!!molecule.molecular_formula && <Text style={styles.meta}>Formula: {molecule.molecular_formula}</Text>}
+      {!!molecularWeight && <Text style={styles.meta}>Molecular weight: {molecularWeight} g/mol</Text>}
       {!!molecule.cas_number && <Text style={styles.meta}>CAS: {molecule.cas_number}</Text>}
       {!!pubChemCid && <Text style={styles.meta}>PubChem CID: {pubChemCid}</Text>}
       <Text style={styles.meta}>

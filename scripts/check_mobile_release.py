@@ -226,6 +226,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "molecule.harm_mechanisms" in molecule_detail_screen
             and "formatHarmLevel(molecule.harm_level" in molecule_detail_screen
             and "formatLinkedFoodCount(molecule.linked_food_count" in molecule_detail_screen
+            and "formatMolecularWeight(molecule.molecular_weight)" in molecule_detail_screen
             and "formatPubChemCid(molecule.pubchem_cid)" in molecule_detail_screen
             and "formatAmount(food.amount_per_100g, food.unit)" in molecule_detail_screen
             and "formatHarmLevel(entry.molecule.harm_level)" in food_detail_screen
@@ -234,11 +235,12 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "Number.isFinite(parsed)" in amount_display
             and "formatHarmLevel" in molecule_display
             and "formatLinkedFoodCount" in molecule_display
+            and "formatMolecularWeight" in molecule_display
             and "formatPubChemCid" in molecule_display
             and "Number.isFinite(value)" in molecule_display
             and "molecule.foods" in molecule_detail_screen
             and 'navigation.navigate("FoodDetail"' in molecule_detail_screen,
-            "mobile must expose molecule surfaces with structure image, sanitized harm/count/amount/property context, and linked foods",
+            "mobile must expose molecule surfaces with structure image, sanitized harm/count/amount/molecular-property context, and linked foods",
         ),
         MobileCheck(
             "mobile-research-surface-contract",

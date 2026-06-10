@@ -8,6 +8,12 @@ export function formatLinkedFoodCount(value: unknown, fallback = "unknown"): str
   return String(Math.max(0, Math.round(value)));
 }
 
+export function formatMolecularWeight(value: unknown): string | null {
+  if (value == null || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? String(parsed) : null;
+}
+
 export function formatPubChemCid(value: unknown): string | null {
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
   const cid = Math.trunc(value);
