@@ -158,10 +158,14 @@ describe("api", () => {
 
   describe("compare", () => {
     test("throws when ids array is empty", () => {
-      expect(() => api.compare([])).toThrow("compare requires at least one food ID");
+      expect(() => api.compare([])).toThrow("Compare requires 2-3 food IDs.");
     });
 
-    test("does not throw when ids array is non-empty", () => {
+    test("throws when ids array has only one value", () => {
+      expect(() => api.compare(["1"])).toThrow("Compare requires 2-3 food IDs.");
+    });
+
+    test("does not throw when ids array has two values", () => {
       mockFetch.mockImplementation(() =>
         Promise.resolve(
           new Response(JSON.stringify({ foods: [], shared_molecules: [], total_unique_molecules: 0 }), {
@@ -170,7 +174,7 @@ describe("api", () => {
           })
         )
       );
-      expect(() => api.compare(["1"])).not.toThrow();
+      expect(() => api.compare(["1", "2"])).not.toThrow();
     });
 
     test("calls /foods/compare/ with comma-separated ids", async () => {
@@ -211,7 +215,7 @@ describe("api", () => {
           })
         )
       );
-      const result = await api.compare(["1"]);
+      const result = await api.compare(["1", "2"]);
       expect(result).toEqual(data);
       expect(result.foods[0].molecules).toEqual({ "Water": 95.5 });
       expect(result.shared_molecules).toEqual(["Water"]);
@@ -400,12 +404,10 @@ describe("api", () => {
       expect(url.length).toBeGreaterThan(5000);
     });
 
-    test("compare handles many IDs creating very long URL", async () => {
+    test("compare rejects too many IDs before fetch", async () => {
       const ids = Array.from({ length: 500 }, (_, i) => `id-${i}`);
-      await api.compare(ids);
-      const url = mockFetch.mock.calls[0][0] as string;
-      expect(url.startsWith("/api/v1/foods/compare/?ids=")).toBe(true);
-      expect(url.length).toBeGreaterThan(2000);
+      expect(() => api.compare(ids)).toThrow("Compare requires 2-3 food IDs.");
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     test("compare handles path traversal in individual IDs", async () => {
@@ -414,10 +416,14 @@ describe("api", () => {
       expect(url).toBe("/api/v1/foods/compare/?ids=..%2F..%2Fadmin,normal-id,..%2F..%2F..%2Fetc%2Fpasswd");
     });
 
-    test("compare handles empty string IDs in array", async () => {
-      await api.compare(["", "valid", ""]);
-      const url = mockFetch.mock.calls[0][0] as string;
-      expect(url).toBe("/api/v1/foods/compare/?ids=,valid,");
+    test("compare rejects empty string IDs before fetch", async () => {
+      expect(() => api.compare(["", "valid", "other"])).toThrow("Compare IDs must be non-empty.");
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    test("compare rejects duplicate IDs before fetch", async () => {
+      expect(() => api.compare(["same", "same"])).toThrow("Compare IDs must be unique.");
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     test("compare handles IDs with special characters", async () => {

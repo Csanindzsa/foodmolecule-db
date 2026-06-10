@@ -116,6 +116,11 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
         WebReleaseCheck(
             "compare-display-sanitizers",
             "moleculeAmountEntries(food.molecules)" in compare_page
+            and "function compareIdsPath" in api_client
+            and "MIN_COMPARE_IDS = 2" in api_client
+            and "MAX_COMPARE_IDS = 3" in api_client
+            and "Compare IDs must be unique." in api_client
+            and "Compare IDs must be non-empty." in api_client
             and "sharedMoleculeNames(data.shared_molecules)" in compare_page
             and "formatCount(data.total_unique_molecules)" in compare_page
             and "moleculeAmountEntries" in compare_display
@@ -123,7 +128,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "sharedMoleculeNames" in compare_display
             and "formatCount" in compare_display
             and "Number.isFinite(value)" in compare_display,
-            "web compare page must sanitize molecule amounts, shared names, and count displays",
+            "web compare page and API client must bound IDs and sanitize molecule/count displays",
         ),
         WebReleaseCheck(
             "molecule-display-sanitizers",

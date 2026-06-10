@@ -1,5 +1,7 @@
 const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
 const MAX_SEARCH_QUERY_CHARS = 128;
+const MIN_COMPARE_IDS = 2;
+const MAX_COMPARE_IDS = 3;
 
 async function fetcher<T>(path: string): Promise<T> {
   const resp = await fetch(`${API_BASE}${path}`);
@@ -27,6 +29,19 @@ function searchQueryPath(q: string): string {
   return `/foods/search/?q=${encodeURIComponent(q)}`;
 }
 
+function compareIdsPath(ids: string[]): string {
+  if (ids.length < MIN_COMPARE_IDS || ids.length > MAX_COMPARE_IDS) {
+    throw new Error("Compare requires 2-3 food IDs.");
+  }
+  if (ids.some((id) => id.trim().length === 0)) {
+    throw new Error("Compare IDs must be non-empty.");
+  }
+  if (new Set(ids).size !== ids.length) {
+    throw new Error("Compare IDs must be unique.");
+  }
+  return "/foods/compare/?ids=" + ids.map(encodeURIComponent).join(",");
+}
+
 export const api = {
   foods: () => fetcher<{ results: Food[] }>("/foods/"),
   food: (id: string) => fetcher<Food>(`/foods/${pathId(id)}/`),
@@ -38,10 +53,7 @@ export const api = {
   molecule: (id: string) => fetcher<Molecule>(`/molecules/${pathId(id)}/`),
   stats: () => fetcher<Record<string, number>>("/stats/"),
   banList: () => fetcher<{ results: BanListEntry[] }>("/ban-list/"),
-  compare: (ids: string[]) => {
-    if (ids.length === 0) throw new Error("compare requires at least one food ID");
-    return fetcher<FoodCompareResult>("/foods/compare/?ids=" + ids.map(encodeURIComponent).join(","));
-  },
+  compare: (ids: string[]) => fetcher<FoodCompareResult>(compareIdsPath(ids)),
   guide: (id: string) => fetcher<{ food_id: string; guide: string | null; version: number; generated_by: string; generated_at: string }>(`/foods/${pathId(id)}/guide/`),
 };
 

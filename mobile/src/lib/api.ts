@@ -11,6 +11,8 @@ const localApiUrl = Platform.OS === "android"
 
 const API_BASE = (configuredApiUrl || localApiUrl).replace(/\/$/, "");
 const MAX_SEARCH_QUERY_CHARS = 128;
+const MIN_COMPARE_IDS = 2;
+const MAX_COMPARE_IDS = 3;
 
 function pathId(id: string): string {
   return encodeURIComponent(id);
@@ -21,6 +23,19 @@ function searchQueryPath(query: string): string {
     throw new Error(`Search queries are limited to ${MAX_SEARCH_QUERY_CHARS} characters.`);
   }
   return `/foods/search/?q=${encodeURIComponent(query)}&dedupe=ingredient_signature`;
+}
+
+function compareIdsPath(ids: string[]): string {
+  if (ids.length < MIN_COMPARE_IDS || ids.length > MAX_COMPARE_IDS) {
+    throw new Error("Compare requires 2-3 food IDs.");
+  }
+  if (ids.some((id) => id.trim().length === 0)) {
+    throw new Error("Compare IDs must be non-empty.");
+  }
+  if (new Set(ids).size !== ids.length) {
+    throw new Error("Compare IDs must be unique.");
+  }
+  return `/foods/compare/?ids=${ids.map(encodeURIComponent).join(",")}`;
 }
 
 export type FoodListItem = {
@@ -187,7 +202,7 @@ export const api = {
   foodGuide: (id: string) => request<FoodGuide>(`/foods/${pathId(id)}/guide/`),
   foodHealthIndex: (id: string) => request<HealthBreakdown>(`/foods/${pathId(id)}/health-index/`),
   banList: () => request<{ results: BanListEntry[] }>("/ban-list/"),
-  compare: (ids: string[]) => request<CompareResponse>(`/foods/compare/?ids=${ids.map(encodeURIComponent).join(",")}`),
+  compare: (ids: string[]) => request<CompareResponse>(compareIdsPath(ids)),
   scanImage: (uri: string) => {
     const body = new FormData();
     body.append("image", {

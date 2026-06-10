@@ -76,6 +76,17 @@ describe("mobile API client", () => {
     );
   });
 
+  test("compare rejects invalid ID lists before fetch", () => {
+    const fetchMock = mock(async () => jsonResponse({ foods: [], shared_molecules: [], total_unique_molecules: 0 }));
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    expect(() => api.compare(["one"])).toThrow("Compare requires 2-3 food IDs.");
+    expect(() => api.compare(["one", "two", "three", "four"])).toThrow("Compare requires 2-3 food IDs.");
+    expect(() => api.compare(["one", ""])).toThrow("Compare IDs must be non-empty.");
+    expect(() => api.compare(["one", "one"])).toThrow("Compare IDs must be unique.");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   test("throws server detail text for non-ok JSON responses", async () => {
     globalThis.fetch = mock(async () => jsonResponse({ detail: "Research temporarily unavailable" }, 503)) as unknown as typeof fetch;
 

@@ -386,6 +386,11 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "mobile-compare-contract",
             "type CompareResponse" in api_client
             and "compare:" in api_client
+            and "function compareIdsPath" in api_client
+            and "MIN_COMPARE_IDS = 2" in api_client
+            and "MAX_COMPARE_IDS = 3" in api_client
+            and "Compare IDs must be unique." in api_client
+            and "Compare IDs must be non-empty." in api_client
             and "/foods/compare/?ids=" in api_client
             and "Compare: undefined" in navigation_types
             and "CompareScreen" in app_root
