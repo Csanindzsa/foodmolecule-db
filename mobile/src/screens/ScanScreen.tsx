@@ -4,6 +4,7 @@ import { ActivityIndicator, Button, Image, Pressable, ScrollView, StyleSheet, Te
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type ScanResponse } from "../lib/api";
+import { asArray } from "../lib/array";
 import { formatPercent, formatScore, normalizeScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 import { useHistoryStore } from "../stores/useHistoryStore";
@@ -38,6 +39,8 @@ export default function ScanScreen({ navigation }: Props) {
     setError(null);
     try {
       const response = await api.scanImage(uri);
+      response.foods = asArray(response.foods);
+      response.ingredients = asArray(response.ingredients);
       setScanResult(response);
       for (const food of response.foods.slice(0, 5)) {
         addHistory({
@@ -55,6 +58,9 @@ export default function ScanScreen({ navigation }: Props) {
       setIsScanning(false);
     }
   }
+
+  const detectedIngredients = scanResult ? asArray(scanResult.ingredients) : [];
+  const matchedFoods = scanResult ? asArray(scanResult.foods) : [];
 
   async function takePictureAndScan() {
     try {
@@ -96,9 +102,9 @@ export default function ScanScreen({ navigation }: Props) {
         <View style={styles.resultPanel}>
           <Text style={styles.sectionTitle}>Detected ingredients</Text>
           <Text style={styles.meta}>OCR confidence {formatPercent(scanResult.confidence)}</Text>
-          {scanResult.ingredients.length > 0 ? (
+          {detectedIngredients.length > 0 ? (
             <View style={styles.chipWrap}>
-              {scanResult.ingredients.slice(0, 16).map((ingredient) => (
+              {detectedIngredients.slice(0, 16).map((ingredient) => (
                 <Text key={ingredient} style={styles.chip}>{ingredient}</Text>
               ))}
             </View>
@@ -107,7 +113,7 @@ export default function ScanScreen({ navigation }: Props) {
           )}
 
           <Text style={styles.sectionTitle}>Matched foods</Text>
-          {scanResult.foods.length > 0 ? scanResult.foods.map((food) => (
+          {matchedFoods.length > 0 ? matchedFoods.map((food) => (
             <Pressable
               key={food.id}
               style={styles.matchItem}
