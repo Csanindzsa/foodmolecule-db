@@ -96,12 +96,14 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
         WebReleaseCheck(
             "compare-display-sanitizers",
             "moleculeAmountEntries(food.molecules)" in compare_page
+            and "sharedMoleculeNames(data.shared_molecules)" in compare_page
             and "formatCount(data.total_unique_molecules)" in compare_page
             and "moleculeAmountEntries" in compare_display
             and "Number.isFinite(amount)" in compare_display
+            and "sharedMoleculeNames" in compare_display
             and "formatCount" in compare_display
             and "Number.isFinite(value)" in compare_display,
-            "web compare page must sanitize molecule amounts and count displays",
+            "web compare page must sanitize molecule amounts, shared names, and count displays",
         ),
         WebReleaseCheck(
             "molecule-display-sanitizers",

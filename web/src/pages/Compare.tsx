@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useCompare } from "../hooks/useApi";
-import { formatCount, moleculeAmountEntries } from "../lib/compareDisplay";
+import { formatCount, moleculeAmountEntries, sharedMoleculeNames } from "../lib/compareDisplay";
 import { formatScore, normalizeScore } from "../lib/scoreDisplay";
 
 function getHealthBarColor(healthIndex: number): string {
@@ -95,6 +95,7 @@ export default function Compare() {
   }
 
   const foodCount = data.foods.length;
+  const sharedMolecules = sharedMoleculeNames(data.shared_molecules);
 
   return (
     <div className="space-y-8">
@@ -158,11 +159,11 @@ export default function Compare() {
         })}
       </div>
 
-      {data.shared_molecules.length > 0 && (
+      {sharedMolecules.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5">
           <h2 className="text-lg font-semibold mb-3">Shared Molecules</h2>
           <div className="flex flex-wrap gap-2">
-            {data.shared_molecules.map((moleculeName) => (
+            {sharedMolecules.map((moleculeName) => (
               <span
                 key={moleculeName}
                 className="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-sm px-3 py-1 rounded-full"

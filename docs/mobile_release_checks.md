@@ -39,7 +39,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - Food detail and Recent Research render AI confidence labels through the high/medium/low display allowlist.
 - Food detail surfaces AI guide copy and health-index breakdowns from the existing backend endpoints.
 - Ban List is reachable from Home and surfaces draft/citation-required safety entries with sanitized dose displays and food-detail navigation.
-- Compare is reachable from Home, searches foods, selects 2-3 foods, calls the backend compare endpoint, and sanitizes molecule/count displays.
+- Compare is reachable from Home, searches foods, selects 2-3 foods, calls the backend compare endpoint, and sanitizes molecule/shared-name/count displays.
 - Development, preview, and production EAS build profiles exist.
 
 ## What It Does Not Prove

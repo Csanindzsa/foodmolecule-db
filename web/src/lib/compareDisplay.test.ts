@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatCount, moleculeAmountEntries } from "./compareDisplay";
+import { formatCount, moleculeAmountEntries, sharedMoleculeNames } from "./compareDisplay";
 
 describe("compare display helpers", () => {
   test("moleculeAmountEntries keeps finite molecule amounts sorted descending", () => {
@@ -20,5 +20,10 @@ describe("compare display helpers", () => {
     expect(formatCount(2.6)).toBe("3");
     expect(formatCount(-2)).toBe("0");
     expect(formatCount(Number.NaN)).toBe("unknown");
+  });
+
+  test("sharedMoleculeNames keeps trimmed non-empty string names only", () => {
+    expect(sharedMoleculeNames([" Fiber ", "", 42, { name: "Bad" }, "Water"])).toEqual(["Fiber", "Water"]);
+    expect(sharedMoleculeNames("Fiber")).toEqual([]);
   });
 });

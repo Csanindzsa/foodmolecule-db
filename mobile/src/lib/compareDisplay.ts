@@ -12,3 +12,11 @@ export function formatCount(value: unknown, fallback = "unknown"): string {
   if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
   return String(Math.max(0, Math.round(value)));
 }
+
+export function sharedMoleculeNames(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((name): name is string => typeof name === "string")
+    .map((name) => name.trim())
+    .filter((name) => name.length > 0);
+}

@@ -4,7 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type CompareResponse, type FoodListItem } from "../lib/api";
 import { asArray, firstItems } from "../lib/array";
-import { formatCount, moleculeAmountEntries } from "../lib/compareDisplay";
+import { formatCount, moleculeAmountEntries, sharedMoleculeNames } from "../lib/compareDisplay";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -23,7 +23,7 @@ export default function CompareScreen({ navigation }: Props) {
   const [isComparing, setIsComparing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const comparisonFoods = comparison ? asArray(comparison.foods) : [];
-  const sharedMolecules = comparison ? asArray(comparison.shared_molecules) : [];
+  const sharedMolecules = comparison ? sharedMoleculeNames(comparison.shared_molecules) : [];
 
   const runSearch = () => {
     const trimmed = query.trim();

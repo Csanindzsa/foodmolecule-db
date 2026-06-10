@@ -614,6 +614,25 @@ describe("Compare page", () => {
     expect(blueBadge!.textContent).toBe("Fiber");
   });
 
+  test("malformed shared molecule names are hidden from display", () => {
+    mockUseCompare.mockReturnValue({
+      data: {
+        ...mockCompareData,
+        shared_molecules: [" Fiber ", "", 42, { name: "Bad" }],
+      },
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<Compare />, ["/compare?ids=f1,f2"]);
+
+    expect(container.textContent).toContain("Shared Molecules");
+    expect(container.textContent).toContain("Fiber");
+    expect(container.textContent).not.toContain("[object Object]");
+    expect(container.textContent).not.toContain("Bad");
+  });
+
   test("shared molecules section is hidden when empty", () => {
     mockUseCompare.mockReturnValue({
       data: { ...mockCompareData, shared_molecules: [] },

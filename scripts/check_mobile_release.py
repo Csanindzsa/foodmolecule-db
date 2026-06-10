@@ -342,13 +342,15 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "comparison.shared_molecules" in compare_screen
             and "comparison.total_unique_molecules" in compare_screen
             and "moleculeAmountEntries(food.molecules)" in compare_screen
+            and "sharedMoleculeNames(comparison.shared_molecules)" in compare_screen
             and "formatCount(comparison.total_unique_molecules)" in compare_screen
             and "moleculeAmountEntries" in compare_display
             and "Number.isFinite(amount)" in compare_display
+            and "sharedMoleculeNames" in compare_display
             and "formatCount" in compare_display
             and "Number.isFinite(value)" in compare_display
             and 'navigation.navigate("FoodDetail"' in compare_screen,
-            "mobile must support comparing foods with sanitized molecule and count displays",
+            "mobile must support comparing foods with sanitized molecule, shared-name, and count displays",
         ),
         MobileCheck(
             "eas-build-profiles",
