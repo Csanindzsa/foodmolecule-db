@@ -36,6 +36,9 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
     api_client = _read(web_root / "src" / "lib" / "api.ts")
     api_hooks = _read(web_root / "src" / "hooks" / "useApi.ts")
     array_utils = _read(web_root / "src" / "lib" / "array.ts")
+    home_page = _read(web_root / "src" / "pages" / "Home.tsx")
+    search_page = _read(web_root / "src" / "pages" / "Search.tsx")
+    ban_list_page = _read(web_root / "src" / "pages" / "BanList.tsx")
     compare_page = _read(web_root / "src" / "pages" / "Compare.tsx")
     amount_display = _read(web_root / "src" / "lib" / "amountDisplay.ts")
     compare_display = _read(web_root / "src" / "lib" / "compareDisplay.ts")
@@ -44,6 +47,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
     molecule_detail = _read(web_root / "src" / "pages" / "MoleculeDetail.tsx")
     molecule_display = _read(web_root / "src" / "lib" / "moleculeDisplay.ts")
     score_display = _read(web_root / "src" / "lib" / "scoreDisplay.ts")
+    text_display = _read(web_root / "src" / "lib" / "textDisplay.ts")
     index = _read(web_root / "index.html")
     robots = _read(web_root / "public" / "robots.txt")
     sitemap = _read(web_root / "public" / "sitemap.xml")
@@ -148,6 +152,17 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "formatGuideText" in guide_display
             and 'typeof value !== "string"' in guide_display,
             "web food detail must sanitize AI guide copy before rendering",
+        ),
+        WebReleaseCheck(
+            "optional-text-sanitizers",
+            "formatOptionalText" in text_display
+            and 'typeof value !== "string"' in text_display
+            and "formatOptionalText(food.category)" in home_page
+            and "formatOptionalText(food.category)" in food_detail
+            and "formatOptionalText(m.molecular_formula)" in search_page
+            and "formatOptionalText(entry.food?.category)" in ban_list_page
+            and "formatOptionalText(food.category)" in molecule_detail,
+            "web optional category and formula text must be sanitized before rendering",
         ),
         WebReleaseCheck(
             "ci-web-build",

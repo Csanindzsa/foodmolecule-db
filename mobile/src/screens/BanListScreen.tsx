@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { api, type BanListEntry } from "../lib/api";
 import { asArray } from "../lib/array";
 import { formatLethalDose } from "../lib/banListDisplay";
+import { formatOptionalText } from "../lib/textDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "BanList">;
@@ -60,12 +61,16 @@ export default function BanListScreen({ navigation }: Props) {
       </Text>
       {entries.length === 0 ? (
         <Text style={styles.meta}>No ban list entries found.</Text>
-      ) : entries.map((entry) => (
+      ) : entries.map((entry) => {
+        const category = formatOptionalText(entry.food?.category);
+        const safeCondition = formatOptionalText(entry.safe_condition);
+
+        return (
         <View key={entry.id} style={styles.entry}>
           <View style={styles.entryHeader}>
             <View style={styles.entryTitleWrap}>
               <Text style={styles.foodName}>{entry.food?.name ?? "Unknown food"}</Text>
-              {!!entry.food?.category && <Text style={styles.meta}>{entry.food.category}</Text>}
+              {category && <Text style={styles.meta}>{category}</Text>}
             </View>
             <Text style={entry.is_conditionally_safe ? styles.conditionalBadge : styles.absoluteBadge}>
               {entry.is_conditionally_safe ? "Conditional" : "Absolute"}
@@ -73,7 +78,7 @@ export default function BanListScreen({ navigation }: Props) {
           </View>
           <Text style={styles.reason}>{entry.reason}</Text>
           <Text style={styles.meta}>Lethal dose: {formatLethalDose(entry.lethal_dose_mg)}</Text>
-          {!!entry.safe_condition && <Text style={styles.meta}>Safe condition: {entry.safe_condition}</Text>}
+          {safeCondition && <Text style={styles.meta}>Safe condition: {safeCondition}</Text>}
           <Text style={styles.citationBadge}>Citation-required draft</Text>
           {!!entry.food && (
             <Pressable
@@ -85,7 +90,8 @@ export default function BanListScreen({ navigation }: Props) {
             </Pressable>
           )}
         </View>
-      ))}
+        );
+      })}
     </ScrollView>
   );
 }

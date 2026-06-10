@@ -7,6 +7,7 @@ import { asArray, stringItems } from "../lib/array";
 import { formatHarmLevel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
+import { formatOptionalText } from "../lib/textDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Search">;
@@ -101,6 +102,7 @@ export default function SearchScreen({ navigation }: Props) {
             <Text style={styles.sectionTitle}>Molecules</Text>
             {moleculeResults.map((molecule) => {
               const imageUrl = externalHttpUrl(molecule.structure_image_url);
+              const formula = formatOptionalText(molecule.molecular_formula);
 
               return (
                 <Pressable key={molecule.id} style={styles.resultItem} onPress={() => navigation.navigate("MoleculeDetail", { id: molecule.id })}>
@@ -115,7 +117,7 @@ export default function SearchScreen({ navigation }: Props) {
                     <Text style={styles.resultTitle}>{molecule.name}</Text>
                     <Text style={styles.resultMeta}>
                       Harm {formatHarmLevel(molecule.harm_level)}
-                      {molecule.molecular_formula ? ` · ${molecule.molecular_formula}` : ""}
+                      {formula ? ` · ${formula}` : ""}
                     </Text>
                   </View>
                 </Pressable>

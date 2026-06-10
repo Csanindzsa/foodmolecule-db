@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useSearch } from "../hooks/useApi";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
+import { formatOptionalText } from "../lib/textDisplay";
 
 export default function Search() {
   const [params, setParams] = useSearchParams();
@@ -82,6 +83,7 @@ export default function Search() {
           <div className="grid gap-2">
             {data.molecules.map((m) => {
               const imageUrl = externalHttpUrl(m.structure_image_url);
+              const formula = formatOptionalText(m.molecular_formula);
 
               return (
                 <div key={m.id} className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -95,8 +97,8 @@ export default function Search() {
                   )}
                   <div>
                     <span className="font-medium">{m.name}</span>
-                    {m.molecular_formula && (
-                      <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{m.molecular_formula}</span>
+                    {formula && (
+                      <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{formula}</span>
                     )}
                   </div>
                 </div>

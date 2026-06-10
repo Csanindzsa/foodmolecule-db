@@ -6,12 +6,13 @@ import { api, type CompareResponse, type FoodListItem } from "../lib/api";
 import { asArray, firstItems } from "../lib/array";
 import { formatCount, moleculeAmountEntries, sharedMoleculeNames } from "../lib/compareDisplay";
 import { formatScore } from "../lib/scoreDisplay";
+import { formatOptionalText } from "../lib/textDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Compare">;
 
-function displayCategory(food: FoodListItem): string | null | undefined {
-  return food.category_name ?? food.category;
+function displayCategory(food: FoodListItem): string | null {
+  return formatOptionalText(food.category_name) ?? formatOptionalText(food.category);
 }
 
 export default function CompareScreen({ navigation }: Props) {
@@ -94,18 +95,22 @@ export default function CompareScreen({ navigation }: Props) {
       {results.length > 0 && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Search results</Text>
-          {results.map((food) => (
-            <Pressable key={food.id} style={styles.resultItem} onPress={() => addFood(food)}>
-              <View style={styles.resultContent}>
-                <Text style={styles.foodName}>{food.name}</Text>
-                <Text style={styles.meta}>
-                  Health {formatScore(food.health_index, "?")}
-                  {displayCategory(food) ? ` · ${displayCategory(food)}` : ""}
-                </Text>
-              </View>
-              <Text style={styles.addText}>{selected.some((item) => item.id === food.id) ? "Added" : "Add"}</Text>
-            </Pressable>
-          ))}
+          {results.map((food) => {
+            const category = displayCategory(food);
+
+            return (
+              <Pressable key={food.id} style={styles.resultItem} onPress={() => addFood(food)}>
+                <View style={styles.resultContent}>
+                  <Text style={styles.foodName}>{food.name}</Text>
+                  <Text style={styles.meta}>
+                    Health {formatScore(food.health_index, "?")}
+                    {category ? ` · ${category}` : ""}
+                  </Text>
+                </View>
+                <Text style={styles.addText}>{selected.some((item) => item.id === food.id) ? "Added" : "Add"}</Text>
+              </Pressable>
+            );
+          })}
         </View>
       )}
 

@@ -10,6 +10,7 @@ import { formatGuideMetadata, formatGuideText } from "../lib/guideDisplay";
 import { formatHarmLevel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatHealthLabel, formatScore } from "../lib/scoreDisplay";
+import { formatOptionalText } from "../lib/textDisplay";
 import { formatPublicationYear } from "../lib/yearDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -113,6 +114,7 @@ export default function FoodDetailScreen({ route }: Props) {
   const guideText = formatGuideText(guide?.guide);
   const guideMetadata = formatGuideMetadata(guide?.generated_by, guide?.version);
   const breakdownLabel = formatHealthLabel(breakdown?.label);
+  const origin = formatOptionalText(food.origin);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -134,7 +136,7 @@ export default function FoodDetailScreen({ route }: Props) {
           <Text style={styles.scoreValue}>{formatScore(food.overall_safety_score, "?")}</Text>
         </View>
       </View>
-      {!!food.origin && <Text style={styles.meta}>Origin: {food.origin}</Text>}
+      {origin && <Text style={styles.meta}>Origin: {origin}</Text>}
       {aliases.length > 0 && <Text style={styles.meta}>Also known as: {aliases.join(", ")}</Text>}
       <Text style={styles.sectionTitle}>Health Breakdown</Text>
       {breakdown ? (

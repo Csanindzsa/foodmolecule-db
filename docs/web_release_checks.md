@@ -23,6 +23,7 @@ CI and the local release audit run this command before backend tests.
 - Food and molecule detail pages sanitize text arrays, molecule harm levels, amount values, numeric properties, and neutralization reductions before rendering badge text or classes.
 - Food detail renders health-index labels through the backend label allowlist.
 - Food detail sanitizes AI guide copy before rendering.
+- Optional category and molecular formula text is trimmed and type-checked before rendering.
 - CI installs web dependencies with `bun install --frozen-lockfile`, runs tests, and builds the Vite app.
 
 ## Live Launch Follow-Up

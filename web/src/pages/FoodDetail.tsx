@@ -7,6 +7,7 @@ import { formatGuideText } from "../lib/guideDisplay";
 import { foodMoleculeBadgeClass, foodMoleculeBadgeLabel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatHealthLabel, formatScore, normalizeScore } from "../lib/scoreDisplay";
+import { formatOptionalText } from "../lib/textDisplay";
 import { formatPublicationYear } from "../lib/yearDisplay";
 
 export default function FoodDetail() {
@@ -53,6 +54,7 @@ export default function FoodDetail() {
 
   if (!food) return null;
   const foodImageUrl = externalHttpUrl(food.image_url);
+  const foodCategory = formatOptionalText(food.category);
   const guideText = formatGuideText(guide?.guide);
   const guideGeneratedAt = formatDate(guide?.generated_at);
 
@@ -70,7 +72,7 @@ export default function FoodDetail() {
           )}
           <div className="min-w-0">
             <h1 className="text-3xl font-bold capitalize">{food.name}</h1>
-            {food.category && <p className="text-gray-500 dark:text-gray-400">{food.category}</p>}
+            {foodCategory && <p className="text-gray-500 dark:text-gray-400">{foodCategory}</p>}
           </div>
         </div>
         {healthLoading && !foodLoading ? (

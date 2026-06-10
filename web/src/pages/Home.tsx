@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useHomeData } from "../hooks/useApi";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
+import { formatOptionalText } from "../lib/textDisplay";
 
 function foodCardKey(food: { id?: string; name?: string }, index: number) {
   return food.id || `${food.name || "food"}-${index}`;
@@ -51,6 +52,7 @@ export default function Home() {
             {foods.map((food, index) => {
               const healthIndex = normalizeScore(food.health_index);
               const imageUrl = externalHttpUrl(food.image_url);
+              const category = formatOptionalText(food.category);
 
               return (
                 <Link
@@ -74,8 +76,8 @@ export default function Home() {
                       </span>
                     )}
                   </div>
-                  {food.category && (
-                    <span className="text-xs text-gray-400 dark:text-gray-500 mt-1 block">{food.category}</span>
+                  {category && (
+                    <span className="text-xs text-gray-400 dark:text-gray-500 mt-1 block">{category}</span>
                   )}
                 </Link>
               );

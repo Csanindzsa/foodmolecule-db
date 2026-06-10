@@ -11,6 +11,7 @@ import {
 } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
+import { formatOptionalText } from "../lib/textDisplay";
 import type { MoleculeNeutralization } from "../types";
 
 type NeutralizationDisplay = MoleculeNeutralization | string | null;
@@ -230,6 +231,7 @@ export default function MoleculeDetail() {
           <div className="space-y-2">
             {foods.map((food) => {
               const healthIndex = normalizeScore(food.health_index);
+              const category = formatOptionalText(food.category);
 
               return (
                 <Link
@@ -239,7 +241,7 @@ export default function MoleculeDetail() {
                 >
                   <div>
                     <span className="font-medium capitalize">{food.name}</span>
-                    {food.category && <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">{food.category}</span>}
+                    {category && <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">{category}</span>}
                   </div>
                   {healthIndex !== null && (
                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${scoreBadgeClass(healthIndex)}`}>

@@ -7,6 +7,7 @@ import { formatAmount } from "../lib/amountDisplay";
 import { asArray, stringItems } from "../lib/array";
 import { formatHarmLevel, formatLinkedFoodCount, formatMolecularWeight, formatPubChemCid } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
+import { formatOptionalText } from "../lib/textDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MoleculeDetail">;
@@ -71,6 +72,8 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
   const foods = asArray(molecule.foods);
   const harmMechanisms = stringItems(molecule.harm_mechanisms);
   const imageUrl = externalHttpUrl(molecule.structure_image_url);
+  const formula = formatOptionalText(molecule.molecular_formula);
+  const casNumber = formatOptionalText(molecule.cas_number);
   const molecularWeight = formatMolecularWeight(molecule.molecular_weight);
   const pubChemCid = formatPubChemCid(molecule.pubchem_cid);
 
@@ -94,9 +97,9 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
           <Text style={styles.scoreValue}>{formatLinkedFoodCount(molecule.linked_food_count ?? foods.length, "?")}</Text>
         </View>
       </View>
-      {!!molecule.molecular_formula && <Text style={styles.meta}>Formula: {molecule.molecular_formula}</Text>}
+      {formula && <Text style={styles.meta}>Formula: {formula}</Text>}
       {!!molecularWeight && <Text style={styles.meta}>Molecular weight: {molecularWeight} g/mol</Text>}
-      {!!molecule.cas_number && <Text style={styles.meta}>CAS: {molecule.cas_number}</Text>}
+      {casNumber && <Text style={styles.meta}>CAS: {casNumber}</Text>}
       {!!pubChemCid && <Text style={styles.meta}>PubChem CID: {pubChemCid}</Text>}
       <Text style={styles.meta}>
         Heat stable: {formatBoolean(molecule.is_heat_stable)} · Neutralizable: {formatBoolean(molecule.is_neutralizable)}
@@ -110,20 +113,24 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
       )}
 
       <Text style={styles.sectionTitle}>Linked foods</Text>
-      {foods.length > 0 ? foods.map((food) => (
-        <Pressable
-          key={food.id}
-          style={styles.foodItem}
-          onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
-        >
-          <Text style={styles.foodName}>{food.name}</Text>
-          <Text style={styles.meta}>
-            {food.category ?? "Uncategorized"}
-            {food.amount_per_100g ? ` · ${formatAmount(food.amount_per_100g, food.unit)}` : ""}
-            {food.is_beneficial ? " · beneficial" : ""}
-          </Text>
-        </Pressable>
-      )) : (
+      {foods.length > 0 ? foods.map((food) => {
+        const category = formatOptionalText(food.category) ?? "Uncategorized";
+
+        return (
+          <Pressable
+            key={food.id}
+            style={styles.foodItem}
+            onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
+          >
+            <Text style={styles.foodName}>{food.name}</Text>
+            <Text style={styles.meta}>
+              {category}
+              {food.amount_per_100g ? ` · ${formatAmount(food.amount_per_100g, food.unit)}` : ""}
+              {food.is_beneficial ? " · beneficial" : ""}
+            </Text>
+          </Pressable>
+        );
+      }) : (
         <Text style={styles.meta}>No linked foods available.</Text>
       )}
     </ScrollView>

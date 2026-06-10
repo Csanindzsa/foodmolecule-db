@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useBanList } from "../hooks/useApi";
 import { formatLethalDose, lethalDoseSortValue } from "../lib/banListDisplay";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
+import { formatOptionalText } from "../lib/textDisplay";
 import type { BanListEntry } from "../types";
 
 type SortKey = "food_name" | "category" | "health_index" | "reason" | "lethal_dose" | "status";
@@ -47,8 +48,8 @@ export default function BanList() {
         bVal = b.food?.name?.toLowerCase() || "";
         break;
       case "category":
-        aVal = a.food?.category?.toLowerCase() || "";
-        bVal = b.food?.category?.toLowerCase() || "";
+        aVal = formatOptionalText(a.food?.category)?.toLowerCase() || "";
+        bVal = formatOptionalText(b.food?.category)?.toLowerCase() || "";
         break;
       case "health_index":
         aVal = normalizeScore(a.food?.health_index) ?? -1;
@@ -127,6 +128,7 @@ export default function BanList() {
               {sortedEntries.map((entry) => {
                 const healthIndex = normalizeScore(entry.food?.health_index);
                 const lethalDose = formatLethalDose(entry.lethal_dose_mg);
+                const category = formatOptionalText(entry.food?.category);
 
                 return (
                   <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -140,7 +142,7 @@ export default function BanList() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {entry.food?.category || <span className="text-gray-300 dark:text-gray-600">—</span>}
+                      {category || <span className="text-gray-300 dark:text-gray-600">—</span>}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {healthIndex !== null ? (

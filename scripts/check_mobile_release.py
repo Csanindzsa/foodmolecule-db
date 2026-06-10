@@ -64,6 +64,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     molecule_display = (mobile_root / "src" / "lib" / "moleculeDisplay.ts").read_text(encoding="utf-8")
     scan_display = (mobile_root / "src" / "lib" / "scanDisplay.ts").read_text(encoding="utf-8")
     score_display = (mobile_root / "src" / "lib" / "scoreDisplay.ts").read_text(encoding="utf-8")
+    text_display = (mobile_root / "src" / "lib" / "textDisplay.ts").read_text(encoding="utf-8")
     year_display = (mobile_root / "src" / "lib" / "yearDisplay.ts").read_text(encoding="utf-8")
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
@@ -327,6 +328,18 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and '"Excellent", "Good", "Fair", "Caution", "Poor", "Avoid"' in score_display
             and 'typeof value !== "string"' in score_display,
             "mobile food detail must render health-index labels through the backend label allowlist",
+        ),
+        MobileCheck(
+            "mobile-optional-text-sanitizer",
+            "formatOptionalText" in text_display
+            and 'typeof value !== "string"' in text_display
+            and "formatOptionalText(food.origin)" in food_detail_screen
+            and "formatOptionalText(molecule.molecular_formula)" in search_screen
+            and "formatOptionalText(food.category_name)" in compare_screen
+            and "formatOptionalText(entry.food?.category)" in ban_list_screen
+            and "formatOptionalText(molecule.molecular_formula)" in molecule_detail_screen
+            and "formatOptionalText(food.category)" in molecule_detail_screen,
+            "mobile optional origin, category, and formula text must be sanitized before rendering",
         ),
         MobileCheck(
             "mobile-ban-list-contract",
