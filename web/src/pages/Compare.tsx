@@ -8,6 +8,15 @@ function getHealthBarColor(healthIndex: number): string {
   return "bg-red-500";
 }
 
+function normalizeHealthIndex(value: number | null | undefined): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Math.min(Math.max(value, 0), 100);
+}
+
+function foodCardKey(food: { id?: string; name?: string }, index: number) {
+  return food.id || `${food.name || "food"}-${index}`;
+}
+
 export default function Compare() {
   const [searchParams] = useSearchParams();
   const idsParam = searchParams.get("ids") || "";
@@ -95,13 +104,15 @@ export default function Compare() {
       <h1 className="text-3xl font-bold">Compare {foodCount} Foods</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {data.foods.map((food) => {
-          const moleculeEntries = Object.entries(food.molecules).sort((a, b) => b[1] - a[1]);
+        {data.foods.map((food, index) => {
+          const healthIndex = normalizeHealthIndex(food.health_index);
+          const healthBarValue = healthIndex ?? 0;
+          const moleculeEntries = Object.entries(food.molecules || {}).sort((a, b) => b[1] - a[1]);
 
           return (
-            <div key={food.id} className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5 space-y-4">
+            <div key={foodCardKey(food, index)} className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5 space-y-4">
               <Link
-                to={`/foods/${food.id}`}
+                to={`/foods/${food.id || ""}`}
                 className="text-xl font-bold capitalize text-blue-600 dark:text-blue-400 hover:underline block"
               >
                 {food.name}
@@ -110,16 +121,16 @@ export default function Compare() {
               <div>
                 <div className="bg-gray-200 dark:bg-gray-600 rounded-full h-4 w-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${getHealthBarColor(food.health_index)}`}
-                    style={{ width: `${Math.min(food.health_index, 100)}%` }}
+                    className={`h-full rounded-full ${getHealthBarColor(healthBarValue)}`}
+                    style={{ width: `${healthBarValue}%` }}
                     role="progressbar"
-                    aria-valuenow={food.health_index}
+                    aria-valuenow={healthBarValue}
                     aria-valuemin={0}
                     aria-valuemax={100}
                   />
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {food.health_index}/100 — Safety Score: {food.safety_score}
+                  {healthIndex ?? "unknown"}/100 — Safety Score: {food.safety_score}
                 </p>
               </div>
 

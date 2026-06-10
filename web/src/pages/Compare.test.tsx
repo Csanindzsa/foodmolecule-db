@@ -739,6 +739,87 @@ describe("Compare page", () => {
     const progressBar = container.querySelector('[role="progressbar"]');
     expect(progressBar).not.toBeNull();
     expect(progressBar!.getAttribute("style")).toContain("width: 100%");
+    expect(progressBar!.getAttribute("aria-valuenow")).toBe("100");
+    expect(container.textContent).toContain("100/100");
+    expect(container.textContent).not.toContain("150/100");
+  });
+
+  test("negative health index bar width is floored at 0%", () => {
+    const negativeData = {
+      foods: [
+        {
+          id: "f1",
+          name: "negative food",
+          health_index: -25,
+          safety_score: 20,
+          molecules: {},
+        },
+        {
+          id: "f2",
+          name: "normal food",
+          health_index: 70,
+          safety_score: 80,
+          molecules: {},
+        },
+      ],
+      shared_molecules: [],
+      total_unique_molecules: 0,
+    };
+
+    mockUseCompare.mockReturnValue({
+      data: negativeData,
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<Compare />, ["/compare?ids=f1,f2"]);
+
+    const progressBar = container.querySelector('[role="progressbar"]');
+    expect(progressBar).not.toBeNull();
+    expect(progressBar!.getAttribute("style")).toContain("width: 0%");
+    expect(progressBar!.getAttribute("aria-valuenow")).toBe("0");
+    expect(container.textContent).toContain("0/100");
+    expect(container.textContent).not.toContain("-25/100");
+  });
+
+  test("NaN health index renders unknown without invalid progress output", () => {
+    const nanData = {
+      foods: [
+        {
+          id: "f1",
+          name: "nan food",
+          health_index: NaN,
+          safety_score: 20,
+          molecules: {},
+        },
+        {
+          id: "f2",
+          name: "normal food",
+          health_index: 70,
+          safety_score: 80,
+          molecules: {},
+        },
+      ],
+      shared_molecules: [],
+      total_unique_molecules: 0,
+    };
+
+    mockUseCompare.mockReturnValue({
+      data: nanData,
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<Compare />, ["/compare?ids=f1,f2"]);
+
+    const progressBar = container.querySelector('[role="progressbar"]');
+    expect(progressBar).not.toBeNull();
+    expect(progressBar!.getAttribute("style")).toContain("width: 0%");
+    expect(progressBar!.getAttribute("aria-valuenow")).toBe("0");
+    expect(container.textContent).toContain("unknown/100");
+    expect(container.textContent).not.toContain("NaN");
   });
 
   test("very long food name doesn't crash", () => {
