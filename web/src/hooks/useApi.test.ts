@@ -147,6 +147,17 @@ describe("useApi hooks", () => {
         foods: [{ id: "1", name: "Apple" }],
       });
     });
+
+    test("queryFn normalizes malformed food results to empty", async () => {
+      mockFoods.mockResolvedValueOnce({ results: "bad" } as any);
+      useHomeData();
+      const config = lastUseQueryCall();
+
+      await expect(config.queryFn()).resolves.toEqual({
+        stats: { total_foods: 100, total_molecules: 50 },
+        foods: [],
+      });
+    });
   });
 
   /* ---------------------------------------------------------------- */
@@ -178,6 +189,14 @@ describe("useApi hooks", () => {
         molecules: [{ id: "m1", name: "Water" }],
       });
     });
+
+    test("queryFn normalizes malformed search lists", async () => {
+      mockSearch.mockResolvedValueOnce({ foods: null, molecules: "bad" } as any);
+      useSearch("banana");
+      const config = lastUseQueryCall();
+
+      await expect(config.queryFn()).resolves.toEqual({ foods: [], molecules: [] });
+    });
   });
 
   /* ---------------------------------------------------------------- */
@@ -205,6 +224,7 @@ describe("useApi hooks", () => {
       expect(mockFood).toHaveBeenCalledTimes(1);
       expect(mockFood).toHaveBeenCalledWith("food-99");
       expect(result).toEqual({
+        aliases: [],
         id: "food-1",
         name: "Apple",
         molecules: [{ id: "mol-1", name: "Quercetin" }],
@@ -257,6 +277,13 @@ describe("useApi hooks", () => {
       const raw = { id: "food-1", name: "Apple", molecules: [] };
       expect(config.select(raw)).toEqual([]);
     });
+
+    test("select returns empty array when molecules is malformed", () => {
+      useFoodMolecules("food-1");
+      const config = lastUseQueryCall();
+      const raw = { id: "food-1", name: "Apple", molecules: "bad" };
+      expect(config.select(raw)).toEqual([]);
+    });
   });
 
   /* ---------------------------------------------------------------- */
@@ -297,6 +324,12 @@ describe("useApi hooks", () => {
       useFoodStudies("food-1");
       const config = lastUseQueryCall();
       expect(config.select({ results: [] })).toEqual([]);
+    });
+
+    test("select returns empty array when results is malformed", () => {
+      useFoodStudies("food-1");
+      const config = lastUseQueryCall();
+      expect(config.select({ results: "bad" })).toEqual([]);
     });
   });
 
@@ -393,8 +426,27 @@ describe("useApi hooks", () => {
       expect(result).toEqual({
         id: "mol-1",
         name: "Caffeine",
+        harm_mechanisms: [],
         foods: [{ id: "food-2", name: "Coffee" }],
         neutralization_methods: [{ method: "Drink water" }],
+      });
+    });
+
+    test("queryFn normalizes malformed molecule detail lists", async () => {
+      mockMolecule.mockResolvedValueOnce({
+        id: "mol-1",
+        name: "Caffeine",
+        foods: null,
+        harm_mechanisms: "bad",
+        neutralization_methods: undefined,
+      } as any);
+      useMoleculeDetail("mol-1");
+      const config = lastUseQueryCall();
+
+      await expect(config.queryFn()).resolves.toMatchObject({
+        foods: [],
+        harm_mechanisms: [],
+        neutralization_methods: [],
       });
     });
   });
@@ -446,6 +498,12 @@ describe("useApi hooks", () => {
       };
       expect(config.select(raw)).toEqual([]);
     });
+
+    test("select returns empty array when foods is malformed", () => {
+      useMoleculeFoods("mol-1");
+      const config = lastUseQueryCall();
+      expect(config.select({ foods: "bad" })).toEqual([]);
+    });
   });
 
   /* ---------------------------------------------------------------- */
@@ -495,6 +553,12 @@ describe("useApi hooks", () => {
       };
       expect(config.select(raw)).toEqual([]);
     });
+
+    test("select returns empty array when neutralization_methods is malformed", () => {
+      useMoleculeNeutralizations("mol-1");
+      const config = lastUseQueryCall();
+      expect(config.select({ neutralization_methods: "bad" })).toEqual([]);
+    });
   });
 
   /* ---------------------------------------------------------------- */
@@ -527,6 +591,12 @@ describe("useApi hooks", () => {
       const config = lastUseQueryCall();
       expect(config.select({ results: [] })).toEqual([]);
     });
+
+    test("select returns empty array when results is malformed", () => {
+      useBanList();
+      const config = lastUseQueryCall();
+      expect(config.select({ results: "bad" })).toEqual([]);
+    });
   });
 
   /* ---------------------------------------------------------------- */
@@ -552,6 +622,12 @@ describe("useApi hooks", () => {
       const config = lastUseQueryCall();
       const raw = { results: [{ id: "s1" }, { id: "s2" }] };
       expect(config.select(raw)).toEqual([{ id: "s1" }, { id: "s2" }]);
+    });
+
+    test("select returns empty array when results is malformed", () => {
+      useRecentStudies();
+      const config = lastUseQueryCall();
+      expect(config.select({ results: "bad" })).toEqual([]);
     });
   });
 
@@ -588,6 +664,22 @@ describe("useApi hooks", () => {
         foods: [{ id: "c1", name: "Apple" }],
         shared_molecules: ["Water"],
         total_unique_molecules: 1,
+      });
+    });
+
+    test("queryFn normalizes malformed compare lists", async () => {
+      mockCompare.mockResolvedValueOnce({
+        foods: "bad",
+        shared_molecules: null,
+        total_unique_molecules: 0,
+      } as any);
+      useCompare(["x", "y"]);
+      const config = lastUseQueryCall();
+
+      await expect(config.queryFn()).resolves.toEqual({
+        foods: [],
+        shared_molecules: [],
+        total_unique_molecules: 0,
       });
     });
   });

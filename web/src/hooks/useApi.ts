@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { asArray } from "../lib/array";
 import { api } from "../lib/api";
 import type {
   Food,
@@ -20,6 +21,23 @@ const STALE_TIME_2_MIN = 2 * 60 * 1000;
 const STALE_TIME_5_MIN = 5 * 60 * 1000;
 const STALE_TIME_10_MIN = 10 * 60 * 1000;
 
+function normalizeFoodDetail<T extends Food>(food: T): T {
+  return {
+    ...food,
+    aliases: asArray(food.aliases),
+    molecules: asArray(food.molecules),
+  };
+}
+
+function normalizeMoleculeDetail(molecule: MoleculeDetail): MoleculeDetail {
+  return {
+    ...molecule,
+    foods: asArray(molecule.foods),
+    harm_mechanisms: asArray(molecule.harm_mechanisms),
+    neutralization_methods: asArray(molecule.neutralization_methods),
+  };
+}
+
 /**
  * Fetch home page data: stats and foods list in parallel.
  * QueryKey: `["home"]`. staleTime: 5 minutes.
@@ -32,7 +50,7 @@ export function useHomeData() {
         api.stats(),
         api.foods(),
       ]);
-      return { stats, foods: foodsData.results };
+      return { stats, foods: asArray(foodsData.results) };
     },
     staleTime: STALE_TIME_5_MIN,
   });
@@ -46,7 +64,14 @@ export function useHomeData() {
 export function useSearch(query: string) {
   return useQuery({
     queryKey: ["search", query],
-    queryFn: () => api.search(query),
+    queryFn: async () => {
+      const data = await api.search(query);
+      return {
+        ...data,
+        foods: asArray(data.foods),
+        molecules: asArray(data.molecules),
+      };
+    },
     enabled: query.length > 0,
     staleTime: STALE_TIME_2_MIN,
   });
@@ -60,7 +85,7 @@ export function useSearch(query: string) {
 export function useFoodDetail(id: string) {
   return useQuery({
     queryKey: ["food", id],
-    queryFn: () => api.food(id),
+    queryFn: async () => normalizeFoodDetail(await api.food(id)),
     enabled: !!id,
     staleTime: STALE_TIME_5_MIN,
   });
@@ -76,7 +101,7 @@ export function useFoodMolecules(id: string) {
     queryKey: ["food", id],
     queryFn: () => api.food(id),
     enabled: !!id,
-    select: (data) => data.molecules,
+    select: (data) => asArray(data.molecules),
     staleTime: STALE_TIME_5_MIN,
   });
 }
@@ -91,7 +116,7 @@ export function useFoodStudies(id: string) {
     queryKey: ["food", id, "studies"],
     queryFn: () => api.foodStudies(id),
     enabled: !!id,
-    select: (data) => data.results,
+    select: (data) => asArray(data.results),
     staleTime: STALE_TIME_5_MIN,
   });
 }
@@ -105,7 +130,7 @@ export function useRecentStudies() {
   return useQuery({
     queryKey: ["studies", "recent"],
     queryFn: () => api.recentStudies(),
-    select: (data) => data.results,
+    select: (data) => asArray(data.results),
     staleTime: STALE_TIME_5_MIN,
   });
 }
@@ -146,7 +171,7 @@ export function useFoodHealthIndex(id: string) {
 export function useMoleculeDetail(id: string) {
   return useQuery<MoleculeDetail>({
     queryKey: ["molecule", id],
-    queryFn: () => api.molecule(id) as Promise<MoleculeDetail>,
+    queryFn: async () => normalizeMoleculeDetail(await api.molecule(id) as MoleculeDetail),
     enabled: !!id,
     staleTime: STALE_TIME_5_MIN,
   });
@@ -162,7 +187,7 @@ export function useMoleculeFoods(id: string) {
     queryKey: ["molecule", id],
     queryFn: () => api.molecule(id) as Promise<MoleculeDetail>,
     enabled: !!id,
-    select: (data) => data.foods,
+    select: (data) => asArray(data.foods),
     staleTime: STALE_TIME_5_MIN,
   });
 }
@@ -178,7 +203,7 @@ export function useMoleculeNeutralizations(id: string) {
     queryKey: ["molecule", id],
     queryFn: () => api.molecule(id) as Promise<MoleculeDetail>,
     enabled: !!id,
-    select: (data) => data.neutralization_methods,
+    select: (data) => asArray(data.neutralization_methods),
     staleTime: STALE_TIME_5_MIN,
   });
 }
@@ -192,7 +217,7 @@ export function useBanList() {
   return useQuery({
     queryKey: ["ban-list"],
     queryFn: () => api.banList(),
-    select: (data) => data.results,
+    select: (data) => asArray(data.results),
     staleTime: STALE_TIME_2_MIN,
   });
 }
@@ -205,7 +230,14 @@ export function useBanList() {
 export function useCompare(ids: string[]) {
   return useQuery({
     queryKey: ["compare", ids],
-    queryFn: () => api.compare(ids),
+    queryFn: async () => {
+      const data = await api.compare(ids);
+      return {
+        ...data,
+        foods: asArray(data.foods),
+        shared_molecules: asArray(data.shared_molecules),
+      };
+    },
     enabled: ids.length >= 2,
     staleTime: STALE_TIME_5_MIN,
   });
