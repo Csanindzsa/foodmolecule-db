@@ -93,6 +93,12 @@ def test_ci_checks_research_operations_contract():
     assert "python ../scripts/check_research_ops.py" in workflow
 
 
+def test_ci_checks_image_operations_contract():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "python ../scripts/check_image_ops.py" in workflow
+
+
 def test_ci_validates_ban_list_schema():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 

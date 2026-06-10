@@ -36,6 +36,7 @@
 - [ ] Verify launch seed files with `python scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4` (`docs/seed_readiness.md`), then seed the target database
 - [ ] Verify static PubMed/AI research operations contract with `python scripts/check_research_ops.py` (`docs/research_ops_checks.md`), then verify the PubMed watcher cron job is running every 6 hours in production
 - [ ] Run one full safety adjustment cycle end-to-end after provider keys and production data are available
+- [ ] Verify image enrichment operations contract with `python scripts/check_image_ops.py` (`docs/image_ops_checks.md`), then run molecule and food image enrichment with production Brave/Supabase credentials
 - [ ] Confirm verified ban list entries are surfaced correctly in UI
 
 ### Analytics (Phase 14)
