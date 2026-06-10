@@ -22,6 +22,7 @@ def test_mobile_release_checker_passes_static_mvp_contract():
         "scan-history-contract",
         "scan-history-context-contract",
         "mobile-image-surface-contract",
+        "mobile-search-molecule-contract",
         "eas-build-profiles",
     }
 
@@ -42,6 +43,7 @@ def test_mobile_release_cli_outputs_summary(capsys):
     assert "ok\tscan-result-ux-contract" in captured.out
     assert "ok\tscan-history-context-contract" in captured.out
     assert "ok\tmobile-image-surface-contract" in captured.out
+    assert "ok\tmobile-search-molecule-contract" in captured.out
     assert "skip\tstore-identifiers" in captured.out
 
 

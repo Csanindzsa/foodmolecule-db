@@ -128,9 +128,12 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
         MobileCheck(
             "mobile-image-surface-contract",
             "image_url?: string" in api_client
+            and "structure_image_url?: string" in api_client
             and "Image" in search_screen
             and "item.image_url" in search_screen
+            and "molecule.structure_image_url" in search_screen
             and "resultImage" in search_screen
+            and "moleculeImage" in search_screen
             and "Image" in food_detail_screen
             and "food.image_url" in food_detail_screen
             and "heroImage" in food_detail_screen
@@ -138,6 +141,16 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "food.image_url" in scan_screen
             and "matchImage" in scan_screen,
             "mobile search, detail, and scan result screens must surface enriched food images",
+        ),
+        MobileCheck(
+            "mobile-search-molecule-contract",
+            "type Molecule" in api_client
+            and "response.molecules" in search_screen
+            and "moleculeResults" in search_screen
+            and "Molecules" in search_screen
+            and "molecule.harm_level" in search_screen
+            and "molecule.molecular_formula" in search_screen,
+            "mobile search must preserve and display molecule matches returned by the API",
         ),
         MobileCheck(
             "eas-build-profiles",

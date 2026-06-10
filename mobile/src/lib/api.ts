@@ -33,6 +33,7 @@ export type Molecule = {
   name: string;
   harm_level?: number;
   molecular_formula?: string;
+  structure_image_url?: string;
   linked_food_count?: number;
 };
 
