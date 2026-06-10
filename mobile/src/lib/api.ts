@@ -154,13 +154,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-function imageName(uri: string): string {
-  const name = uri.split("/").pop();
+function imagePath(uri: string): string {
+  return uri.split(/[?#]/, 1)[0] ?? "";
+}
+
+export function imageName(uri: string): string {
+  const name = imagePath(uri).split("/").pop();
   return name && name.includes(".") ? name : "ingredient-label.jpg";
 }
 
-function imageType(uri: string): string {
-  const lower = uri.toLowerCase();
+export function imageType(uri: string): string {
+  const lower = imagePath(uri).toLowerCase();
   if (lower.endsWith(".png")) return "image/png";
   if (lower.endsWith(".webp")) return "image/webp";
   return "image/jpeg";
