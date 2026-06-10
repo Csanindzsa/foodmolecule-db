@@ -4,6 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodDetail, type FoodGuide, type HealthBreakdown, type Study } from "../lib/api";
 import { asArray, firstItems } from "../lib/array";
+import { formatConfidence } from "../lib/confidenceDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
@@ -177,6 +178,7 @@ export default function FoodDetailScreen({ route }: Props) {
         <Text style={styles.meta}>Research is unavailable right now.</Text>
       ) : studies.length > 0 ? studies.map((study) => {
         const pubmedUrl = externalHttpUrl(study.url);
+        const aiConfidence = formatConfidence(study.ai_confidence);
 
         return (
           <View key={study.id} style={styles.researchItem}>
@@ -185,7 +187,7 @@ export default function FoodDetailScreen({ route }: Props) {
             <Text style={styles.meta}>
               PMID {study.pmid}
               {study.publication_year ? ` · ${study.publication_year}` : ""}
-              {study.ai_confidence ? ` · AI confidence: ${study.ai_confidence}` : ""}
+              {aiConfidence ? ` · ${aiConfidence}` : ""}
             </Text>
             {pubmedUrl && (
               <Pressable

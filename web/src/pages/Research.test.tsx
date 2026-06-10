@@ -143,4 +143,20 @@ describe("Research page", () => {
     expect(container.textContent).not.toContain("NaN");
     expect(container.textContent).not.toContain("99");
   });
+
+  test("success state hides malformed AI confidence labels", () => {
+    mockUseRecentStudies.mockReturnValue({
+      data: [
+        { ...mockStudies[0], ai_confidence: "certain" },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = render(<Research />);
+
+    expect(container.textContent).not.toContain("AI confidence:");
+    expect(container.textContent).not.toContain("certain");
+  });
 });

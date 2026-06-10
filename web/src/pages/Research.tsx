@@ -1,4 +1,5 @@
 import { useRecentStudies } from "../hooks/useApi";
+import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatImpact } from "../lib/impactDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 
@@ -56,6 +57,7 @@ export default function Research() {
         <div className="space-y-3">
           {studies.map((study) => {
             const citationUrl = externalHttpUrl(study.url);
+            const aiConfidence = formatConfidence(study.ai_confidence);
             const safetyImpact = formatImpact(study.ai_safety_impact);
             const healthImpact = formatImpact(study.ai_health_impact);
 
@@ -63,9 +65,9 @@ export default function Research() {
               <article key={study.id} className="rounded-xl border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <h2 className="text-base font-semibold leading-snug">{study.title}</h2>
-                  {study.ai_confidence && (
+                  {aiConfidence && (
                     <span className="shrink-0 rounded-full bg-green-100 px-2 py-1 text-xs font-bold text-green-700 dark:bg-green-900/40 dark:text-green-400">
-                      AI confidence: {study.ai_confidence}
+                      {aiConfidence}
                     </span>
                   )}
                 </div>

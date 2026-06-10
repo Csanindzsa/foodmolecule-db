@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useFoodDetail, useFoodMolecules, useFoodStudies, useFoodGuide, useFoodHealthIndex } from "../hooks/useApi";
+import { formatConfidence } from "../lib/confidenceDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore, normalizeScore } from "../lib/scoreDisplay";
 
@@ -214,6 +215,7 @@ export default function FoodDetail() {
             <div className="space-y-3">
               {visibleStudies.map((s) => {
                 const citationUrl = externalHttpUrl(s.url);
+                const aiConfidence = formatConfidence(s.ai_confidence);
 
                 return (
                   <div key={s.id} className="p-4 rounded-xl border bg-white dark:border-gray-700 dark:bg-gray-800">
@@ -234,7 +236,7 @@ export default function FoodDetail() {
                       ) : (
                         s.pmid
                       )} {s.publication_year && `· ${s.publication_year}`}
-                      {s.ai_confidence && ` · AI confidence: ${s.ai_confidence}`}
+                      {aiConfidence && ` · ${aiConfidence}`}
                     </div>
                   </div>
                 );

@@ -346,6 +346,21 @@ describe("FoodDetail page", () => {
     expect(document.querySelector("a[href^='javascript:']")).toBeNull();
   });
 
+  test("studies list hides malformed AI confidence labels", () => {
+    mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });
+    mockUseFoodStudies.mockReturnValue({
+      data: [{ ...mockStudies[0], ai_confidence: "certain" }],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetchStudies,
+    });
+
+    renderWithRouter(<FoodDetail />);
+
+    expect(document.body.textContent).not.toContain("AI confidence:");
+    expect(document.body.textContent).not.toContain("certain");
+  });
+
   // ─── L) Studies loading ───
   test("studies loading shows 3 skeleton cards", () => {
     mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });

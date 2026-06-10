@@ -3,6 +3,7 @@ import { ActivityIndicator, Button, Linking, Pressable, ScrollView, StyleSheet, 
 
 import { api, type Study } from "../lib/api";
 import { firstItems } from "../lib/array";
+import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatImpact } from "../lib/impactDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 
@@ -52,6 +53,7 @@ export default function ResearchScreen() {
         <Text style={styles.meta}>No analyzed research studies found.</Text>
       ) : studies.map((study) => {
         const pubmedUrl = externalHttpUrl(study.url);
+        const aiConfidence = formatConfidence(study.ai_confidence);
         const safetyImpact = formatImpact(study.ai_safety_impact);
         const healthImpact = formatImpact(study.ai_health_impact);
 
@@ -65,7 +67,7 @@ export default function ResearchScreen() {
                 {study.publication_year ? ` · ${study.publication_year}` : ""}
                 {study.journal ? ` · ${study.journal}` : ""}
               </Text>
-              {!!study.ai_confidence && <Text style={styles.meta}>AI confidence: {study.ai_confidence}</Text>}
+              {!!aiConfidence && <Text style={styles.meta}>{aiConfidence}</Text>}
               <Text style={styles.meta}>
                 {safetyImpact ? `Safety impact: ${safetyImpact}` : "Safety impact: not scored"}
                 {" · "}
