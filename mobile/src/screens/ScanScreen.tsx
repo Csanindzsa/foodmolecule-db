@@ -39,7 +39,13 @@ export default function ScanScreen({ navigation }: Props) {
       const response = await api.scanImage(uri);
       setScanResult(response);
       for (const food of response.foods.slice(0, 5)) {
-        addHistory({ id: food.id, name: food.name, scannedAt: new Date().toISOString() });
+        addHistory({
+          id: food.id,
+          name: food.name,
+          image_url: food.image_url,
+          health_index: food.health_index ?? null,
+          scannedAt: new Date().toISOString(),
+        });
       }
     } catch (err) {
       setScanResult(null);

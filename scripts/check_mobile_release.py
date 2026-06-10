@@ -44,6 +44,8 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     scan_screen = (mobile_root / "src" / "screens" / "ScanScreen.tsx").read_text(encoding="utf-8")
     search_screen = (mobile_root / "src" / "screens" / "SearchScreen.tsx").read_text(encoding="utf-8")
     food_detail_screen = (mobile_root / "src" / "screens" / "FoodDetailScreen.tsx").read_text(encoding="utf-8")
+    home_screen = (mobile_root / "src" / "screens" / "HomeScreen.tsx").read_text(encoding="utf-8")
+    history_store = (mobile_root / "src" / "stores" / "useHistoryStore.ts").read_text(encoding="utf-8")
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
 
@@ -110,6 +112,18 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "addHistory" in scan_screen
             and "response.foods.slice(0, 5)" in scan_screen,
             "successful scans must persist up to five matched foods to local history",
+        ),
+        MobileCheck(
+            "scan-history-context-contract",
+            "image_url?: string" in history_store
+            and "health_index?: number | null" in history_store
+            and "image_url: food.image_url" in scan_screen
+            and "health_index: food.health_index ?? null" in scan_screen
+            and "item.image_url" in home_screen
+            and "historyImage" in home_screen
+            and "item.health_index" in home_screen
+            and "historyScore" in home_screen,
+            "scan history must preserve food image and health context for recent scans",
         ),
         MobileCheck(
             "mobile-image-surface-contract",

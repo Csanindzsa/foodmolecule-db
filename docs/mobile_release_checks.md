@@ -28,6 +28,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - The mobile upload client names scan files and sends JPEG, PNG, or WebP content types.
 - The scan result view preserves OCR confidence, raw-text truncation, empty states, and matched-food navigation.
 - Successful scans persist up to five matched foods to local history for offline revisit.
+- Recent scan history preserves food image and health context when available.
 - Search, food detail, and scan result screens surface enriched food images when `image_url` is present.
 - Development, preview, and production EAS build profiles exist.
 
