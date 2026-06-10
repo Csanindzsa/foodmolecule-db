@@ -22,6 +22,7 @@ CI runs the no-secret version.
 
 - Seed readiness: `scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4`
 - Ban-list schema validation.
+- Django migration drift check: `backend/manage.py makemigrations --check --dry-run`
 - Static Django/Render backend release contract.
 - API smoke probe coverage list.
 - Query-plan target list.
@@ -39,7 +40,7 @@ CI runs the no-secret version.
 
 ## Not Included
 
-- Live Supabase pytest/migration checks.
+- Live Supabase pytest and migration apply checks.
 - Deployed API smoke testing.
 - PostgreSQL `EXPLAIN ANALYZE`.
 - OpenRouter quota checks.
