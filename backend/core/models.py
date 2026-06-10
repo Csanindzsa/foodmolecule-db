@@ -11,9 +11,14 @@ from __future__ import annotations
 
 import uuid
 
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .fields import PortableArrayField as ArrayField
+
+
+SCORE_VALIDATORS = [MinValueValidator(0), MaxValueValidator(100)]
+STUDY_IMPACT_VALIDATORS = [MinValueValidator(-5), MaxValueValidator(5)]
 
 
 # ---------------------------------------------------------------------------
@@ -85,11 +90,13 @@ class Food(models.Model):
     overall_safety_score = models.SmallIntegerField(
         null=True,
         blank=True,
+        validators=SCORE_VALIDATORS,
         help_text="0–100. Updated automatically by AI agents.",
     )
     health_index = models.SmallIntegerField(
         null=True,
         blank=True,
+        validators=SCORE_VALIDATORS,
         help_text="nutrii Health Index (NHI). 0–100. Updated by AI agents.",
     )
     ban_listed = models.BooleanField(default=False)
@@ -125,6 +132,18 @@ class Food(models.Model):
             models.Index(fields=["ban_listed"], name="idx_food_ban_listed"),
             models.Index(fields=["health_index"], name="idx_food_health_index"),
         ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(overall_safety_score__isnull=True)
+                | models.Q(overall_safety_score__gte=0, overall_safety_score__lte=100),
+                name="food_overall_safety_score_0_100",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(health_index__isnull=True)
+                | models.Q(health_index__gte=0, health_index__lte=100),
+                name="food_health_index_0_100",
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.name
@@ -154,6 +173,7 @@ class Molecule(models.Model):
     harm_level = models.SmallIntegerField(
         choices=HARM_LEVEL_CHOICES,
         default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(5)],
         help_text="0–5. Auto-adjusted by AI from new studies.",
     )
     harm_mechanisms = ArrayField(
@@ -189,6 +209,12 @@ class Molecule(models.Model):
             models.Index(fields=["cas_number"], name="idx_molecule_cas"),
             models.Index(fields=["harm_level"], name="idx_molecule_harm_level"),
         ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(harm_level__gte=0, harm_level__lte=5),
+                name="molecule_harm_level_0_5",
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.name
@@ -220,11 +246,13 @@ class Study(models.Model):
     ai_safety_impact = models.SmallIntegerField(
         null=True,
         blank=True,
+        validators=STUDY_IMPACT_VALIDATORS,
         help_text="−5 to +5. AI-assessed impact on safety perception.",
     )
     ai_health_impact = models.SmallIntegerField(
         null=True,
         blank=True,
+        validators=STUDY_IMPACT_VALIDATORS,
         help_text="−5 to +5. AI-assessed impact on health perception.",
     )
     ai_confidence = models.CharField(
@@ -237,6 +265,18 @@ class Study(models.Model):
     class Meta:
         ordering = ["-publication_year", "title"]
         verbose_name_plural = "studies"
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(ai_safety_impact__isnull=True)
+                | models.Q(ai_safety_impact__gte=-5, ai_safety_impact__lte=5),
+                name="study_ai_safety_impact_neg5_5",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(ai_health_impact__isnull=True)
+                | models.Q(ai_health_impact__gte=-5, ai_health_impact__lte=5),
+                name="study_ai_health_impact_neg5_5",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"PMID:{self.pmid} — {self.title[:80]}"
@@ -312,10 +352,16 @@ class MoleculeNeutralization(models.Model):
     molecule = models.ForeignKey(Molecule, on_delete=models.CASCADE)
     method = models.ForeignKey(ProcessingMethod, on_delete=models.CASCADE)
     reduction_percent_min = models.SmallIntegerField(
-        null=True, blank=True, help_text="Minimum reduction percentage (0–100)."
+        null=True,
+        blank=True,
+        validators=SCORE_VALIDATORS,
+        help_text="Minimum reduction percentage (0–100).",
     )
     reduction_percent_max = models.SmallIntegerField(
-        null=True, blank=True, help_text="Maximum reduction percentage (0–100)."
+        null=True,
+        blank=True,
+        validators=SCORE_VALIDATORS,
+        help_text="Maximum reduction percentage (0–100).",
     )
     time_required = models.CharField(
         max_length=100,
@@ -338,6 +384,18 @@ class MoleculeNeutralization(models.Model):
     class Meta:
         unique_together = [("molecule", "method")]
         verbose_name = "molecule neutralization"
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(reduction_percent_min__isnull=True)
+                | models.Q(reduction_percent_min__gte=0, reduction_percent_min__lte=100),
+                name="neutralization_reduction_min_0_100",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(reduction_percent_max__isnull=True)
+                | models.Q(reduction_percent_max__gte=0, reduction_percent_max__lte=100),
+                name="neutralization_reduction_max_0_100",
+            ),
+        ]
 
 
 # ---------------------------------------------------------------------------
@@ -352,10 +410,18 @@ class SafetyScoreRevision(models.Model):
     food = models.ForeignKey(
         Food, on_delete=models.CASCADE, related_name="score_revisions"
     )
-    old_safety_score = models.SmallIntegerField(null=True, blank=True)
-    new_safety_score = models.SmallIntegerField(null=True, blank=True)
-    old_health_index = models.SmallIntegerField(null=True, blank=True)
-    new_health_index = models.SmallIntegerField(null=True, blank=True)
+    old_safety_score = models.SmallIntegerField(
+        null=True, blank=True, validators=SCORE_VALIDATORS
+    )
+    new_safety_score = models.SmallIntegerField(
+        null=True, blank=True, validators=SCORE_VALIDATORS
+    )
+    old_health_index = models.SmallIntegerField(
+        null=True, blank=True, validators=SCORE_VALIDATORS
+    )
+    new_health_index = models.SmallIntegerField(
+        null=True, blank=True, validators=SCORE_VALIDATORS
+    )
     reason = models.TextField(help_text="AI-generated explanation for the change.")
     triggering_study = models.ForeignKey(
         Study,
@@ -370,6 +436,28 @@ class SafetyScoreRevision(models.Model):
     class Meta:
         ordering = ["-created_at"]
         verbose_name = "safety score revision"
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(old_safety_score__isnull=True)
+                | models.Q(old_safety_score__gte=0, old_safety_score__lte=100),
+                name="revision_old_safety_score_0_100",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(new_safety_score__isnull=True)
+                | models.Q(new_safety_score__gte=0, new_safety_score__lte=100),
+                name="revision_new_safety_score_0_100",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(old_health_index__isnull=True)
+                | models.Q(old_health_index__gte=0, old_health_index__lte=100),
+                name="revision_old_health_index_0_100",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(new_health_index__isnull=True)
+                | models.Q(new_health_index__gte=0, new_health_index__lte=100),
+                name="revision_new_health_index_0_100",
+            ),
+        ]
 
     def __str__(self) -> str:
         return (
