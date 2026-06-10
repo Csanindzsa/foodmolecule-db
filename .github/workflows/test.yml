@@ -92,7 +92,7 @@ jobs:
         run: bun run build
 
   mobile:
-    name: Mobile typecheck
+    name: Mobile tests
     runs-on: ubuntu-latest
     defaults:
       run:

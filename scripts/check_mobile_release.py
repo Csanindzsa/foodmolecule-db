@@ -93,7 +93,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
         MobileCheck(
             "mobile-ci-typecheck",
             package.get("scripts", {}).get("typecheck") == "tsc --noEmit"
-            and "name: Mobile typecheck" in workflow
+            and "name: Mobile tests" in workflow
             and "working-directory: mobile" in workflow
             and "bun install --frozen-lockfile" in workflow
             and "bun run typecheck" in workflow,
