@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatHarmLevel, formatLinkedFoodCount } from "./moleculeDisplay";
+import { formatHarmLevel, formatLinkedFoodCount, formatPubChemCid } from "./moleculeDisplay";
 
 describe("molecule display helpers", () => {
   test("formatHarmLevel clamps finite harm levels", () => {
@@ -24,5 +24,12 @@ describe("molecule display helpers", () => {
   test("formatLinkedFoodCount hides malformed counts", () => {
     expect(formatLinkedFoodCount(Number.NaN)).toBe("unknown");
     expect(formatLinkedFoodCount(undefined, "?")).toBe("?");
+  });
+
+  test("formatPubChemCid keeps positive finite integer IDs only", () => {
+    expect(formatPubChemCid(12345)).toBe("12345");
+    expect(formatPubChemCid(12345.9)).toBe("12345");
+    expect(formatPubChemCid(0)).toBeNull();
+    expect(formatPubChemCid(Number.NaN)).toBeNull();
   });
 });

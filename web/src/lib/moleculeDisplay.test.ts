@@ -4,6 +4,8 @@ import {
   foodMoleculeBadgeClass,
   foodMoleculeBadgeLabel,
   formatHarmLevel,
+  formatMolecularWeight,
+  formatPubChemCid,
   harmLevelBadgeClass,
   harmLevelLabel,
   normalizeHarmLevel,
@@ -28,6 +30,20 @@ describe("molecule display helpers", () => {
     expect(harmLevelLabel(2)).toBe("Moderate");
     expect(harmLevelLabel(1)).toBe("Low");
     expect(harmLevelLabel(Number.NaN)).toBe("Unknown");
+  });
+
+  test("formatMolecularWeight normalizes finite values and hides malformed values", () => {
+    expect(formatMolecularWeight("194.1900")).toBe("194.19");
+    expect(formatMolecularWeight(90.034)).toBe("90.034");
+    expect(formatMolecularWeight("not available")).toBeNull();
+    expect(formatMolecularWeight(Number.NaN)).toBeNull();
+  });
+
+  test("formatPubChemCid keeps positive finite integer IDs only", () => {
+    expect(formatPubChemCid(12345)).toBe("12345");
+    expect(formatPubChemCid(12345.9)).toBe("12345");
+    expect(formatPubChemCid(0)).toBeNull();
+    expect(formatPubChemCid(Number.NaN)).toBeNull();
   });
 
   test("badge classes follow normalized harm levels", () => {

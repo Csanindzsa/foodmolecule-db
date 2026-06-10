@@ -7,3 +7,9 @@ export function formatLinkedFoodCount(value: unknown, fallback = "unknown"): str
   if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
   return String(Math.max(0, Math.round(value)));
 }
+
+export function formatPubChemCid(value: unknown): string | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  const cid = Math.trunc(value);
+  return cid > 0 ? String(cid) : null;
+}

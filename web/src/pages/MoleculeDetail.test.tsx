@@ -327,6 +327,22 @@ describe("MoleculeDetail page", () => {
     expect(propertiesSection).toContain("—");
   });
 
+  test("hides malformed molecular weight and PubChem CID values", () => {
+    mockUseMoleculeDetail.mockReturnValue({
+      data: { ...mockMolecule, molecular_weight: "not available", pubchem_cid: Number.NaN },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithRouter(<MoleculeDetail />);
+
+    const propertiesSection = document.body.textContent || "";
+    expect(propertiesSection).toContain("Molecular Weight");
+    expect(propertiesSection).toContain("PubChem CID");
+    expect(propertiesSection).not.toContain("not available");
+    expect(propertiesSection).not.toContain("NaN");
+  });
+
   // ─── Harm Mechanisms ───
   test("shows harm mechanism list items", () => {
     mockUseMoleculeDetail.mockReturnValue({ data: mockMolecule, isLoading: false, error: null });

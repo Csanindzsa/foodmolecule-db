@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useMoleculeDetail, useMoleculeFoods, useMoleculeNeutralizations } from "../hooks/useApi";
-import { formatHarmLevel, harmLevelBadgeClass, harmLevelLabel } from "../lib/moleculeDisplay";
+import { formatHarmLevel, formatMolecularWeight, formatPubChemCid, harmLevelBadgeClass, harmLevelLabel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import type { MoleculeNeutralization } from "../types";
@@ -31,13 +31,6 @@ function neutralizationDetails(neutralization: NeutralizationDisplay): string[] 
   if (neutralization.time_required) details.push(neutralization.time_required);
   if (neutralization.confidence) details.push(`${neutralization.confidence} confidence`);
   return details;
-}
-
-function formatMolecularWeight(value: string | null): string | null {
-  if (value == null) return null;
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return value;
-  return String(parsed);
 }
 
 export default function MoleculeDetail() {
@@ -102,6 +95,7 @@ export default function MoleculeDetail() {
   const harmLabel = harmLevelLabel(molecule.harm_level);
   const harmColor = harmLevelBadgeClass(molecule.harm_level);
   const molecularWeight = formatMolecularWeight(molecule.molecular_weight);
+  const pubChemCid = formatPubChemCid(molecule.pubchem_cid);
   const structureImageUrl = externalHttpUrl(molecule.structure_image_url);
 
   return (
@@ -148,7 +142,7 @@ export default function MoleculeDetail() {
           <PropertyCard label="Molecular Formula" value={molecule.molecular_formula} />
           <PropertyCard label="Molecular Weight" value={molecularWeight != null ? `${molecularWeight} g/mol` : null} />
           <PropertyCard label="CAS Number" value={molecule.cas_number} />
-          <PropertyCard label="PubChem CID" value={molecule.pubchem_cid != null ? String(molecule.pubchem_cid) : null} />
+          <PropertyCard label="PubChem CID" value={pubChemCid} />
         </div>
       </section>
 
