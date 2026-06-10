@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
 import { useHomeData } from "../hooks/useApi";
 
+function hasRenderableHealthIndex(value: number | null | undefined): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function foodCardKey(food: { id?: string; name?: string }, index: number) {
+  return food.id || `${food.name || "food"}-${index}`;
+}
+
 export default function Home() {
   const { data, isLoading, error } = useHomeData();
   const foods = data?.foods?.slice(0, 6) || [];
@@ -42,37 +50,41 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {foods.map((food) => (
-              <Link
-                key={food.id}
-                to={`/foods/${food.id}`}
-                className="block p-4 rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow dark:hover:border-gray-600 transition"
-              >
-                {food.image_url && (
-                  <img
-                    src={food.image_url}
-                    alt={`Food photo: ${food.name}`}
-                    loading="lazy"
-                    className="mb-3 h-28 w-full rounded-lg object-cover"
-                  />
-                )}
-                <div className="flex items-center justify-between">
-                  <span className="font-medium capitalize">{food.name}</span>
-                  {food.health_index !== null && (
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                      food.health_index >= 75 ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" :
-                      food.health_index >= 50 ? "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400" :
-                      "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400"
-                    }`}>
-                      {food.health_index}
-                    </span>
+            {foods.map((food, index) => {
+              const healthIndex = hasRenderableHealthIndex(food.health_index) ? food.health_index : null;
+
+              return (
+                <Link
+                  key={foodCardKey(food, index)}
+                  to={`/foods/${food.id || ""}`}
+                  className="block p-4 rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow dark:hover:border-gray-600 transition"
+                >
+                  {food.image_url && (
+                    <img
+                      src={food.image_url}
+                      alt={`Food photo: ${food.name}`}
+                      loading="lazy"
+                      className="mb-3 h-28 w-full rounded-lg object-cover"
+                    />
                   )}
-                </div>
-                {food.category && (
-                  <span className="text-xs text-gray-400 dark:text-gray-500 mt-1 block">{food.category}</span>
-                )}
-              </Link>
-            ))}
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium capitalize">{food.name}</span>
+                    {healthIndex !== null && (
+                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                        healthIndex >= 75 ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" :
+                        healthIndex >= 50 ? "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400" :
+                        "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400"
+                      }`}>
+                        {healthIndex}
+                      </span>
+                    )}
+                  </div>
+                  {food.category && (
+                    <span className="text-xs text-gray-400 dark:text-gray-500 mt-1 block">{food.category}</span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>

@@ -432,7 +432,7 @@ describe("Home page — adversarial", () => {
     expect(container.textContent).toContain("studies analyzed");
   });
 
-  test("undefined health_index renders as red badge with empty text", () => {
+  test("undefined health_index does not render a health badge", () => {
     mockUseHomeData.mockReturnValue({
       data: {
         stats: { foods: 1, molecules: 1, studies_analyzed: 1 },
@@ -442,9 +442,8 @@ describe("Home page — adversarial", () => {
       error: null,
     });
     const { container } = renderWithRouter(<Home />);
-    const badge = container.querySelector(".bg-red-100");
-    expect(badge).not.toBeNull();
-    expect(badge?.textContent).toBe("");
+    expect(container.textContent).toContain("undefined-health");
+    expect(container.querySelector(".bg-red-100")).toBeNull();
   });
 
   test("missing food id still renders card", () => {
@@ -523,7 +522,7 @@ describe("Home page — adversarial", () => {
     expect(badge?.textContent).toBe("-10");
   });
 
-  test("NaN health_index renders red badge with NaN text", () => {
+  test("NaN health_index does not render a health badge", () => {
     mockUseHomeData.mockReturnValue({
       data: {
         stats: { foods: 1, molecules: 1, studies_analyzed: 1 },
@@ -533,9 +532,9 @@ describe("Home page — adversarial", () => {
       error: null,
     });
     const { container } = renderWithRouter(<Home />);
-    const badge = container.querySelector(".bg-red-100");
-    expect(badge).not.toBeNull();
-    expect(badge?.textContent).toBe("NaN");
+    expect(container.textContent).toContain("nan");
+    expect(container.textContent).not.toContain("NaN");
+    expect(container.querySelector(".bg-red-100")).toBeNull();
   });
 
   test("primitive data value handles gracefully", () => {
