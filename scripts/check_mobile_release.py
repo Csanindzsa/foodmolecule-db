@@ -55,6 +55,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     history_store = (mobile_root / "src" / "stores" / "useHistoryStore.ts").read_text(encoding="utf-8")
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
     safe_url = (mobile_root / "src" / "lib" / "safeUrl.ts").read_text(encoding="utf-8")
+    confidence_display = (mobile_root / "src" / "lib" / "confidenceDisplay.ts").read_text(encoding="utf-8")
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
 
@@ -245,6 +246,15 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "Linking.openURL" in research_screen
             and 'accessibilityRole="link"' in research_screen,
             "mobile must expose recent PubMed research with AI impact context",
+        ),
+        MobileCheck(
+            "mobile-ai-confidence-sanitizer",
+            "formatConfidence(study.ai_confidence)" in food_detail_screen
+            and "formatConfidence(study.ai_confidence)" in research_screen
+            and "normalizeConfidence" in confidence_display
+            and "CONFIDENCE_LABELS" in confidence_display
+            and '"high", "medium", "low"' in confidence_display,
+            "mobile research surfaces must display AI confidence through the high/medium/low allowlist",
         ),
         MobileCheck(
             "mobile-ai-guide-contract",

@@ -27,6 +27,7 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ResearchSurfaceCheck,
     web_api = _read(project_root / "web" / "src" / "lib" / "api.ts")
     web_hooks = _read(project_root / "web" / "src" / "hooks" / "useApi.ts")
     safe_url = _read(project_root / "web" / "src" / "lib" / "safeUrl.ts")
+    confidence_display = _read(project_root / "web" / "src" / "lib" / "confidenceDisplay.ts")
     types = _read(project_root / "web" / "src" / "types" / "index.ts")
     serializers = _read(project_root / "backend" / "core" / "serializers.py")
     runbook = _read(project_root / "docs" / "research_surface_checks.md")
@@ -96,10 +97,22 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ResearchSurfaceCheck,
             "study cards must keep PMID, publication year, and AI confidence visible",
         ),
         ResearchSurfaceCheck(
+            "ai-confidence-sanitizer",
+            "formatConfidence" in food_detail
+            and "formatConfidence" in research_page
+            and "formatConfidence(s.ai_confidence)" in food_detail
+            and "formatConfidence(study.ai_confidence)" in research_page
+            and "normalizeConfidence" in confidence_display
+            and "CONFIDENCE_LABELS" in confidence_display
+            and '"high", "medium", "low"' in confidence_display,
+            "web research surfaces must display AI confidence through the high/medium/low allowlist",
+        ),
+        ResearchSurfaceCheck(
             "research-surface-runbook",
             "python scripts/check_research_surface.py" in runbook
             and "PubMed citation links" in runbook
-            and "AI summaries" in runbook,
+            and "AI summaries" in runbook
+            and "AI confidence labels" in runbook,
             "research surface runbook must document the static contract",
         ),
     )

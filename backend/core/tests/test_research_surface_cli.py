@@ -17,6 +17,7 @@ def test_research_surface_checker_passes_static_web_contract():
     assert "recent-research-page" in names
     assert "pubmed-citation-link" in names
     assert "study-context-visible" in names
+    assert "ai-confidence-sanitizer" in names
 
 
 def test_research_surface_cli_outputs_live_handoff(capsys):
@@ -25,6 +26,7 @@ def test_research_surface_cli_outputs_live_handoff(capsys):
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "ok\tpubmed-citation-link" in captured.out
+    assert "ok\tai-confidence-sanitizer" in captured.out
     assert "skip\tlive-pubmed-links" in captured.out
 
 

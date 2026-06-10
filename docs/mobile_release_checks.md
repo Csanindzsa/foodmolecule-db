@@ -36,6 +36,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - Molecule detail is reachable from search and surfaces structure image, harm context, and linked foods.
 - Food detail surfaces linked research summaries and PubMed citation links when study data is present.
 - Recent Research is reachable from Home and surfaces recent AI-analyzed PubMed studies with impact context.
+- Food detail and Recent Research render AI confidence labels through the high/medium/low display allowlist.
 - Food detail surfaces AI guide copy and health-index breakdowns from the existing backend endpoints.
 - Ban List is reachable from Home and surfaces draft/citation-required safety entries with food-detail navigation.
 - Compare is reachable from Home, searches foods, selects 2-3 foods, and calls the backend compare endpoint.
