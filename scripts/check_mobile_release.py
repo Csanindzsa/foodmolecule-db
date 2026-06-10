@@ -100,6 +100,14 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "CI must install locked mobile dependencies and run the Expo TypeScript check",
         ),
         MobileCheck(
+            "mobile-ci-unit-tests",
+            package.get("scripts", {}).get("test") == "bun test src"
+            and (mobile_root / "src" / "lib" / "scoreDisplay.test.ts").is_file()
+            and "Run mobile unit tests" in workflow
+            and "bun run test" in workflow,
+            "CI must run mobile Bun unit tests before the Expo TypeScript check",
+        ),
+        MobileCheck(
             "scan-screen-wiring",
             "launchCameraAsync" in scan_screen
             and "launchImageLibraryAsync" in scan_screen

@@ -24,7 +24,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - `expo-camera` and `expo-image-picker` plugins are configured.
 - iOS camera and photo-library permission copy exists.
 - Mobile Bun installs are reproducible from `mobile/bun.lock`.
-- CI installs locked mobile dependencies and runs the Expo TypeScript check.
+- CI installs locked mobile dependencies, runs Bun unit tests, and runs the Expo TypeScript check.
 - `ScanScreen` launches camera/gallery image selection and submits through `api.scanImage`.
 - The mobile API client posts multipart images to `/scan/`.
 - The mobile upload client names scan files and sends JPEG, PNG, or WebP content types.

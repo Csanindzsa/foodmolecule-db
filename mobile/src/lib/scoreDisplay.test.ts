@@ -1,0 +1,38 @@
+import { describe, expect, test } from "bun:test";
+
+import { formatScore, normalizeScore } from "./scoreDisplay";
+
+describe("score display helpers", () => {
+  test("normalizeScore keeps finite scores within 0 to 100", () => {
+    expect(normalizeScore(0)).toBe(0);
+    expect(normalizeScore(42)).toBe(42);
+    expect(normalizeScore(100)).toBe(100);
+  });
+
+  test("normalizeScore clamps out-of-range scores", () => {
+    expect(normalizeScore(-25)).toBe(0);
+    expect(normalizeScore(125)).toBe(100);
+  });
+
+  test("normalizeScore rounds fractional scores", () => {
+    expect(normalizeScore(49.4)).toBe(49);
+    expect(normalizeScore(49.5)).toBe(50);
+  });
+
+  test("normalizeScore rejects missing and non-finite scores", () => {
+    expect(normalizeScore(null)).toBeNull();
+    expect(normalizeScore(undefined)).toBeNull();
+    expect(normalizeScore(NaN)).toBeNull();
+    expect(normalizeScore(Infinity)).toBeNull();
+  });
+
+  test("formatScore returns fallback text for unavailable scores", () => {
+    expect(formatScore(null)).toBe("unknown");
+    expect(formatScore(NaN, "?")).toBe("?");
+  });
+
+  test("formatScore returns clamped display text", () => {
+    expect(formatScore(52.8)).toBe("53");
+    expect(formatScore(200)).toBe("100");
+  });
+});
