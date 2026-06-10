@@ -215,3 +215,39 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     X_FRAME_OPTIONS = "DENY"
+
+# ─── Production logging ─────────────────────────────────────────────────────
+# Emit application logs to stdout/stderr so the hosting platform or an attached
+# log drain can capture API errors and privacy-preserving aggregate analytics.
+DJANGO_LOG_LEVEL = config("DJANGO_LOG_LEVEL", default="INFO")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {
+            "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "console",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": DJANGO_LOG_LEVEL,
+    },
+    "loggers": {
+        "django": {
+            "level": DJANGO_LOG_LEVEL,
+        },
+        "nutrii": {
+            "level": DJANGO_LOG_LEVEL,
+        },
+        "nutrii.analytics": {
+            "level": "INFO",
+        },
+    },
+}

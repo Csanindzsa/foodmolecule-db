@@ -14,6 +14,19 @@ def test_render_blueprint_uses_current_production_domain():
     assert "nutrii.app" not in blueprint
 
 
+def test_render_blueprint_sets_production_logging_level():
+    blueprint = (PROJECT_ROOT / "render.yaml").read_text(encoding="utf-8")
+
+    assert "DJANGO_LOG_LEVEL" in blueprint
+    assert 'value: "INFO"' in blueprint
+
+
+def test_env_template_documents_production_logging_level():
+    env_template = (PROJECT_ROOT / ".env.example").read_text(encoding="utf-8")
+
+    assert "DJANGO_LOG_LEVEL=INFO" in env_template
+
+
 def test_ci_runs_web_tests_and_build():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 
@@ -56,3 +69,12 @@ def test_static_host_configs_rewrite_spa_routes_to_index():
         "destination": "/index.html",
     } in vercel_config["rewrites"]
     assert "/*    /index.html   200" in redirects
+
+
+def test_observability_runbook_is_linked_from_launch_checklist():
+    runbook = (PROJECT_ROOT / "docs" / "observability.md").read_text(encoding="utf-8")
+    checklist = (PROJECT_ROOT / "docs" / "launch_checklist.md").read_text(encoding="utf-8")
+
+    assert "DJANGO_LOG_LEVEL=INFO" in runbook
+    assert "nutrii.analytics" in runbook
+    assert "docs/observability.md" in checklist

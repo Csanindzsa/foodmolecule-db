@@ -14,6 +14,8 @@ services:
         generateValue: true
       - key: DJANGO_DEBUG
         value: "False"
+      - key: DJANGO_LOG_LEVEL
+        value: "INFO"
       - key: DJANGO_ALLOWED_HOSTS
         value: "api.nutrii.fit,nutrii-api.onrender.com,localhost,127.0.0.1"
       - key: DATABASE_URL
