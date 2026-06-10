@@ -53,7 +53,7 @@ class ConfidenceScanner:
 class MalformedScanner:
     def scan(self, image_bytes: bytes):
         return SimpleNamespace(
-            ingredients=[" spinach ", "", 42, "oxalic acid"],
+            ingredients=[" spinach ", "", 42, "Spinach", "oxalic acid"],
             raw_text=None,
         )
 

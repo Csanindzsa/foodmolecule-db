@@ -145,11 +145,14 @@ def _scan_ingredients(value) -> list[str]:
     if not isinstance(value, (list, tuple)):
         return []
     ingredients = []
+    seen = set()
     for ingredient in value:
         if not isinstance(ingredient, str):
             continue
         normalized = ingredient.strip()
-        if normalized:
+        key = normalized.lower()
+        if normalized and key not in seen:
+            seen.add(key)
             ingredients.append(normalized)
     return ingredients[:30]
 
