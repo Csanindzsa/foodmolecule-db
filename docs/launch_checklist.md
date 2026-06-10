@@ -26,6 +26,7 @@
 - [ ] Verify static route contract with `python scripts/check_web_routes.py` (`docs/web_route_checks.md`), then test deployed routes: `/`, `/search`, `/foods/:id`, `/molecules/:id`, `/compare`, `/ban-list`
 
 ### Mobile
+- [ ] Verify static Expo release contract with `python scripts/check_mobile_release.py` (`docs/mobile_release_checks.md`); rerun with `--require-store-ids` after bundle/package IDs are chosen
 - [ ] Build Expo app (`cd mobile && npx expo prebuild`)
 - [ ] Test on physical iOS and Android devices
 - [ ] Verify camera permission flow and OCR accuracy on real labels

@@ -1,0 +1,45 @@
+from pathlib import Path
+
+from scripts import check_mobile_release
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+
+def test_mobile_release_checker_passes_static_mvp_contract():
+    checks = check_mobile_release.run_checks(PROJECT_ROOT / "mobile")
+
+    assert all(check.ok for check in checks)
+    assert {check.name for check in checks} == {
+        "preview-api-url",
+        "production-api-url",
+        "camera-and-library-plugins",
+        "ios-permission-copy",
+        "scan-screen-wiring",
+        "scan-api-client",
+        "eas-build-profiles",
+    }
+
+
+def test_mobile_release_checker_store_ids_are_optional_until_accounts_exist():
+    checks = check_mobile_release.run_checks(PROJECT_ROOT / "mobile", require_store_ids=True)
+    failures = {check.name for check in checks if not check.ok}
+
+    assert failures == {"ios-bundle-identifier", "android-package"}
+
+
+def test_mobile_release_cli_outputs_summary(capsys):
+    exit_code = check_mobile_release.main(["--mobile-root", str(PROJECT_ROOT / "mobile")])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "ok\tproduction-api-url" in captured.out
+    assert "skip\tstore-identifiers" in captured.out
+
+
+def test_mobile_release_runbook_is_linked_from_launch_checklist():
+    runbook = (PROJECT_ROOT / "docs" / "mobile_release_checks.md").read_text(encoding="utf-8")
+    checklist = (PROJECT_ROOT / "docs" / "launch_checklist.md").read_text(encoding="utf-8")
+
+    assert "python scripts/check_mobile_release.py" in runbook
+    assert "docs/mobile_release_checks.md" in checklist
