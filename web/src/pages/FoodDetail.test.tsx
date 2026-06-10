@@ -406,6 +406,22 @@ describe("FoodDetail page", () => {
     expect(document.body.textContent).toContain("Apples are nutritious fruits that can be consumed daily.");
   });
 
+  test("agent guide hides malformed generated dates", () => {
+    mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });
+    mockUseFoodGuide.mockReturnValue({
+      data: { ...mockGuide, generated_at: "not a date" },
+      isLoading: false,
+      error: null,
+      refetch: mockRefetchGuide,
+    });
+
+    renderWithRouter(<FoodDetail />);
+
+    expect(document.body.textContent).toContain("Agent Guide");
+    expect(document.body.textContent).not.toContain("Generated:");
+    expect(document.body.textContent).not.toContain("Invalid Date");
+  });
+
   // ─── P) Agent Guide loading ───
   test("agent guide loading shows pulsing skeleton", () => {
     mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });

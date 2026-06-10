@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Button, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { formatDateTime } from "../lib/dateDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
@@ -40,6 +41,7 @@ export default function HomeScreen({ navigation }: Props) {
           {history.slice(0, 5).map((item) => {
             const imageUrl = externalHttpUrl(item.image_url);
             const score = normalizeScore(item.health_index);
+            const scannedAt = formatDateTime(item.scannedAt);
 
             return (
               <Pressable
@@ -56,7 +58,7 @@ export default function HomeScreen({ navigation }: Props) {
                 )}
                 <View style={styles.historyContent}>
                   <Text style={styles.historyName}>{item.name}</Text>
-                  <Text style={styles.historyDate}>{new Date(item.scannedAt).toLocaleString()}</Text>
+                  <Text style={styles.historyDate}>{scannedAt ?? "Unknown scan time"}</Text>
                 </View>
                 {score !== null && (
                   <Text style={styles.historyScore}>{score}</Text>

@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useFoodDetail, useFoodMolecules, useFoodStudies, useFoodGuide, useFoodHealthIndex } from "../hooks/useApi";
 import { formatConfidence } from "../lib/confidenceDisplay";
+import { formatDate } from "../lib/dateDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore, normalizeScore } from "../lib/scoreDisplay";
 
@@ -47,6 +48,7 @@ export default function FoodDetail() {
 
   if (!food) return null;
   const foodImageUrl = externalHttpUrl(food.image_url);
+  const guideGeneratedAt = formatDate(guide?.generated_at);
 
   return (
     <div className="space-y-8">
@@ -127,8 +129,8 @@ export default function FoodDetail() {
               <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                 {guide.guide}
               </div>
-              {guide.generated_at && (
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Generated: {new Date(guide.generated_at).toLocaleDateString()}</p>
+              {guideGeneratedAt && (
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Generated: {guideGeneratedAt}</p>
               )}
             </>
           ) : null}
