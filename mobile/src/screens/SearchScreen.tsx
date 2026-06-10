@@ -56,7 +56,7 @@ export default function SearchScreen({ navigation }: Props) {
       {isLoading && <ActivityIndicator style={styles.status} />}
       {error && <Text style={[styles.status, styles.error]}>{error}</Text>}
       {!isLoading && !error && hasSearched && !hasResults && (
-        <Text style={styles.status}>No matching foods found.</Text>
+        <Text style={styles.status}>No matching foods or molecules found.</Text>
       )}
       <ScrollView contentContainerStyle={styles.results}>
         {foodResults.length > 0 && (

@@ -148,6 +148,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "response.molecules" in search_screen
             and "moleculeResults" in search_screen
             and "Molecules" in search_screen
+            and "No matching foods or molecules found." in search_screen
             and "molecule.harm_level" in search_screen
             and "molecule.molecular_formula" in search_screen,
             "mobile search must preserve and display molecule matches returned by the API",
