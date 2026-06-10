@@ -29,6 +29,7 @@ CI runs the no-secret version.
 - PubMed/AI research operations contract.
 - Image enrichment operations contract.
 - Ban-list surface citation-gate contract.
+- Production logging and privacy-preserving analytics contract.
 - Optional launch environment preflight when `--env-file` is provided.
 
 ## Not Included

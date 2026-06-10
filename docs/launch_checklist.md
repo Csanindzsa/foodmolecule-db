@@ -15,7 +15,7 @@
 - [x] Set `DEBUG=False`, configure `ALLOWED_HOSTS` (`render.yaml`, `backend/core/tests/test_deploy_config.py`)
 - [x] Verify production security settings with `python manage.py check --deploy`
 - [x] Verify production throttling with `RATE_LIMIT_REQUESTS_PER_MINUTE` set for launch traffic (`backend/core/tests/test_production_settings.py`)
-- [ ] Set up Logtail / Sentry for error tracking; stdout logging and verification steps are documented in `docs/observability.md`
+- [ ] Verify static observability contract with `python scripts/check_observability.py` (`docs/observability.md`), then set up Logtail / Sentry for error tracking
 - [ ] Verify OpenRouter API key is configured by launch preflight, then confirm sufficient quota for launch traffic in the provider dashboard
 
 ### Frontend
@@ -41,7 +41,7 @@
 - [ ] Verify ban-list draft citation gate with `python scripts/check_ban_list_surface.py` (`docs/ban_list_surface_checks.md`), then confirm any verified production entries are surfaced correctly in the deployed UI
 
 ### Analytics (Phase 14)
-- [ ] Verify privacy-preserving backend analytics logs are captured by production logging (`docs/observability.md`)
+- [ ] Verify privacy-preserving backend analytics logs are captured by production logging after `python scripts/check_observability.py` passes (`docs/observability.md`)
 - [x] Verify aggregate events are emitted for searches, food detail views, scans, and comparisons (`backend/core/tests/test_analytics.py`)
 - [x] Confirm analytics metadata remains aggregate-only and contains no raw queries, labels, IP addresses, or user identifiers (`backend/core/tests/test_analytics.py`)
 

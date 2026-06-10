@@ -36,6 +36,14 @@ Do not add DSNs or log-drain tokens to the repository. Store them in the hosting
 
 ## Verification
 
+Before deploy, run the no-secret static check from the repository root:
+
+```bash
+python scripts/check_observability.py
+```
+
+CI and the local release audit run this command.
+
 After deploy:
 
 1. Run the deployed API smoke test:

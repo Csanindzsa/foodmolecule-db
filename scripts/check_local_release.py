@@ -28,6 +28,7 @@ LOCAL_AUDIT_COMMANDS = (
     AuditCommand("research-ops-contract", ("scripts/check_research_ops.py",)),
     AuditCommand("image-ops-contract", ("scripts/check_image_ops.py",)),
     AuditCommand("ban-list-surface-contract", ("scripts/check_ban_list_surface.py",)),
+    AuditCommand("observability-contract", ("scripts/check_observability.py",)),
 )
 
 
