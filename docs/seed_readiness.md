@@ -22,6 +22,14 @@ The default seed directory is `data/seed`. Use `--seed-dir` to point at another 
 
 CI runs the same preflight, plus standalone food and molecule schema validation.
 
+CI also dry-runs the ingestion pipeline against the real seed set:
+
+```bash
+python scripts/run_pipeline.py --foods data/seed/foods --molecules data/seed/molecules --dry-run
+```
+
+That catches data that passes JSON Schema but cannot be loaded, normalized, deduplicated, or validated by the pipeline models.
+
 ## What It Does Not Prove
 
 - The production database has been seeded.

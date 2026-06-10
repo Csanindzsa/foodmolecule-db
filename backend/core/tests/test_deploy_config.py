@@ -66,6 +66,15 @@ def test_ci_checks_launch_seed_readiness():
     assert "python ../scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4" in workflow
 
 
+def test_ci_dry_runs_seed_ingestion_pipeline():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert (
+        "python ../scripts/run_pipeline.py --foods ../data/seed/foods --molecules ../data/seed/molecules --dry-run"
+        in workflow
+    )
+
+
 def test_ci_validates_ban_list_schema():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 
