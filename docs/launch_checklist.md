@@ -6,6 +6,7 @@
 ## Pre-Launch (Before Public Release)
 
 ### Backend
+- [ ] Run launch environment preflight with `python scripts/check_launch_env.py --env-file .env.production` (`docs/launch_environment.md`)
 - [ ] Run full `pytest-django` suite against live Supabase (needs Docker up or live DB)
 - [ ] Verify all 17 API endpoints respond from the deployed API with `python scripts/smoke_api.py --require-full` (`docs/api_smoke_test.md`); separately confirm high-traffic queries are <200ms with `EXPLAIN ANALYZE`
 - [x] Add GIN indexes on `Food.name`, `Molecule.name`, `Study.title` if not present (`backend/core/migrations/0003_postgres_trigram_search_indexes.py`)
@@ -14,7 +15,7 @@
 - [x] Verify production security settings with `python manage.py check --deploy`
 - [x] Verify production throttling with `RATE_LIMIT_REQUESTS_PER_MINUTE` set for launch traffic (`backend/core/tests/test_production_settings.py`)
 - [ ] Set up Logtail / Sentry for error tracking; stdout logging and verification steps are documented in `docs/observability.md`
-- [ ] Verify OpenRouter API key has sufficient quota for launch traffic
+- [ ] Verify OpenRouter API key is configured by launch preflight, then confirm sufficient quota for launch traffic in the provider dashboard
 
 ### Frontend
 - [ ] Install web dependencies with `cd web && bun install --frozen-lockfile`
