@@ -25,5 +25,5 @@ services:
       - key: CORS_ALLOWED_ORIGINS
         value: "https://nutrii.fit,https://www.nutrii.fit,http://localhost:5173"
       - key: PYTHON_VERSION
-        value: "3.10"
+        value: "3.11"
     healthCheckPath: /api/v1/health/

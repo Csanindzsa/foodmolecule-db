@@ -40,6 +40,8 @@ jobs:
         run: python ../scripts/run_pipeline.py --foods ../data/seed/foods --molecules ../data/seed/molecules --dry-run
       - name: Validate ban list schema
         run: python ../scripts/validate_schema.py ban_list ../ban_list/ban_list.json
+      - name: Check backend release contract
+        run: python ../scripts/check_backend_release.py
       - name: Check static web route contract
         run: python ../scripts/check_web_routes.py
       - name: Check static web release contract

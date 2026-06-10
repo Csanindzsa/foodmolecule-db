@@ -11,7 +11,7 @@
 - [ ] Run full `pytest-django` suite against live Supabase (needs Docker up or live DB)
 - [ ] Verify all 17 API endpoints respond from the deployed API with `python scripts/smoke_api.py --require-full` (`docs/api_smoke_test.md`); separately confirm high-traffic queries are <200ms with `python scripts/check_query_plans.py --threshold-ms 200` (`docs/query_plan_checks.md`)
 - [x] Add GIN indexes on `Food.name`, `Molecule.name`, `Study.title` if not present (`backend/core/migrations/0003_postgres_trigram_search_indexes.py`)
-- [ ] Configure Render/Fly.io `DATABASE_URL`; add `REDIS_URL` only if switching from local-memory cache to a shared cache
+- [ ] Verify static backend release contract with `python scripts/check_backend_release.py` (`docs/backend_release_checks.md`), then configure Render/Fly.io `DATABASE_URL`; add `REDIS_URL` only if switching from local-memory cache to a shared cache
 - [x] Set `DEBUG=False`, configure `ALLOWED_HOSTS` (`render.yaml`, `backend/core/tests/test_deploy_config.py`)
 - [x] Verify production security settings with `python manage.py check --deploy`
 - [x] Verify production throttling with `RATE_LIMIT_REQUESTS_PER_MINUTE` set for launch traffic (`backend/core/tests/test_production_settings.py`)

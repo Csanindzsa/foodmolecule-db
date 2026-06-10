@@ -21,6 +21,16 @@ def test_render_blueprint_sets_production_logging_level():
     assert 'value: "INFO"' in blueprint
 
 
+def test_render_blueprint_uses_ci_python_runtime_and_gunicorn():
+    blueprint = (PROJECT_ROOT / "render.yaml").read_text(encoding="utf-8")
+    requirements = (PROJECT_ROOT / "backend" / "requirements.txt").read_text(encoding="utf-8")
+
+    assert "PYTHON_VERSION" in blueprint
+    assert 'value: "3.11"' in blueprint
+    assert "gunicorn nutrii.wsgi:application" in blueprint
+    assert "gunicorn>=" in requirements
+
+
 def test_env_template_documents_production_logging_level():
     env_template = (PROJECT_ROOT / ".env.example").read_text(encoding="utf-8")
 
@@ -64,6 +74,12 @@ def test_ci_checks_launch_seed_readiness():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 
     assert "python ../scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4" in workflow
+
+
+def test_ci_checks_backend_release_contract():
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "python ../scripts/check_backend_release.py" in workflow
 
 
 def test_ci_dry_runs_seed_ingestion_pipeline():

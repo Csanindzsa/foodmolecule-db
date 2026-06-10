@@ -22,6 +22,7 @@ CI runs the no-secret version.
 
 - Seed readiness: `scripts/check_seed_readiness.py --min-foods 100 --min-molecules 4`
 - Ban-list schema validation.
+- Static Django/Render backend release contract.
 - API smoke probe coverage list.
 - Query-plan target list.
 - Static web route contract.

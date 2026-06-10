@@ -13,6 +13,7 @@ def test_local_release_audit_default_commands_are_no_credential_checks():
     assert names == [
         "seed-readiness",
         "ban-list-schema",
+        "backend-release-contract",
         "api-smoke-probe-list",
         "query-plan-target-list",
         "web-route-contract",

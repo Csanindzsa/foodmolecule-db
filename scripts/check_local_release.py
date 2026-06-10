@@ -21,6 +21,7 @@ class AuditCommand:
 LOCAL_AUDIT_COMMANDS = (
     AuditCommand("seed-readiness", ("scripts/check_seed_readiness.py", "--min-foods", "100", "--min-molecules", "4")),
     AuditCommand("ban-list-schema", ("scripts/validate_schema.py", "ban_list", "ban_list/ban_list.json")),
+    AuditCommand("backend-release-contract", ("scripts/check_backend_release.py",)),
     AuditCommand("api-smoke-probe-list", ("scripts/smoke_api.py", "--list-probes")),
     AuditCommand("query-plan-target-list", ("scripts/check_query_plans.py", "--list")),
     AuditCommand("web-route-contract", ("scripts/check_web_routes.py",)),
