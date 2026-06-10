@@ -213,7 +213,7 @@ USDA_LIMIT=100 PUBMED_PASSES=1 MOLECULE_IMAGE_LIMIT=25 FOOD_IMAGE_LIMIT=25 ./scr
 
 ## Hermes cron setup
 
-Hermes cron should not directly run the full ingestion in-process because cron agent turns are short. Instead, cron starts a `tmux` session and exits quickly. The long job continues inside `tmux`.
+Hermes cron should trigger the PubMed watcher handoff every 6h. It should not directly run the full ingestion in-process because cron agent turns are short. Instead, cron starts a `tmux` session and exits quickly. The long job continues inside `tmux`.
 
 Start script:
 

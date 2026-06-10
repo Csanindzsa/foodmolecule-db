@@ -44,6 +44,8 @@ jobs:
         run: python ../scripts/check_web_routes.py
       - name: Check static mobile release contract
         run: python ../scripts/check_mobile_release.py
+      - name: Check research operations contract
+        run: python ../scripts/check_research_ops.py
       - name: Run core tests
         run: python -m pytest core/tests -q
       - name: Run AI tests
