@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useFoodDetail, useFoodMolecules, useFoodStudies, useFoodGuide, useFoodHealthIndex } from "../hooks/useApi";
+import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore, normalizeScore } from "../lib/scoreDisplay";
 
 export default function FoodDetail() {
@@ -210,29 +211,33 @@ export default function FoodDetail() {
             </div>
           ) : (
             <div className="space-y-3">
-              {visibleStudies.map((s) => (
-                <div key={s.id} className="p-4 rounded-xl border bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="text-sm font-medium">{s.title}</div>
-                  {s.ai_summary && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{s.ai_summary}</p>
-                  )}
-                  <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                    PMID: {s.url ? (
-                      <a
-                        href={s.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-medium text-green-700 hover:underline dark:text-green-400"
-                      >
-                        {s.pmid}
-                      </a>
-                    ) : (
-                      s.pmid
-                    )} {s.publication_year && `· ${s.publication_year}`}
-                    {s.ai_confidence && ` · AI confidence: ${s.ai_confidence}`}
+              {visibleStudies.map((s) => {
+                const citationUrl = externalHttpUrl(s.url);
+
+                return (
+                  <div key={s.id} className="p-4 rounded-xl border bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <div className="text-sm font-medium">{s.title}</div>
+                    {s.ai_summary && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{s.ai_summary}</p>
+                    )}
+                    <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                      PMID: {citationUrl ? (
+                        <a
+                          href={citationUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-medium text-green-700 hover:underline dark:text-green-400"
+                        >
+                          {s.pmid}
+                        </a>
+                      ) : (
+                        s.pmid
+                      )} {s.publication_year && `· ${s.publication_year}`}
+                      {s.ai_confidence && ` · AI confidence: ${s.ai_confidence}`}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

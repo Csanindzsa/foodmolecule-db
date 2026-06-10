@@ -318,6 +318,21 @@ describe("FoodDetail page", () => {
     expect(document.body.textContent).toContain("AI confidence: high");
   });
 
+  test("studies list does not link unsafe citation URLs", () => {
+    mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });
+    mockUseFoodStudies.mockReturnValue({
+      data: [{ ...mockStudies[0], url: "javascript:alert(1)" }],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetchStudies,
+    });
+
+    renderWithRouter(<FoodDetail />);
+
+    expect(document.body.textContent).toContain("PMID: 12345");
+    expect(document.querySelector("a[href^='javascript:']")).toBeNull();
+  });
+
   // ─── L) Studies loading ───
   test("studies loading shows 3 skeleton cards", () => {
     mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });

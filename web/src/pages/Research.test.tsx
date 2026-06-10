@@ -111,4 +111,18 @@ describe("Research page", () => {
     expect(link!.getAttribute("target")).toBe("_blank");
     expect(link!.getAttribute("rel")).toBe("noreferrer");
   });
+
+  test("success state does not link unsafe citation URLs", () => {
+    mockUseRecentStudies.mockReturnValue({
+      data: [{ ...mockStudies[0], url: "javascript:alert(1)" }],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = render(<Research />);
+
+    expect(container.textContent).toContain("PMID: 123456");
+    expect(container.querySelector("a")).toBeNull();
+  });
 });

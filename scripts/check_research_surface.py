@@ -26,6 +26,7 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ResearchSurfaceCheck,
     research_page = _read(project_root / "web" / "src" / "pages" / "Research.tsx")
     web_api = _read(project_root / "web" / "src" / "lib" / "api.ts")
     web_hooks = _read(project_root / "web" / "src" / "hooks" / "useApi.ts")
+    safe_url = _read(project_root / "web" / "src" / "lib" / "safeUrl.ts")
     types = _read(project_root / "web" / "src" / "types" / "index.ts")
     serializers = _read(project_root / "backend" / "core" / "serializers.py")
     runbook = _read(project_root / "docs" / "research_surface_checks.md")
@@ -72,14 +73,17 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ResearchSurfaceCheck,
         ResearchSurfaceCheck(
             "pubmed-citation-link",
             "s.url" in food_detail
-            and 'href={s.url}' in food_detail
             and "study.url" in research_page
-            and 'href={study.url}' in research_page
+            and "externalHttpUrl" in safe_url
+            and "externalHttpUrl(s.url)" in food_detail
+            and "externalHttpUrl(study.url)" in research_page
+            and "href={citationUrl}" in food_detail
+            and "href={citationUrl}" in research_page
             and 'target="_blank"' in food_detail
             and 'target="_blank"' in research_page
             and 'rel="noreferrer"' in food_detail
             and 'rel="noreferrer"' in research_page,
-            "research surfaces must link PMID citations to external PubMed URLs safely",
+            "research surfaces must link PMID citations through an HTTP(S)-only external URL sanitizer",
         ),
         ResearchSurfaceCheck(
             "study-context-visible",

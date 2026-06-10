@@ -19,7 +19,7 @@ CI and the local release audit run this checker before backend tests.
 - Food detail renders the Latest Research card list and caps the preview to five studies.
 - The web API client and hook expose `/studies/recent/` for standalone recent research browsing.
 - The `/research` page renders recent AI-analyzed PubMed studies with summaries and impact context.
-- PubMed citation links open in a new tab and include `rel="noreferrer"`.
+- PubMed citation links pass through the shared HTTP(S)-only URL sanitizer, open in a new tab, and include `rel="noreferrer"`.
 - Study cards keep AI summaries, PMID, publication year, and AI confidence visible.
 
 ## Live Follow-Up
