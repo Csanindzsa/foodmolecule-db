@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSearch } from "../hooks/useApi";
+import { validRouteId } from "../lib/routeId";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import { formatOptionalText } from "../lib/textDisplay";
@@ -64,13 +65,10 @@ export default function Search() {
             {data.foods.map((f) => {
               const healthIndex = normalizeScore(f.health_index);
               const imageUrl = externalHttpUrl(f.image_url);
-
-              return (
-                <Link
-                  key={f.id}
-                  to={`/foods/${f.id}`}
-                  className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow transition"
-                >
+              const foodId = validRouteId(f.id);
+              const resultClass = "flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow transition";
+              const resultContent = (
+                <>
                   {imageUrl && (
                     <img
                       src={imageUrl}
@@ -85,7 +83,21 @@ export default function Search() {
                       {healthIndex}
                     </span>
                   )}
+                </>
+              );
+
+              return foodId ? (
+                <Link
+                  key={f.id}
+                  to={`/foods/${foodId}`}
+                  className={resultClass}
+                >
+                  {resultContent}
                 </Link>
+              ) : (
+                <div key={f.id || f.name} className={resultClass}>
+                  {resultContent}
+                </div>
               );
             })}
           </div>
@@ -99,9 +111,10 @@ export default function Search() {
             {data.molecules.map((m) => {
               const imageUrl = externalHttpUrl(m.structure_image_url);
               const formula = formatOptionalText(m.molecular_formula);
-
-              return (
-                <div key={m.id} className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800">
+              const moleculeId = validRouteId(m.id);
+              const moleculeClass = "flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800";
+              const moleculeContent = (
+                <>
                   {imageUrl && (
                     <img
                       src={imageUrl}
@@ -116,6 +129,16 @@ export default function Search() {
                       <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{formula}</span>
                     )}
                   </div>
+                </>
+              );
+
+              return moleculeId ? (
+                <Link key={m.id} to={`/molecules/${moleculeId}`} className={`${moleculeClass} hover:shadow transition`}>
+                  {moleculeContent}
+                </Link>
+              ) : (
+                <div key={m.id || m.name} className={moleculeClass}>
+                  {moleculeContent}
                 </div>
               );
             })}

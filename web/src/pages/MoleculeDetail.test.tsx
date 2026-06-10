@@ -553,6 +553,21 @@ describe("MoleculeDetail page", () => {
     expect(links[1].getAttribute("href")).toBe("/foods/f2");
   });
 
+  test("linked food with malformed ID is not a detail link", () => {
+    mockUseMoleculeDetail.mockReturnValue({ data: mockMolecule, isLoading: false, error: null });
+    mockUseMoleculeFoods.mockReturnValue({
+      data: [{ ...mockFoods[0], id: "undefined", name: "bad linked food" }],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetchFoods,
+    });
+
+    const { container } = renderWithRouter(<MoleculeDetail />);
+
+    expect(container.textContent).toContain("bad linked food");
+    expect(container.querySelector('a[href="/foods/undefined"]')).toBeNull();
+  });
+
   // ─── Null guard ───
   test("returns nothing when molecule is null after loading", () => {
     mockUseMoleculeDetail.mockReturnValue({ data: null, isLoading: false, error: null });

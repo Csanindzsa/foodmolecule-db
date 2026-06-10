@@ -125,12 +125,16 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
       <Text style={styles.sectionTitle}>Linked foods</Text>
       {foods.length > 0 ? foods.map((food) => {
         const category = formatOptionalText(food.category) ?? "Uncategorized";
+        const linkedFoodId = validRouteId(food.id);
 
         return (
           <Pressable
             key={food.id}
             style={styles.foodItem}
-            onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
+            disabled={!linkedFoodId}
+            onPress={() => {
+              if (linkedFoodId) navigation.navigate("FoodDetail", { id: linkedFoodId });
+            }}
           >
             <Text style={styles.foodName}>{food.name}</Text>
             <Text style={styles.meta}>

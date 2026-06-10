@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { api, type FoodListItem, type Molecule } from "../lib/api";
 import { asArray, stringItems } from "../lib/array";
 import { formatHarmLevel } from "../lib/moleculeDisplay";
+import { validRouteId } from "../lib/routeId";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
 import { formatOptionalText } from "../lib/textDisplay";
@@ -83,9 +84,17 @@ export default function SearchScreen({ navigation }: Props) {
             {foodResults.map((item) => {
               const imageUrl = externalHttpUrl(item.image_url);
               const moleculeNames = stringItems(item.molecule_names, 4);
+              const foodId = validRouteId(item.id);
 
               return (
-                <Pressable key={item.id} style={styles.resultItem} onPress={() => navigation.navigate("FoodDetail", { id: item.id })}>
+                <Pressable
+                  key={item.id}
+                  style={styles.resultItem}
+                  disabled={!foodId}
+                  onPress={() => {
+                    if (foodId) navigation.navigate("FoodDetail", { id: foodId });
+                  }}
+                >
                   {imageUrl && (
                     <Image
                       source={{ uri: imageUrl }}
@@ -116,9 +125,17 @@ export default function SearchScreen({ navigation }: Props) {
             {moleculeResults.map((molecule) => {
               const imageUrl = externalHttpUrl(molecule.structure_image_url);
               const formula = formatOptionalText(molecule.molecular_formula);
+              const moleculeId = validRouteId(molecule.id);
 
               return (
-                <Pressable key={molecule.id} style={styles.resultItem} onPress={() => navigation.navigate("MoleculeDetail", { id: molecule.id })}>
+                <Pressable
+                  key={molecule.id}
+                  style={styles.resultItem}
+                  disabled={!moleculeId}
+                  onPress={() => {
+                    if (moleculeId) navigation.navigate("MoleculeDetail", { id: moleculeId });
+                  }}
+                >
                   {imageUrl && (
                     <Image
                       source={{ uri: imageUrl }}

@@ -108,6 +108,20 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             "web detail routes must reject empty and oversized route IDs before loading",
         ),
         WebReleaseCheck(
+            "navigation-id-bound",
+            "validRouteId(food.id)" in home_page
+            and "validRouteId(f.id)" in search_page
+            and "validRouteId(m.id)" in search_page
+            and "validRouteId(food.id)" in compare_page
+            and "validRouteId(entry.food?.id)" in ban_list_page
+            and "validRouteId(food.id)" in molecule_detail
+            and 'to={`/molecules/${moleculeId}`}' in search_page
+            and 'to={`/foods/${foodId}`}' in compare_page
+            and 'to={`/foods/${foodId}`}' in ban_list_page
+            and 'to={`/foods/${foodId}`}' in molecule_detail,
+            "web source links must reject malformed food and molecule IDs before navigation",
+        ),
+        WebReleaseCheck(
             "search-query-bound",
             "MAX_SEARCH_QUERY_CHARS = 128" in search_page
             and "MAX_SEARCH_QUERY_CHARS = 128" in api_client
@@ -145,6 +159,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "MAX_COMPARE_IDS = 3" in api_client
             and "Compare IDs must be unique." in api_client
             and "Compare IDs must be non-empty." in api_client
+            and "Compare IDs must not be placeholder values." in api_client
             and "sharedMoleculeNames(data.shared_molecules)" in compare_page
             and "formatCount(data.total_unique_molecules)" in compare_page
             and "moleculeAmountEntries" in compare_display

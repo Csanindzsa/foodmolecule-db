@@ -475,6 +475,7 @@ describe("Home page — adversarial", () => {
     });
     const { container } = renderWithRouter(<Home />);
     expect(container.textContent).toContain("no-id");
+    expect(container.querySelector('a[href^="/foods/"]')).toBeNull();
   });
 
   test("missing food name renders empty card text", () => {

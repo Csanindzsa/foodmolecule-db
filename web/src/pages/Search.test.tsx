@@ -191,6 +191,28 @@ describe("Search page", () => {
     expect(document.body.textContent).toContain("Glucose");
     expect(document.body.textContent).toContain("Fructose");
     expect(document.body.textContent).toContain("C6H12O6");
+    const links = document.querySelectorAll('a[href^="/molecules/"]');
+    expect(links.length).toBe(2);
+    expect(links[0].getAttribute("href")).toBe("/molecules/m1");
+    expect(links[1].getAttribute("href")).toBe("/molecules/m2");
+  });
+
+  test("success state renders malformed IDs without detail links", () => {
+    mockUseSearch.mockReturnValue({
+      data: {
+        foods: [{ id: "undefined", name: "bad food", health_index: 85 }],
+        molecules: [{ id: "null", name: "Bad molecule", molecular_formula: "X" }],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithRouter(<Search />, ["/search?q=bad"]);
+
+    expect(document.body.textContent).toContain("bad food");
+    expect(document.body.textContent).toContain("Bad molecule");
+    expect(document.querySelector('a[href^="/foods/"]')).toBeNull();
+    expect(document.querySelector('a[href^="/molecules/"]')).toBeNull();
   });
 
   test("food names are capitalized in display", () => {

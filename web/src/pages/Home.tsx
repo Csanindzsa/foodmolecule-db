@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useHomeData } from "../hooks/useApi";
+import { validRouteId } from "../lib/routeId";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import { formatOptionalText } from "../lib/textDisplay";
@@ -53,13 +54,10 @@ export default function Home() {
               const healthIndex = normalizeScore(food.health_index);
               const imageUrl = externalHttpUrl(food.image_url);
               const category = formatOptionalText(food.category);
-
-              return (
-                <Link
-                  key={foodCardKey(food, index)}
-                  to={`/foods/${food.id || ""}`}
-                  className="block p-4 rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow dark:hover:border-gray-600 transition"
-                >
+              const foodId = validRouteId(food.id);
+              const cardClass = "block p-4 rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow dark:hover:border-gray-600 transition";
+              const cardContent = (
+                <>
                   {imageUrl && (
                     <img
                       src={imageUrl}
@@ -79,7 +77,21 @@ export default function Home() {
                   {category && (
                     <span className="text-xs text-gray-400 dark:text-gray-500 mt-1 block">{category}</span>
                   )}
+                </>
+              );
+
+              return foodId ? (
+                <Link
+                  key={foodCardKey(food, index)}
+                  to={`/foods/${foodId}`}
+                  className={cardClass}
+                >
+                  {cardContent}
                 </Link>
+              ) : (
+                <div key={foodCardKey(food, index)} className={cardClass}>
+                  {cardContent}
+                </div>
               );
             })}
           </div>

@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { api, type BanListEntry } from "../lib/api";
 import { asArray } from "../lib/array";
 import { formatLethalDose } from "../lib/banListDisplay";
+import { validRouteId } from "../lib/routeId";
 import { formatOptionalText } from "../lib/textDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -66,6 +67,7 @@ export default function BanListScreen({ navigation }: Props) {
         const category = formatOptionalText(entry.food?.category);
         const reason = formatOptionalText(entry.reason) ?? "No reason listed.";
         const safeCondition = formatOptionalText(entry.safe_condition);
+        const foodId = validRouteId(entry.food?.id);
 
         return (
         <View key={entry.id} style={styles.entry}>
@@ -82,10 +84,10 @@ export default function BanListScreen({ navigation }: Props) {
           <Text style={styles.meta}>Lethal dose: {formatLethalDose(entry.lethal_dose_mg)}</Text>
           {safeCondition && <Text style={styles.meta}>Safe condition: {safeCondition}</Text>}
           <Text style={styles.citationBadge}>Citation-required draft</Text>
-          {!!entry.food && (
+          {!!foodId && (
             <Pressable
               accessibilityRole="button"
-              onPress={() => navigation.navigate("FoodDetail", { id: entry.food!.id })}
+              onPress={() => navigation.navigate("FoodDetail", { id: foodId })}
               style={styles.detailLink}
             >
               <Text style={styles.detailLinkText}>Open food detail</Text>

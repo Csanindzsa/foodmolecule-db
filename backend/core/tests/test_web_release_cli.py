@@ -16,6 +16,7 @@ def test_web_release_checker_passes_static_launch_contract():
     assert "api-base-url-contract" in names
     assert "api-id-bound" in names
     assert "route-id-bound" in names
+    assert "navigation-id-bound" in names
     assert "search-query-bound" in names
     assert "seo-head-metadata" in names
     assert "compare-display-sanitizers" in names
@@ -31,6 +32,7 @@ def test_web_release_cli_outputs_live_handoff(capsys):
     assert exit_code == 0
     assert "ok\tapi-id-bound" in captured.out
     assert "ok\troute-id-bound" in captured.out
+    assert "ok\tnavigation-id-bound" in captured.out
     assert "ok\tseo-head-metadata" in captured.out
     assert "ok\tsearch-query-bound" in captured.out
     assert "ok\tcompare-display-sanitizers" in captured.out

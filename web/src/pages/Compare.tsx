@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useCompare } from "../hooks/useApi";
 import { formatCount, moleculeAmountEntries, sharedMoleculeNames } from "../lib/compareDisplay";
+import { validRouteId } from "../lib/routeId";
 import { formatScore, normalizeScore } from "../lib/scoreDisplay";
 
 function getHealthBarColor(healthIndex: number): string {
@@ -106,15 +107,20 @@ export default function Compare() {
           const healthIndex = normalizeScore(food.health_index);
           const healthBarValue = healthIndex ?? 0;
           const moleculeEntries = moleculeAmountEntries(food.molecules);
+          const foodId = validRouteId(food.id);
 
           return (
             <div key={foodCardKey(food, index)} className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5 space-y-4">
-              <Link
-                to={`/foods/${food.id || ""}`}
-                className="text-xl font-bold capitalize text-blue-600 dark:text-blue-400 hover:underline block"
-              >
-                {food.name}
-              </Link>
+              {foodId ? (
+                <Link
+                  to={`/foods/${foodId}`}
+                  className="text-xl font-bold capitalize text-blue-600 dark:text-blue-400 hover:underline block"
+                >
+                  {food.name}
+                </Link>
+              ) : (
+                <span className="text-xl font-bold capitalize block">{food.name}</span>
+              )}
 
               <div>
                 <div className="bg-gray-200 dark:bg-gray-600 rounded-full h-4 w-full overflow-hidden">

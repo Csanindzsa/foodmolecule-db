@@ -19,6 +19,7 @@ CI and the local release audit run this command before backend tests.
 - The web API client supports `VITE_API_URL`, legacy `VITE_API_BASE_URL`, and same-origin `/api/v1` fallback.
 - The web API client rejects empty, placeholder, and oversized path IDs before building detail-route URLs.
 - Detail pages reject empty, placeholder, and oversized route IDs before loading API-backed views.
+- Source links reject malformed food and molecule IDs before navigating to detail routes.
 - Search input, URL query handling, and the web API client cap client-side queries to the backend 128-character limit.
 - `index.html` includes launch SEO, canonical URL, and Open Graph metadata.
 - `robots.txt` and `sitemap.xml` expose the crawlable launch routes.

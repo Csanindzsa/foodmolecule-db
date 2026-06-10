@@ -316,6 +316,28 @@ describe("Compare page", () => {
     expect(bananaLink!.textContent).toBe("banana");
   });
 
+  test("food names with malformed IDs are not detail links", () => {
+    mockUseCompare.mockReturnValue({
+      data: {
+        foods: [
+          { ...mockCompareData.foods[0], id: "undefined", name: "bad id food" },
+          mockCompareData.foods[1],
+        ],
+        shared_molecules: [],
+        total_unique_molecules: 2,
+      },
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<Compare />, ["/compare?ids=bad,f2"]);
+
+    expect(container.textContent).toContain("bad id food");
+    expect(container.querySelector('a[href="/foods/undefined"]')).toBeNull();
+    expect(container.querySelector('a[href="/foods/f2"]')).not.toBeNull();
+  });
+
   test("health index bar has correct ARIA attributes", () => {
     mockUseCompare.mockReturnValue({
       data: mockCompareData,

@@ -156,6 +156,20 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "mobile detail screens must reject empty and oversized route IDs before loading",
         ),
         MobileCheck(
+            "mobile-navigation-id-bound",
+            "validRouteId(item.id)" in search_screen
+            and "validRouteId(molecule.id)" in search_screen
+            and "validRouteId(food.id)" in scan_screen
+            and "validRouteId(entry.food?.id)" in ban_list_screen
+            and "validRouteId(food.id)" in compare_screen
+            and "validRouteId(food.id)" in molecule_detail_screen
+            and 'navigation.navigate("MoleculeDetail", { id: moleculeId })' in search_screen
+            and 'navigation.navigate("FoodDetail", { id: foodId })' in scan_screen
+            and 'navigation.navigate("FoodDetail", { id: foodId })' in ban_list_screen
+            and 'navigation.navigate("FoodDetail", { id: linkedFoodId })' in molecule_detail_screen,
+            "mobile source navigation must reject malformed food and molecule IDs before navigation",
+        ),
+        MobileCheck(
             "scan-upload-mime-contract",
             'return "image/png"' in api_client
             and 'return "image/webp"' in api_client
@@ -416,6 +430,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "MAX_COMPARE_IDS = 3" in api_client
             and "Compare IDs must be unique." in api_client
             and "Compare IDs must be non-empty." in api_client
+            and "Compare IDs must not be placeholder values." in api_client
             and "/foods/compare/?ids=" in api_client
             and "Compare: undefined" in navigation_types
             and "CompareScreen" in app_root

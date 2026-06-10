@@ -429,6 +429,12 @@ describe("api", () => {
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
+    test("compare rejects placeholder IDs before fetch", async () => {
+      expect(() => api.compare(["food-1", "undefined"])).toThrow("Compare IDs must not be placeholder values.");
+      expect(() => api.compare(["food-1", " null "])).toThrow("Compare IDs must not be placeholder values.");
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
     test("compare rejects duplicate IDs before fetch", async () => {
       expect(() => api.compare(["same", "same"])).toThrow("Compare IDs must be unique.");
       expect(mockFetch).not.toHaveBeenCalled();

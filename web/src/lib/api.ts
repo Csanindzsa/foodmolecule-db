@@ -47,6 +47,12 @@ function compareIdsPath(ids: string[]): string {
   if (ids.some((id) => id.trim().length === 0)) {
     throw new Error("Compare IDs must be non-empty.");
   }
+  if (ids.some((id) => {
+    const cleaned = id.trim().toLowerCase();
+    return cleaned === "undefined" || cleaned === "null";
+  })) {
+    throw new Error("Compare IDs must not be placeholder values.");
+  }
   if (new Set(ids).size !== ids.length) {
     throw new Error("Compare IDs must be unique.");
   }

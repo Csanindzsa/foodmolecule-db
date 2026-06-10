@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useBanList } from "../hooks/useApi";
 import { formatLethalDose, lethalDoseSortValue } from "../lib/banListDisplay";
+import { validRouteId } from "../lib/routeId";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import { formatOptionalText } from "../lib/textDisplay";
 import type { BanListEntry } from "../types";
@@ -132,14 +133,17 @@ export default function BanList() {
                 const category = formatOptionalText(entry.food?.category);
                 const reason = formatOptionalText(entry.reason) ?? "No reason listed.";
                 const safeCondition = formatOptionalText(entry.safe_condition);
+                const foodId = validRouteId(entry.food?.id);
 
                 return (
                   <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-4 py-3 text-sm">
-                      {entry.food ? (
-                        <Link to={`/foods/${entry.food.id}`} className="font-medium capitalize text-blue-600 dark:text-blue-400 hover:underline">
+                      {foodId ? (
+                        <Link to={`/foods/${foodId}`} className="font-medium capitalize text-blue-600 dark:text-blue-400 hover:underline">
                           {foodName}
                         </Link>
+                      ) : entry.food ? (
+                        <span className="font-medium capitalize">{foodName}</span>
                       ) : (
                         <span className="italic text-gray-400 dark:text-gray-500">Unknown food</span>
                       )}

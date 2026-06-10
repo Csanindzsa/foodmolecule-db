@@ -246,13 +246,9 @@ export default function MoleculeDetail() {
             {foods.map((food) => {
               const healthIndex = normalizeScore(food.health_index);
               const category = formatOptionalText(food.category);
-
-              return (
-                <Link
-                  key={food.id}
-                  to={`/foods/${food.id}`}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-white dark:border-gray-700 dark:bg-gray-800 hover:shadow dark:hover:border-gray-600 transition"
-                >
+              const foodId = validRouteId(food.id);
+              const foodContent = (
+                <>
                   <div>
                     <span className="font-medium capitalize">{food.name}</span>
                     {category && <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">{category}</span>}
@@ -262,7 +258,24 @@ export default function MoleculeDetail() {
                       {healthIndex}
                     </span>
                   )}
+                </>
+              );
+
+              return foodId ? (
+                <Link
+                  key={food.id}
+                  to={`/foods/${foodId}`}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-white dark:border-gray-700 dark:bg-gray-800 hover:shadow dark:hover:border-gray-600 transition"
+                >
+                  {foodContent}
                 </Link>
+              ) : (
+                <div
+                  key={food.id || food.name}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-white dark:border-gray-700 dark:bg-gray-800"
+                >
+                  {foodContent}
+                </div>
               );
             })}
           </div>

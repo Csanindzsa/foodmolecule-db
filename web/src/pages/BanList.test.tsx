@@ -213,6 +213,25 @@ describe("BanList page", () => {
     expect(link!.textContent).toBe("trans fat");
   });
 
+  test("food with malformed ID renders name without detail link", () => {
+    mockUseBanList.mockReturnValue({
+      data: [
+        {
+          ...mockEntries[0],
+          food: { ...mockEntries[0].food, id: "undefined", name: "bad id food" },
+        },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<BanList />);
+
+    expect(container.textContent).toContain("bad id food");
+    expect(container.querySelector('a[href="/foods/undefined"]')).toBeNull();
+  });
+
   test("category text is rendered", () => {
     mockUseBanList.mockReturnValue({
       data: mockEntries,

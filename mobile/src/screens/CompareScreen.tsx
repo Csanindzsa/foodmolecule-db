@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { api, type CompareResponse, type FoodListItem } from "../lib/api";
 import { asArray, firstItems } from "../lib/array";
 import { formatCount, moleculeAmountEntries, sharedMoleculeNames } from "../lib/compareDisplay";
+import { validRouteId } from "../lib/routeId";
 import { formatScore } from "../lib/scoreDisplay";
 import { formatOptionalText } from "../lib/textDisplay";
 import type { RootStackParamList } from "../navigation/types";
@@ -49,6 +50,7 @@ export default function CompareScreen({ navigation }: Props) {
   };
 
   const addFood = (food: FoodListItem) => {
+    if (!validRouteId(food.id)) return;
     if (selected.some((item) => item.id === food.id) || selected.length >= 3) return;
     setSelected((items) => [...items, food]);
     setComparison(null);
@@ -131,12 +133,16 @@ export default function CompareScreen({ navigation }: Props) {
           <Text style={styles.sectionTitle}>Comparison</Text>
           {comparisonFoods.map((food) => {
             const moleculeEntries = moleculeAmountEntries(food.molecules);
+            const foodId = validRouteId(food.id);
 
             return (
               <Pressable
                 key={food.id}
                 style={styles.compareCard}
-                onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
+                disabled={!foodId}
+                onPress={() => {
+                  if (foodId) navigation.navigate("FoodDetail", { id: foodId });
+                }}
               >
                 <Text style={styles.foodName}>{food.name}</Text>
                 <Text style={styles.meta}>Health {formatScore(food.health_index)} · Safety {formatScore(food.safety_score)}</Text>

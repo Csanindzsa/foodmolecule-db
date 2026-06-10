@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type ScanResponse } from "../lib/api";
 import { asArray } from "../lib/array";
+import { validRouteId } from "../lib/routeId";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatHazardLevel, ingredientTerms, rawOcrPreview } from "../lib/scanDisplay";
 import { formatPercent, formatScore, normalizeScore } from "../lib/scoreDisplay";
@@ -118,12 +119,16 @@ export default function ScanScreen({ navigation }: Props) {
           <Text style={styles.sectionTitle}>Matched foods</Text>
           {matchedFoods.length > 0 ? matchedFoods.map((food) => {
             const imageUrl = externalHttpUrl(food.image_url);
+            const foodId = validRouteId(food.id);
 
             return (
               <Pressable
                 key={food.id}
                 style={styles.matchItem}
-                onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
+                disabled={!foodId}
+                onPress={() => {
+                  if (foodId) navigation.navigate("FoodDetail", { id: foodId });
+                }}
               >
                 {imageUrl && (
                   <Image

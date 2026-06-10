@@ -83,6 +83,7 @@ describe("mobile API client", () => {
     expect(() => api.compare(["one"])).toThrow("Compare requires 2-3 food IDs.");
     expect(() => api.compare(["one", "two", "three", "four"])).toThrow("Compare requires 2-3 food IDs.");
     expect(() => api.compare(["one", ""])).toThrow("Compare IDs must be non-empty.");
+    expect(() => api.compare(["one", "undefined"])).toThrow("Compare IDs must not be placeholder values.");
     expect(() => api.compare(["one", "one"])).toThrow("Compare IDs must be unique.");
     expect(fetchMock).not.toHaveBeenCalled();
   });
