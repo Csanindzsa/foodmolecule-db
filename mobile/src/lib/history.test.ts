@@ -47,6 +47,7 @@ describe("history storage helpers", () => {
 
   test("normalizeHistoryItem rejects malformed values and clamps health context", () => {
     expect(normalizeHistoryItem({ id: "", name: "Apple", scannedAt: "2026-06-10T10:00:00Z" })).toBeNull();
+    expect(normalizeHistoryItem({ id: "x".repeat(129), name: "Apple", scannedAt: "2026-06-10T10:00:00Z" })).toBeNull();
     expect(normalizeHistoryItem({ id: "food-1", name: "Apple", scannedAt: "not a date" })).toBeNull();
     expect(normalizeHistoryItem({
       id: " food-1 ",

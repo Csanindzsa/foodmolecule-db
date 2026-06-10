@@ -210,6 +210,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "image_url?: string" in history_store
             and "health_index?: number | null" in history_store
             and "normalizeHistoryItem(item)" in history_store
+            and "validRouteId(cleanString(item.id))" in (mobile_root / "src" / "lib" / "history.ts").read_text(encoding="utf-8")
             and "Date.parse" in (mobile_root / "src" / "lib" / "history.ts").read_text(encoding="utf-8")
             and "image_url: food.image_url" in scan_screen
             and (

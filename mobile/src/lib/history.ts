@@ -1,4 +1,5 @@
 import { normalizeScore } from "./scoreDisplay";
+import { validRouteId } from "./routeId";
 
 export interface StoredHistoryItem {
   id: string;
@@ -23,7 +24,7 @@ function cleanScannedAt(value: unknown): string | null {
 export function normalizeHistoryItem(value: unknown): StoredHistoryItem | null {
   if (!value || typeof value !== "object") return null;
   const item = value as Record<string, unknown>;
-  const id = cleanString(item.id);
+  const id = validRouteId(cleanString(item.id));
   const name = cleanString(item.name);
   const scannedAt = cleanScannedAt(item.scannedAt);
   if (!id || !name || !scannedAt) return null;
