@@ -20,6 +20,7 @@ def test_mobile_release_checker_passes_static_mvp_contract():
         "scan-upload-mime-contract",
         "scan-result-ux-contract",
         "scan-history-contract",
+        "mobile-image-surface-contract",
         "eas-build-profiles",
     }
 
@@ -38,6 +39,7 @@ def test_mobile_release_cli_outputs_summary(capsys):
     assert exit_code == 0
     assert "ok\tproduction-api-url" in captured.out
     assert "ok\tscan-result-ux-contract" in captured.out
+    assert "ok\tmobile-image-surface-contract" in captured.out
     assert "skip\tstore-identifiers" in captured.out
 
 

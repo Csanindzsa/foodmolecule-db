@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActivityIndicator, Button, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Button, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodListItem } from "../lib/api";
@@ -59,15 +59,24 @@ export default function SearchScreen({ navigation }: Props) {
         contentContainerStyle={styles.results}
         renderItem={({ item }) => (
           <Pressable style={styles.resultItem} onPress={() => navigation.navigate("FoodDetail", { id: item.id })}>
-            <Text style={styles.resultTitle}>{item.name}</Text>
-            <Text style={styles.resultMeta}>
-              Health {item.health_index ?? "unknown"} · Safety {item.overall_safety_score ?? "unknown"}
-            </Text>
-            {!!item.molecule_names?.length && (
-              <Text style={styles.resultMeta} numberOfLines={1}>
-                {item.molecule_names.slice(0, 4).join(", ")}
-              </Text>
+            {item.image_url && (
+              <Image
+                source={{ uri: item.image_url }}
+                style={styles.resultImage}
+                accessibilityLabel={`Food photo: ${item.name}`}
+              />
             )}
+            <View style={styles.resultContent}>
+              <Text style={styles.resultTitle}>{item.name}</Text>
+              <Text style={styles.resultMeta}>
+                Health {item.health_index ?? "unknown"} · Safety {item.overall_safety_score ?? "unknown"}
+              </Text>
+              {!!item.molecule_names?.length && (
+                <Text style={styles.resultMeta} numberOfLines={1}>
+                  {item.molecule_names.slice(0, 4).join(", ")}
+                </Text>
+              )}
+            </View>
           </Pressable>
         )}
       />
@@ -81,7 +90,9 @@ const styles = StyleSheet.create({
   status: { marginTop: 16, color: "#475569" },
   error: { color: "#b91c1c" },
   results: { paddingTop: 16, gap: 10 },
-  resultItem: { borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 8, padding: 12, backgroundColor: "#fff" },
+  resultItem: { flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 8, padding: 12, backgroundColor: "#fff" },
+  resultImage: { width: 56, height: 56, borderRadius: 8, backgroundColor: "#f8fafc" },
+  resultContent: { flex: 1, minWidth: 0 },
   resultTitle: { fontSize: 17, fontWeight: "700", textTransform: "capitalize" },
   resultMeta: { marginTop: 4, color: "#64748b" },
 });

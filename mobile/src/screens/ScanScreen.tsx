@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type ScanResponse } from "../lib/api";
@@ -106,10 +106,19 @@ export default function ScanScreen({ navigation }: Props) {
               style={styles.matchItem}
               onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
             >
-              <Text style={styles.matchTitle}>{food.name}</Text>
-              <Text style={styles.meta}>
-                Health {food.health_index ?? "unknown"} · Hazard {food.max_molecule_harm ?? "unknown"}
-              </Text>
+              {food.image_url && (
+                <Image
+                  source={{ uri: food.image_url }}
+                  style={styles.matchImage}
+                  accessibilityLabel={`Food photo: ${food.name}`}
+                />
+              )}
+              <View style={styles.matchContent}>
+                <Text style={styles.matchTitle}>{food.name}</Text>
+                <Text style={styles.meta}>
+                  Health {food.health_index ?? "unknown"} · Hazard {food.max_molecule_harm ?? "unknown"}
+                </Text>
+              </View>
             </Pressable>
           )) : (
             <Text style={styles.meta}>No food matches found.</Text>
@@ -158,7 +167,9 @@ const styles = StyleSheet.create({
   },
   chipWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
-  matchItem: { borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 8, padding: 12, backgroundColor: "#fff" },
+  matchItem: { flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 8, padding: 12, backgroundColor: "#fff" },
+  matchImage: { width: 56, height: 56, borderRadius: 8, backgroundColor: "#f8fafc" },
+  matchContent: { flex: 1, minWidth: 0 },
   matchTitle: { fontSize: 17, fontWeight: "700", textTransform: "capitalize" },
   rawText: { color: "#334155", lineHeight: 20 },
 });

@@ -42,6 +42,8 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     app = _load_json(mobile_root / "app.json")["expo"]
     eas = _load_json(mobile_root / "eas.json")
     scan_screen = (mobile_root / "src" / "screens" / "ScanScreen.tsx").read_text(encoding="utf-8")
+    search_screen = (mobile_root / "src" / "screens" / "SearchScreen.tsx").read_text(encoding="utf-8")
+    food_detail_screen = (mobile_root / "src" / "screens" / "FoodDetailScreen.tsx").read_text(encoding="utf-8")
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
 
@@ -108,6 +110,20 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "addHistory" in scan_screen
             and "response.foods.slice(0, 5)" in scan_screen,
             "successful scans must persist up to five matched foods to local history",
+        ),
+        MobileCheck(
+            "mobile-image-surface-contract",
+            "image_url?: string" in api_client
+            and "Image" in search_screen
+            and "item.image_url" in search_screen
+            and "resultImage" in search_screen
+            and "Image" in food_detail_screen
+            and "food.image_url" in food_detail_screen
+            and "heroImage" in food_detail_screen
+            and "Image" in scan_screen
+            and "food.image_url" in scan_screen
+            and "matchImage" in scan_screen,
+            "mobile search, detail, and scan result screens must surface enriched food images",
         ),
         MobileCheck(
             "eas-build-profiles",

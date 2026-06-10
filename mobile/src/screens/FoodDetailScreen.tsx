@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodDetail } from "../lib/api";
@@ -60,6 +60,13 @@ export default function FoodDetailScreen({ route }: Props) {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+      {food.image_url && (
+        <Image
+          source={{ uri: food.image_url }}
+          style={styles.heroImage}
+          accessibilityLabel={`Food photo: ${food.name}`}
+        />
+      )}
       <Text style={styles.title}>{food.name}</Text>
       <View style={styles.scoreRow}>
         <View style={styles.scoreBox}>
@@ -92,6 +99,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   scrollContainer: { flexGrow: 1, padding: 16 },
   centered: { flex: 1, alignItems: "center", justifyContent: "center" },
+  heroImage: { width: "100%", height: 180, borderRadius: 12, marginBottom: 16, backgroundColor: "#f8fafc" },
   title: { fontSize: 28, fontWeight: "bold", marginBottom: 16, textTransform: "capitalize" },
   scoreRow: { flexDirection: "row", gap: 12, marginBottom: 16 },
   scoreBox: { flex: 1, borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 8, padding: 14, backgroundColor: "#fff" },
