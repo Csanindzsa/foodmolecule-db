@@ -47,6 +47,23 @@ def test_molecule_search_matches_numeric_pubchem_cid():
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("view", "path"),
+    [
+        (FoodListView, "/api/v1/foods/"),
+        (FoodSearchView, "/api/v1/foods/search/"),
+        (MoleculeListView, "/api/v1/molecules/"),
+        (MoleculeSearchView, "/api/v1/molecules/search/"),
+    ],
+)
+def test_search_queries_reject_excessive_length(view, path):
+    response = _get(view, f"{path}?q={'a' * 129}")
+
+    assert response.status_code == 400
+    assert response.data["detail"] == "Query parameter 'q' must be at most 128 characters."
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize("param", ["min_health_index", "max_health_index", "max_hazard_level"])
 def test_food_list_rejects_invalid_integer_filters(param):
     response = _get(FoodListView, f"/api/v1/foods/?{param}=bad")

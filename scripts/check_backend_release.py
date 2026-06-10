@@ -90,6 +90,15 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[BackendReleaseCheck, 
             "scan API must sanitize OCR ingredients, malformed raw text, and confidence before responding",
         ),
         BackendReleaseCheck(
+            "search-query-bounds",
+            "MAX_SEARCH_QUERY_CHARS = 128" in views
+            and "def _parse_search_query_param" in views
+            and "must be at most {MAX_SEARCH_QUERY_CHARS} characters" in views
+            and "_parse_search_query_param(request, lowercase=True)" in views
+            and "_parse_search_query_param(self.request)" in views,
+            "search and list query filters must bound q length before database filters",
+        ),
+        BackendReleaseCheck(
             "runbook-linked-from-launch-checklist",
             "python scripts/check_backend_release.py" in runbook
             and "docs/backend_release_checks.md" in checklist,

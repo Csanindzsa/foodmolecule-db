@@ -29,6 +29,7 @@ from .models import BanListEntry, Food, FoodCategory, FoodMolecule, Molecule, Pr
 
 MAX_SCAN_IMAGE_BYTES = 8 * 1024 * 1024
 MAX_SCAN_RAW_TEXT_CHARS = 5_000
+MAX_SEARCH_QUERY_CHARS = 128
 OCR_SCANNER_PATH = Path(__file__).resolve().parents[2] / "ocr" / "src" / "pipeline" / "scan.py"
 SCAN_IMAGE_CONTENT_TYPES = frozenset({"image/jpeg", "image/jpg", "image/png", "image/webp"})
 FOOD_DEDUPE_MODES = frozenset({
@@ -124,6 +125,13 @@ def _parse_bool_query_param(request, name: str):
     raise ValueError(f"Query parameter '{name}' must be true or false.")
 
 
+def _parse_search_query_param(request, name: str = "q", *, lowercase: bool = False):
+    value = request.query_params.get(name, "").strip()
+    if len(value) > MAX_SEARCH_QUERY_CHARS:
+        raise ValueError(f"Query parameter '{name}' must be at most {MAX_SEARCH_QUERY_CHARS} characters.")
+    return value.lower() if lowercase else value
+
+
 def _parse_uuid_csv_query_param(request, name: str):
     raw_value = request.query_params.get(name, "")
     values = [value.strip() for value in raw_value.split(",") if value.strip()]
@@ -197,7 +205,7 @@ class FoodListView(generics.ListAPIView):
             link_count=Count("foodmolecule", distinct=True),
             max_molecule_harm_value=Max("foodmolecule__molecule__harm_level"),
         )
-        q = self.request.query_params.get("q", "").strip()
+        q = _parse_search_query_param(self.request)
         category = self.request.query_params.get("category")
         dietary_preferences = [
             value.strip()
@@ -307,13 +315,13 @@ class FoodGuideView(APIView):
 
 class FoodSearchView(APIView):
     def get(self, request):
-        q = request.query_params.get("q", "").strip().lower()
-        if not q:
-            return Response({"results": [], "count": 0})
         try:
+            q = _parse_search_query_param(request, lowercase=True)
             dedupe = _parse_choice_query_param(request, "dedupe", FOOD_DEDUPE_MODES, default="")
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        if not q:
+            return Response({"results": [], "count": 0})
 
         # Trigram similarity search on name and aliases
         foods = Food.objects.filter(
@@ -433,7 +441,7 @@ class MoleculeListView(generics.ListAPIView):
         qs = super().get_queryset().annotate(
             linked_food_count=Count("foodmolecule", distinct=True)
         )
-        q = self.request.query_params.get("q", "").strip()
+        q = _parse_search_query_param(self.request)
         sort_fields = {
             "name_asc": ("name",),
             "name_desc": ("-name",),
@@ -472,7 +480,10 @@ class MoleculeDetailView(generics.RetrieveAPIView):
 
 class MoleculeSearchView(APIView):
     def get(self, request):
-        q = request.query_params.get("q", "").strip()
+        try:
+            q = _parse_search_query_param(request)
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         if not q:
             return Response({"results": [], "count": 0})
 
