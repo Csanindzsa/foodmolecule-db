@@ -7,6 +7,7 @@ CI, a Render shell, or a local machine without installing project dependencies.
 from __future__ import annotations
 
 import argparse
+import json
 import mimetypes
 import os
 import sys
@@ -30,6 +31,7 @@ class Probe:
     expected_statuses: tuple[int, ...] = (200,)
     body_path: Path | None = None
     requirement: str | None = None
+    expect_json: bool = True
 
 
 @dataclass(frozen=True)
@@ -166,10 +168,10 @@ def run_probe(
     try:
         with urlopen(_build_request(base_url, probe), timeout=timeout) as response:
             status = response.getcode()
-            body = response.read(512).decode("utf-8", errors="replace")
+            body = response.read(4096).decode("utf-8", errors="replace")
     except error.HTTPError as exc:
         status = exc.code
-        body = exc.read(512).decode("utf-8", errors="replace")
+        body = exc.read(4096).decode("utf-8", errors="replace")
     except (OSError, error.URLError) as exc:
         elapsed_ms = round((time.perf_counter() - started) * 1000)
         return ProbeResult(probe, None, elapsed_ms, False, str(exc))
@@ -178,6 +180,12 @@ def run_probe(
     ok = status in probe.expected_statuses
     expected = "/".join(str(value) for value in probe.expected_statuses)
     detail = f"status {status}; expected {expected}"
+    if ok and probe.expect_json:
+        try:
+            json.loads(body)
+        except json.JSONDecodeError:
+            ok = False
+            detail = f"{detail}; expected JSON body"
     if not ok and body:
         detail = f"{detail}; body {body[:200]}"
     return ProbeResult(probe, status, elapsed_ms, ok, detail)

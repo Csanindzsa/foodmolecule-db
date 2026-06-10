@@ -110,6 +110,21 @@ def test_api_smoke_run_probe_uses_expected_request_url():
     }
 
 
+def test_api_smoke_run_probe_rejects_non_json_success_body():
+    def fake_urlopen(req, timeout):
+        return FakeResponse(status=200, body=b"<html>not the API</html>")
+
+    result = smoke_api.run_probe(
+        "https://api.nutrii.fit/api/v1",
+        smoke_api.Probe("food-list", "GET", "foods/?page_size=1"),
+        timeout=3,
+        urlopen=fake_urlopen,
+    )
+
+    assert not result.ok
+    assert "expected JSON body" in result.detail
+
+
 def test_api_smoke_cli_is_documented_for_launch_use():
     docs = (PROJECT_ROOT / "docs" / "api_smoke_test.md").read_text(encoding="utf-8")
     checklist = (PROJECT_ROOT / "docs" / "launch_checklist.md").read_text(encoding="utf-8")
