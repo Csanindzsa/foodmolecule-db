@@ -3,6 +3,7 @@ import { useFoodDetail, useFoodMolecules, useFoodStudies, useFoodGuide, useFoodH
 import { formatAmount } from "../lib/amountDisplay";
 import { formatConfidence } from "../lib/confidenceDisplay";
 import { formatDate } from "../lib/dateDisplay";
+import { formatGuideText } from "../lib/guideDisplay";
 import { foodMoleculeBadgeClass, foodMoleculeBadgeLabel } from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore, normalizeScore } from "../lib/scoreDisplay";
@@ -51,6 +52,7 @@ export default function FoodDetail() {
 
   if (!food) return null;
   const foodImageUrl = externalHttpUrl(food.image_url);
+  const guideText = formatGuideText(guide?.guide);
   const guideGeneratedAt = formatDate(guide?.generated_at);
 
   return (
@@ -112,7 +114,7 @@ export default function FoodDetail() {
         </div>
       ) : null}
 
-      {(guide?.guide || guideLoading || guideError) && (
+      {(guideText || guideLoading || guideError) && (
         <section className="p-4 rounded-xl border bg-blue-50 dark:border-gray-700 dark:bg-blue-900/30">
           <h2 className="text-lg font-semibold mb-2">Agent Guide</h2>
           {guideError ? (
@@ -130,7 +132,7 @@ export default function FoodDetail() {
           ) : guide ? (
             <>
               <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                {guide.guide}
+                {guideText}
               </div>
               {guideGeneratedAt && (
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Generated: {guideGeneratedAt}</p>

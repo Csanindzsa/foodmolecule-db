@@ -445,6 +445,21 @@ describe("FoodDetail page", () => {
     expect(document.body.textContent).not.toContain("Invalid Date");
   });
 
+  test("agent guide hides malformed guide copy", () => {
+    mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });
+    mockUseFoodGuide.mockReturnValue({
+      data: { ...mockGuide, guide: { text: "not displayable" } as unknown as string },
+      isLoading: false,
+      error: null,
+      refetch: mockRefetchGuide,
+    });
+
+    renderWithRouter(<FoodDetail />);
+
+    expect(document.body.textContent).not.toContain("Agent Guide");
+    expect(document.body.textContent).not.toContain("not displayable");
+  });
+
   // ─── P) Agent Guide loading ───
   test("agent guide loading shows pulsing skeleton", () => {
     mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });

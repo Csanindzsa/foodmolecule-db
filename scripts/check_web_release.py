@@ -40,6 +40,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
     amount_display = _read(web_root / "src" / "lib" / "amountDisplay.ts")
     compare_display = _read(web_root / "src" / "lib" / "compareDisplay.ts")
     food_detail = _read(web_root / "src" / "pages" / "FoodDetail.tsx")
+    guide_display = _read(web_root / "src" / "lib" / "guideDisplay.ts")
     molecule_detail = _read(web_root / "src" / "pages" / "MoleculeDetail.tsx")
     molecule_display = _read(web_root / "src" / "lib" / "moleculeDisplay.ts")
     index = _read(web_root / "index.html")
@@ -130,6 +131,13 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "formatReductionPercent" in molecule_display
             and "Number.isFinite(value)" in molecule_display,
             "web molecule surfaces must sanitize harm levels, text arrays, amounts, numeric properties, and neutralization reductions before rendering text or badge classes",
+        ),
+        WebReleaseCheck(
+            "guide-display-sanitizers",
+            "formatGuideText(guide?.guide)" in food_detail
+            and "formatGuideText" in guide_display
+            and 'typeof value !== "string"' in guide_display,
+            "web food detail must sanitize AI guide copy before rendering",
         ),
         WebReleaseCheck(
             "ci-web-build",
