@@ -136,7 +136,24 @@ def _is_supported_scan_image(image) -> bool:
     return content_type in SCAN_IMAGE_CONTENT_TYPES
 
 
-def _scan_raw_text_preview(raw_text: str) -> tuple[str, bool]:
+def _scan_ingredients(value) -> list[str]:
+    if not isinstance(value, (list, tuple)):
+        return []
+    ingredients = []
+    for ingredient in value:
+        if not isinstance(ingredient, str):
+            continue
+        normalized = ingredient.strip()
+        if normalized:
+            ingredients.append(normalized)
+    return ingredients[:30]
+
+
+def _scan_raw_text_preview(raw_text) -> tuple[str, bool]:
+    if raw_text is None:
+        raw_text = ""
+    elif not isinstance(raw_text, str):
+        raw_text = str(raw_text)
     if len(raw_text) <= MAX_SCAN_RAW_TEXT_CHARS:
         return raw_text, False
     return raw_text[:MAX_SCAN_RAW_TEXT_CHARS], True
@@ -558,9 +575,9 @@ class IngredientScanView(APIView):
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
 
-        ingredients = scan_result.ingredients[:30]
-        confidence = _scan_confidence(scan_result.confidence)
-        raw_text_preview, raw_text_truncated = _scan_raw_text_preview(scan_result.raw_text)
+        ingredients = _scan_ingredients(getattr(scan_result, "ingredients", None))
+        confidence = _scan_confidence(getattr(scan_result, "confidence", None))
+        raw_text_preview, raw_text_truncated = _scan_raw_text_preview(getattr(scan_result, "raw_text", None))
         food_query = _ingredient_query(ingredients)
         molecule_query = _molecule_query(ingredients)
 

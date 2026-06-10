@@ -50,6 +50,23 @@ class ConfidenceScanner:
         )
 
 
+class MalformedScanner:
+    def scan(self, image_bytes: bytes):
+        return SimpleNamespace(
+            ingredients=[" spinach ", "", 42, "oxalic acid"],
+            raw_text=None,
+        )
+
+
+class NumericRawTextScanner:
+    def scan(self, image_bytes: bytes):
+        return SimpleNamespace(
+            ingredients="spinach, oxalic acid",
+            confidence=None,
+            raw_text=12345,
+        )
+
+
 class FakeQuerySet(list):
     def select_related(self, *args):
         return self
@@ -237,6 +254,40 @@ def test_scan_defaults_nonnumeric_confidence_to_zero(monkeypatch):
 
     assert response.status_code == 200
     assert response.data["confidence"] == 0.0
+
+
+def test_scan_normalizes_malformed_scanner_output(monkeypatch):
+    monkeypatch.setattr("core.views._build_label_scanner", lambda: MalformedScanner())
+    monkeypatch.setattr("core.views.Food", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.Molecule", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.serializers.FoodListSerializer", FakeSerializer)
+    monkeypatch.setattr("core.views.serializers.MoleculeSerializer", FakeSerializer)
+    image = SimpleUploadedFile("label.jpg", b"image-bytes", content_type="image/jpeg")
+
+    response = _scan_request(image)
+
+    assert response.status_code == 200
+    assert response.data["ingredients"] == ["spinach", "oxalic acid"]
+    assert response.data["confidence"] == 0.0
+    assert response.data["raw_text"] == ""
+    assert response.data["raw_text_truncated"] is False
+    assert response.data["count"] == 0
+
+
+def test_scan_defaults_nonlist_ingredients_and_stringifies_raw_text(monkeypatch):
+    monkeypatch.setattr("core.views._build_label_scanner", lambda: NumericRawTextScanner())
+    monkeypatch.setattr("core.views.Food", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.Molecule", SimpleNamespace(objects=FakeManager([])))
+    monkeypatch.setattr("core.views.serializers.FoodListSerializer", FakeSerializer)
+    monkeypatch.setattr("core.views.serializers.MoleculeSerializer", FakeSerializer)
+    image = SimpleUploadedFile("label.jpg", b"image-bytes", content_type="image/jpeg")
+
+    response = _scan_request(image)
+
+    assert response.status_code == 200
+    assert response.data["ingredients"] == []
+    assert response.data["confidence"] == 0.0
+    assert response.data["raw_text"] == "12345"
 
 
 def test_scan_truncates_long_raw_ocr_text(monkeypatch):
