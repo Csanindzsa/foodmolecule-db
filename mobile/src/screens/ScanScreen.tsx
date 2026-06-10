@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type ScanResponse } from "../lib/api";
 import { asArray } from "../lib/array";
+import { externalHttpUrl } from "../lib/safeUrl";
 import { formatPercent, formatScore, normalizeScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 import { useHistoryStore } from "../stores/useHistoryStore";
@@ -113,27 +114,31 @@ export default function ScanScreen({ navigation }: Props) {
           )}
 
           <Text style={styles.sectionTitle}>Matched foods</Text>
-          {matchedFoods.length > 0 ? matchedFoods.map((food) => (
-            <Pressable
-              key={food.id}
-              style={styles.matchItem}
-              onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
-            >
-              {food.image_url && (
-                <Image
-                  source={{ uri: food.image_url }}
-                  style={styles.matchImage}
-                  accessibilityLabel={`Food photo: ${food.name}`}
-                />
-              )}
-              <View style={styles.matchContent}>
-                <Text style={styles.matchTitle}>{food.name}</Text>
-                <Text style={styles.meta}>
-                  Health {formatScore(food.health_index)} · Hazard {food.max_molecule_harm ?? "unknown"}
-                </Text>
-              </View>
-            </Pressable>
-          )) : (
+          {matchedFoods.length > 0 ? matchedFoods.map((food) => {
+            const imageUrl = externalHttpUrl(food.image_url);
+
+            return (
+              <Pressable
+                key={food.id}
+                style={styles.matchItem}
+                onPress={() => navigation.navigate("FoodDetail", { id: food.id })}
+              >
+                {imageUrl && (
+                  <Image
+                    source={{ uri: imageUrl }}
+                    style={styles.matchImage}
+                    accessibilityLabel={`Food photo: ${food.name}`}
+                  />
+                )}
+                <View style={styles.matchContent}>
+                  <Text style={styles.matchTitle}>{food.name}</Text>
+                  <Text style={styles.meta}>
+                    Health {formatScore(food.health_index)} · Hazard {food.max_molecule_harm ?? "unknown"}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          }) : (
             <Text style={styles.meta}>No food matches found.</Text>
           )}
 

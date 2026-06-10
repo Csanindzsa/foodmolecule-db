@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Button, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 import { useHistoryStore } from "../stores/useHistoryStore";
@@ -37,6 +38,7 @@ export default function HomeScreen({ navigation }: Props) {
             <Button title="Clear" onPress={clearHistory} />
           </View>
           {history.slice(0, 5).map((item) => {
+            const imageUrl = externalHttpUrl(item.image_url);
             const score = normalizeScore(item.health_index);
 
             return (
@@ -45,9 +47,9 @@ export default function HomeScreen({ navigation }: Props) {
                 style={styles.historyItem}
                 onPress={() => navigation.navigate("FoodDetail", { id: item.id })}
               >
-                {item.image_url && (
+                {imageUrl && (
                   <Image
-                    source={{ uri: item.image_url }}
+                    source={{ uri: imageUrl }}
                     style={styles.historyImage}
                     accessibilityLabel={`Food photo: ${item.name}`}
                   />

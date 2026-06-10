@@ -4,6 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type FoodListItem, type Molecule } from "../lib/api";
 import { asArray } from "../lib/array";
+import { externalHttpUrl } from "../lib/safeUrl";
 import { formatScore } from "../lib/scoreDisplay";
 import type { RootStackParamList } from "../navigation/types";
 
@@ -64,52 +65,60 @@ export default function SearchScreen({ navigation }: Props) {
         {foodResults.length > 0 && (
           <View style={styles.resultSection}>
             <Text style={styles.sectionTitle}>Foods</Text>
-            {foodResults.map((item) => (
-              <Pressable key={item.id} style={styles.resultItem} onPress={() => navigation.navigate("FoodDetail", { id: item.id })}>
-                {item.image_url && (
-                  <Image
-                    source={{ uri: item.image_url }}
-                    style={styles.resultImage}
-                    accessibilityLabel={`Food photo: ${item.name}`}
-                  />
-                )}
-                <View style={styles.resultContent}>
-                  <Text style={styles.resultTitle}>{item.name}</Text>
-                  <Text style={styles.resultMeta}>
-                    Health {formatScore(item.health_index)} · Safety {formatScore(item.overall_safety_score)}
-                  </Text>
-                  {!!item.molecule_names?.length && (
-                    <Text style={styles.resultMeta} numberOfLines={1}>
-                      {item.molecule_names.slice(0, 4).join(", ")}
-                    </Text>
+            {foodResults.map((item) => {
+              const imageUrl = externalHttpUrl(item.image_url);
+
+              return (
+                <Pressable key={item.id} style={styles.resultItem} onPress={() => navigation.navigate("FoodDetail", { id: item.id })}>
+                  {imageUrl && (
+                    <Image
+                      source={{ uri: imageUrl }}
+                      style={styles.resultImage}
+                      accessibilityLabel={`Food photo: ${item.name}`}
+                    />
                   )}
-                </View>
-              </Pressable>
-            ))}
+                  <View style={styles.resultContent}>
+                    <Text style={styles.resultTitle}>{item.name}</Text>
+                    <Text style={styles.resultMeta}>
+                      Health {formatScore(item.health_index)} · Safety {formatScore(item.overall_safety_score)}
+                    </Text>
+                    {!!item.molecule_names?.length && (
+                      <Text style={styles.resultMeta} numberOfLines={1}>
+                        {item.molecule_names.slice(0, 4).join(", ")}
+                      </Text>
+                    )}
+                  </View>
+                </Pressable>
+              );
+            })}
           </View>
         )}
 
         {moleculeResults.length > 0 && (
           <View style={styles.resultSection}>
             <Text style={styles.sectionTitle}>Molecules</Text>
-            {moleculeResults.map((molecule) => (
-              <Pressable key={molecule.id} style={styles.resultItem} onPress={() => navigation.navigate("MoleculeDetail", { id: molecule.id })}>
-                {molecule.structure_image_url && (
-                  <Image
-                    source={{ uri: molecule.structure_image_url }}
-                    style={styles.moleculeImage}
-                    accessibilityLabel={`Molecular structure: ${molecule.name}`}
-                  />
-                )}
-                <View style={styles.resultContent}>
-                  <Text style={styles.resultTitle}>{molecule.name}</Text>
-                  <Text style={styles.resultMeta}>
-                    Harm {molecule.harm_level ?? "unknown"}
-                    {molecule.molecular_formula ? ` · ${molecule.molecular_formula}` : ""}
-                  </Text>
-                </View>
-              </Pressable>
-            ))}
+            {moleculeResults.map((molecule) => {
+              const imageUrl = externalHttpUrl(molecule.structure_image_url);
+
+              return (
+                <Pressable key={molecule.id} style={styles.resultItem} onPress={() => navigation.navigate("MoleculeDetail", { id: molecule.id })}>
+                  {imageUrl && (
+                    <Image
+                      source={{ uri: imageUrl }}
+                      style={styles.moleculeImage}
+                      accessibilityLabel={`Molecular structure: ${molecule.name}`}
+                    />
+                  )}
+                  <View style={styles.resultContent}>
+                    <Text style={styles.resultTitle}>{molecule.name}</Text>
+                    <Text style={styles.resultMeta}>
+                      Harm {molecule.harm_level ?? "unknown"}
+                      {molecule.molecular_formula ? ` · ${molecule.molecular_formula}` : ""}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })}
           </View>
         )}
       </ScrollView>

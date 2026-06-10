@@ -4,6 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { api, type MoleculeDetail } from "../lib/api";
 import { asArray } from "../lib/array";
+import { externalHttpUrl } from "../lib/safeUrl";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MoleculeDetail">;
@@ -67,12 +68,13 @@ export default function MoleculeDetailScreen({ navigation, route }: Props) {
 
   const foods = asArray(molecule.foods);
   const harmMechanisms = asArray(molecule.harm_mechanisms);
+  const imageUrl = externalHttpUrl(molecule.structure_image_url);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {molecule.structure_image_url && (
+      {imageUrl && (
         <Image
-          source={{ uri: molecule.structure_image_url }}
+          source={{ uri: imageUrl }}
           style={styles.structureImage}
           accessibilityLabel={`Molecular structure: ${molecule.name}`}
         />

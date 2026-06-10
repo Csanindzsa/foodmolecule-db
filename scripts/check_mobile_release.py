@@ -54,6 +54,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     home_screen = (mobile_root / "src" / "screens" / "HomeScreen.tsx").read_text(encoding="utf-8")
     history_store = (mobile_root / "src" / "stores" / "useHistoryStore.ts").read_text(encoding="utf-8")
     api_client = (mobile_root / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
+    safe_url = (mobile_root / "src" / "lib" / "safeUrl.ts").read_text(encoding="utf-8")
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
     plugins = _plugin_names(app)
 
@@ -167,15 +168,22 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "Image" in search_screen
             and "item.image_url" in search_screen
             and "molecule.structure_image_url" in search_screen
+            and "externalHttpUrl(item.image_url)" in search_screen
+            and "externalHttpUrl(molecule.structure_image_url)" in search_screen
             and "resultImage" in search_screen
             and "moleculeImage" in search_screen
             and "Image" in food_detail_screen
             and "food.image_url" in food_detail_screen
+            and "externalHttpUrl(food.image_url)" in food_detail_screen
             and "heroImage" in food_detail_screen
             and "Image" in scan_screen
             and "food.image_url" in scan_screen
+            and "externalHttpUrl(food.image_url)" in scan_screen
+            and "externalHttpUrl(item.image_url)" in home_screen
+            and "externalHttpUrl(molecule.structure_image_url)" in molecule_detail_screen
+            and "externalHttpUrl" in safe_url
             and "matchImage" in scan_screen,
-            "mobile search, detail, and scan result screens must surface enriched food images",
+            "mobile search, detail, scan, and history screens must surface enriched images through an HTTP(S)-only sanitizer",
         ),
         MobileCheck(
             "mobile-search-molecule-contract",

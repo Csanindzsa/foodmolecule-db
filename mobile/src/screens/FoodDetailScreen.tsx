@@ -104,12 +104,13 @@ export default function FoodDetailScreen({ route }: Props) {
 
   const aliases = asArray(food.aliases);
   const foodMolecules = asArray(food.molecules);
+  const imageUrl = externalHttpUrl(food.image_url);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {food.image_url && (
+      {imageUrl && (
         <Image
-          source={{ uri: food.image_url }}
+          source={{ uri: imageUrl }}
           style={styles.heroImage}
           accessibilityLabel={`Food photo: ${food.name}`}
         />
