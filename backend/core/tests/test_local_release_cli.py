@@ -12,6 +12,7 @@ def test_local_release_audit_default_commands_are_no_credential_checks():
 
     assert names == [
         "python-source-compile",
+        "secret-hygiene",
         "seed-readiness",
         "ban-list-schema",
         "django-migration-drift",

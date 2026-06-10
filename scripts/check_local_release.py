@@ -41,6 +41,7 @@ LOCAL_AUDIT_COMMANDS = (
             "scripts",
         ),
     ),
+    AuditCommand("secret-hygiene", ("scripts/check_secret_hygiene.py",)),
     AuditCommand("seed-readiness", ("scripts/check_seed_readiness.py", "--min-foods", "100", "--min-molecules", "4")),
     AuditCommand("ban-list-schema", ("scripts/validate_schema.py", "ban_list", "ban_list/ban_list.json")),
     AuditCommand(
