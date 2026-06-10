@@ -11,6 +11,8 @@ describe("date display helpers", () => {
     expect(formatDateTime(null)).toBeNull();
     expect(formatDateTime(undefined)).toBeNull();
     expect(formatDateTime("not a date")).toBeNull();
+    expect(formatDateTime(0)).toBeNull();
+    expect(formatDateTime(new Date("2026-06-10T10:00:00Z"))).toBeNull();
     expect(formatDateTime(Number.NaN)).toBeNull();
   });
 });
