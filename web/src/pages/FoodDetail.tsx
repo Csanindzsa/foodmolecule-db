@@ -10,6 +10,7 @@ export default function FoodDetail() {
   const { data: studies, isLoading: studiesLoading, error: studiesError, refetch: refetchStudies } = useFoodStudies(idStr);
   const { data: guide, isLoading: guideLoading, error: guideError, refetch: refetchGuide } = useFoodGuide(idStr);
   const { data: health, isLoading: healthLoading, error: healthError } = useFoodHealthIndex(idStr);
+  const visibleStudies = studies?.slice(0, 5) ?? [];
 
   if (foodLoading) {
     return (
@@ -116,7 +117,7 @@ export default function FoodDetail() {
             </div>
           ) : guideLoading ? (
             <div className="h-20 bg-blue-100 dark:bg-blue-900/40 animate-pulse rounded" />
-          ) : (
+          ) : guide ? (
             <>
               <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                 {guide.guide}
@@ -125,7 +126,7 @@ export default function FoodDetail() {
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Generated: {new Date(guide.generated_at).toLocaleDateString()}</p>
               )}
             </>
-          )}
+          ) : null}
         </section>
       )}
 
@@ -182,7 +183,7 @@ export default function FoodDetail() {
         )}
       </section>
 
-      {(studiesError || studiesLoading || (studies && studies.length > 0)) && (
+      {(studiesError || studiesLoading || visibleStudies.length > 0) && (
         <section>
           <h2 className="text-xl font-semibold mb-3">Latest Research</h2>
           {studiesError ? (
@@ -207,7 +208,7 @@ export default function FoodDetail() {
             </div>
           ) : (
             <div className="space-y-3">
-              {studies.slice(0, 5).map((s) => (
+              {visibleStudies.map((s) => (
                 <div key={s.id} className="p-4 rounded-xl border bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="text-sm font-medium">{s.title}</div>
                   {s.ai_summary && (

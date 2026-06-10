@@ -46,7 +46,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
         WebReleaseCheck(
             "package-build-scripts",
             package.get("private") is True
-            and scripts.get("test") == "bun test src"
+            and scripts.get("test") == "bun test --isolate src"
             and scripts.get("build") == "tsc -b && vite build"
             and "vite" in package.get("devDependencies", {})
             and (web_root / "bun.lock").is_file(),
@@ -83,6 +83,7 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             "Sitemap: https://nutrii.fit/sitemap.xml" in robots
             and "https://nutrii.fit/search" in sitemap
             and "https://nutrii.fit/compare" in sitemap
+            and "https://nutrii.fit/research" in sitemap
             and "https://nutrii.fit/ban-list" in sitemap,
             "robots.txt and sitemap.xml must expose crawlable static routes",
         ),

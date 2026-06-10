@@ -23,6 +23,7 @@ python scripts/check_mobile_release.py --require-store-ids
 - Preview and production EAS profiles point `EXPO_PUBLIC_API_URL` at `https://api.nutrii.fit/api/v1`.
 - `expo-camera` and `expo-image-picker` plugins are configured.
 - iOS camera and photo-library permission copy exists.
+- Mobile Bun installs are reproducible from `mobile/bun.lock`.
 - `ScanScreen` launches camera/gallery image selection and submits through `api.scanImage`.
 - The mobile API client posts multipart images to `/scan/`.
 - The mobile upload client names scan files and sends JPEG, PNG, or WebP content types.

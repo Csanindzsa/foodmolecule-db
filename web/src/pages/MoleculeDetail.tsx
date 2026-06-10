@@ -30,6 +30,13 @@ function neutralizationDetails(neutralization: NeutralizationDisplay): string[] 
   return details;
 }
 
+function formatMolecularWeight(value: string | null): string | null {
+  if (value == null) return null;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return value;
+  return String(parsed);
+}
+
 export default function MoleculeDetail() {
   const { id } = useParams<{ id: string }>();
   const idStr = id || "";
@@ -93,6 +100,7 @@ export default function MoleculeDetail() {
   const harmColor = molecule.harm_level >= 4 ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400" :
     molecule.harm_level >= 2 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400" :
     "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400";
+  const molecularWeight = formatMolecularWeight(molecule.molecular_weight);
 
   return (
     <div className="space-y-8">
@@ -136,7 +144,7 @@ export default function MoleculeDetail() {
         <h2 className="text-xl font-semibold mb-3">Properties</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <PropertyCard label="Molecular Formula" value={molecule.molecular_formula} />
-          <PropertyCard label="Molecular Weight" value={molecule.molecular_weight != null ? `${molecule.molecular_weight} g/mol` : null} />
+          <PropertyCard label="Molecular Weight" value={molecularWeight != null ? `${molecularWeight} g/mol` : null} />
           <PropertyCard label="CAS Number" value={molecule.cas_number} />
           <PropertyCard label="PubChem CID" value={molecule.pubchem_cid != null ? String(molecule.pubchem_cid) : null} />
         </div>

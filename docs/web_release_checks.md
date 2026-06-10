@@ -14,7 +14,7 @@ CI and the local release audit run this command before backend tests.
 
 ## What It Verifies
 
-- `web/package.json` keeps locked Bun install, test, and production build commands.
+- `web/package.json` keeps locked Bun install, isolated test, and production build commands.
 - Vite builds to `dist`, uses React and Tailwind, and does not emit public production source maps.
 - The web API client supports `VITE_API_URL`, legacy `VITE_API_BASE_URL`, and same-origin `/api/v1` fallback.
 - `index.html` includes launch SEO, canonical URL, and Open Graph metadata.

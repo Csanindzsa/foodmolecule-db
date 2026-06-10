@@ -82,6 +82,13 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "iOS camera and photo-library permission copy must be present",
         ),
         MobileCheck(
+            "mobile-bun-lockfile",
+            (mobile_root / "bun.lock").is_file()
+            and '"name": "nutrii-mobile"' in (mobile_root / "bun.lock").read_text(encoding="utf-8")
+            and '"expo": "~52.0.0"' in (mobile_root / "bun.lock").read_text(encoding="utf-8"),
+            "mobile Bun installs must be reproducible from a committed lockfile",
+        ),
+        MobileCheck(
             "scan-screen-wiring",
             "launchCameraAsync" in scan_screen
             and "launchImageLibraryAsync" in scan_screen

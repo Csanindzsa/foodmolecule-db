@@ -82,6 +82,9 @@ data/exports/
 # Mypy
 .mypy_cache/
 
+# TypeScript
+*.tsbuildinfo
+
 # Ruff
 .ruff_cache/
 

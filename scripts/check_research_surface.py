@@ -49,7 +49,8 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ResearchSurfaceCheck,
         ResearchSurfaceCheck(
             "food-detail-research-section",
             "Latest Research" in food_detail
-            and "studies.slice(0, 5)" in food_detail
+            and "visibleStudies = studies?.slice(0, 5) ?? []" in food_detail
+            and "visibleStudies.map" in food_detail
             and "s.ai_summary" in food_detail,
             "food detail must render the latest study cards with AI summaries",
         ),

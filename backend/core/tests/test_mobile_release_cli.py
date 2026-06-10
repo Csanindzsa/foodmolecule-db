@@ -15,6 +15,7 @@ def test_mobile_release_checker_passes_static_mvp_contract():
         "production-api-url",
         "camera-and-library-plugins",
         "ios-permission-copy",
+        "mobile-bun-lockfile",
         "scan-screen-wiring",
         "scan-api-client",
         "scan-upload-mime-contract",
