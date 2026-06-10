@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSearch } from "../hooks/useApi";
+import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 
 export default function Search() {
   const [params, setParams] = useSearchParams();
@@ -43,23 +44,32 @@ export default function Search() {
         <section>
           <h2 className="text-lg font-semibold mb-2">Foods</h2>
           <div className="grid gap-2">
-            {data.foods.map((f) => (
-              <Link
-                key={f.id}
-                to={`/foods/${f.id}`}
-                className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow transition"
-              >
-                {f.image_url && (
-                  <img
-                    src={f.image_url}
-                    alt={`Food photo: ${f.name}`}
-                    loading="lazy"
-                    className="h-12 w-12 shrink-0 rounded-md object-cover"
-                  />
-                )}
-                <span className="font-medium capitalize">{f.name}</span>
-              </Link>
-            ))}
+            {data.foods.map((f) => {
+              const healthIndex = normalizeScore(f.health_index);
+
+              return (
+                <Link
+                  key={f.id}
+                  to={`/foods/${f.id}`}
+                  className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow transition"
+                >
+                  {f.image_url && (
+                    <img
+                      src={f.image_url}
+                      alt={`Food photo: ${f.name}`}
+                      loading="lazy"
+                      className="h-12 w-12 shrink-0 rounded-md object-cover"
+                    />
+                  )}
+                  <span className="min-w-0 flex-1 font-medium capitalize">{f.name}</span>
+                  {healthIndex !== null && (
+                    <span className={`shrink-0 text-xs font-bold px-2 py-1 rounded-full ${scoreBadgeClass(healthIndex)}`}>
+                      {healthIndex}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

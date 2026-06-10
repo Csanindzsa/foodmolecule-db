@@ -89,8 +89,8 @@ describe("Search page", () => {
     mockUseSearch.mockReturnValue({
       data: {
         foods: [
-          { id: "1", name: "apple", molecular_formula: "C6H12O6" },
-          { id: "2", name: "banana", molecular_formula: "" },
+          { id: "1", name: "apple", molecular_formula: "C6H12O6", health_index: 85 },
+          { id: "2", name: "banana", molecular_formula: "", health_index: 65 },
         ],
         molecules: [],
       },
@@ -108,6 +108,46 @@ describe("Search page", () => {
     expect(links.length).toBe(2);
     expect(links[0].getAttribute("href")).toBe("/foods/1");
     expect(links[1].getAttribute("href")).toBe("/foods/2");
+    expect(document.body.textContent).toContain("85");
+    expect(document.body.textContent).toContain("65");
+  });
+
+  test("food result health index badges clamp out-of-range scores", () => {
+    mockUseSearch.mockReturnValue({
+      data: {
+        foods: [
+          { id: "1", name: "high", health_index: 150 },
+          { id: "2", name: "low", health_index: -20 },
+        ],
+        molecules: [],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    const { container } = renderWithRouter(<Search />, ["/search?q=test"]);
+
+    expect(container.textContent).toContain("100");
+    expect(container.textContent).toContain("0");
+    expect(container.textContent).not.toContain("150");
+    expect(container.textContent).not.toContain("-20");
+  });
+
+  test("food result health index badge is hidden for non-finite scores", () => {
+    mockUseSearch.mockReturnValue({
+      data: {
+        foods: [{ id: "1", name: "nan food", health_index: NaN }],
+        molecules: [],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    const { container } = renderWithRouter(<Search />, ["/search?q=test"]);
+
+    expect(container.textContent).toContain("nan food");
+    expect(container.textContent).not.toContain("NaN");
+    expect(container.querySelector(".rounded-full")).toBeNull();
   });
 
   test("success state renders molecules section", () => {
