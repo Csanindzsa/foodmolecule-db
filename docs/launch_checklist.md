@@ -8,7 +8,7 @@
 ### Backend
 - [ ] Run launch environment preflight with `python scripts/check_launch_env.py --env-file .env.production` (`docs/launch_environment.md`)
 - [ ] Run full `pytest-django` suite against live Supabase (needs Docker up or live DB)
-- [ ] Verify all 17 API endpoints respond from the deployed API with `python scripts/smoke_api.py --require-full` (`docs/api_smoke_test.md`); separately confirm high-traffic queries are <200ms with `EXPLAIN ANALYZE`
+- [ ] Verify all 17 API endpoints respond from the deployed API with `python scripts/smoke_api.py --require-full` (`docs/api_smoke_test.md`); separately confirm high-traffic queries are <200ms with `python scripts/check_query_plans.py --threshold-ms 200` (`docs/query_plan_checks.md`)
 - [x] Add GIN indexes on `Food.name`, `Molecule.name`, `Study.title` if not present (`backend/core/migrations/0003_postgres_trigram_search_indexes.py`)
 - [ ] Configure Render/Fly.io `DATABASE_URL`; add `REDIS_URL` only if switching from local-memory cache to a shared cache
 - [x] Set `DEBUG=False`, configure `ALLOWED_HOSTS` (`render.yaml`, `backend/core/tests/test_deploy_config.py`)
