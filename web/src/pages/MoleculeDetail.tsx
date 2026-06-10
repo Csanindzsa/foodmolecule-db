@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useMoleculeDetail, useMoleculeFoods, useMoleculeNeutralizations } from "../hooks/useApi";
+import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import type { MoleculeNeutralization } from "../types";
 
@@ -102,6 +103,7 @@ export default function MoleculeDetail() {
     molecule.harm_level >= 2 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400" :
     "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400";
   const molecularWeight = formatMolecularWeight(molecule.molecular_weight);
+  const structureImageUrl = externalHttpUrl(molecule.structure_image_url);
 
   return (
     <div className="space-y-8">
@@ -113,9 +115,9 @@ export default function MoleculeDetail() {
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{molecule.iupac_name}</p>
           )}
         </div>
-        {molecule.structure_image_url && (
+        {structureImageUrl && (
           <img
-            src={molecule.structure_image_url}
+            src={structureImageUrl}
             alt={`Molecular structure: ${molecule.name}`}
             loading="lazy"
             className="h-40 w-40 rounded-lg border bg-white object-contain p-3 dark:border-gray-700 dark:bg-gray-800"

@@ -96,6 +96,24 @@ describe("Home page", () => {
     expect(document.body.textContent).toContain("90");
   });
 
+  test("success state does not render unsafe food image URLs", () => {
+    mockUseHomeData.mockReturnValue({
+      data: {
+        stats: { foods: 1, molecules: 1, studies_analyzed: 1 },
+        foods: [
+          { id: "1", name: "apple", health_index: 85, category: "Fruit", image_url: "javascript:alert(1)" },
+        ],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    const { container } = renderWithRouter(<Home />);
+
+    expect(container.textContent).toContain("apple");
+    expect(container.querySelector("img")).toBeNull();
+  });
+
   test("empty foods array renders empty grid", () => {
     const data = {
       stats: { foods: 0, molecules: 0, studies_analyzed: 0 },

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useHomeData } from "../hooks/useApi";
+import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 
 function foodCardKey(food: { id?: string; name?: string }, index: number) {
@@ -49,6 +50,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {foods.map((food, index) => {
               const healthIndex = normalizeScore(food.health_index);
+              const imageUrl = externalHttpUrl(food.image_url);
 
               return (
                 <Link
@@ -56,9 +58,9 @@ export default function Home() {
                   to={`/foods/${food.id || ""}`}
                   className="block p-4 rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow dark:hover:border-gray-600 transition"
                 >
-                  {food.image_url && (
+                  {imageUrl && (
                     <img
-                      src={food.image_url}
+                      src={imageUrl}
                       alt={`Food photo: ${food.name}`}
                       loading="lazy"
                       className="mb-3 h-28 w-full rounded-lg object-cover"

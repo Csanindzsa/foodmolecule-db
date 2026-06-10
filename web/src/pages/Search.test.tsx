@@ -112,6 +112,27 @@ describe("Search page", () => {
     expect(document.body.textContent).toContain("65");
   });
 
+  test("success state does not render unsafe food or molecule image URLs", () => {
+    mockUseSearch.mockReturnValue({
+      data: {
+        foods: [
+          { id: "1", name: "apple", health_index: 85, image_url: "javascript:alert(1)" },
+        ],
+        molecules: [
+          { id: "m1", name: "Water", molecular_formula: "H2O", structure_image_url: "data:image/svg+xml,<svg />" },
+        ],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    const { container } = renderWithRouter(<Search />, ["/search?q=test"]);
+
+    expect(container.textContent).toContain("apple");
+    expect(container.textContent).toContain("Water");
+    expect(container.querySelector("img")).toBeNull();
+  });
+
   test("food result health index badges clamp out-of-range scores", () => {
     mockUseSearch.mockReturnValue({
       data: {

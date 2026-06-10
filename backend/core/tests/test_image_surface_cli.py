@@ -15,6 +15,7 @@ def test_image_surface_checker_passes_static_web_contract():
     assert "food-detail-image" in names
     assert "molecule-detail-image" in names
     assert "list-image-thumbnails" in names
+    assert "http-only-image-urls" in names
 
 
 def test_image_surface_cli_outputs_live_handoff(capsys):

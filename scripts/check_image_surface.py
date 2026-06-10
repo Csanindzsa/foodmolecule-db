@@ -27,6 +27,7 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ImageSurfaceCheck, ..
     molecule_detail = _read(project_root / "web" / "src" / "pages" / "MoleculeDetail.tsx")
     home = _read(project_root / "web" / "src" / "pages" / "Home.tsx")
     search = _read(project_root / "web" / "src" / "pages" / "Search.tsx")
+    safe_url = _read(project_root / "web" / "src" / "lib" / "safeUrl.ts")
     runbook = _read(project_root / "docs" / "image_surface_checks.md")
     checklist = _read(project_root / "docs" / "launch_checklist.md")
 
@@ -39,6 +40,7 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ImageSurfaceCheck, ..
         ImageSurfaceCheck(
             "food-detail-image",
             "food.image_url" in food_detail
+            and "externalHttpUrl(food.image_url)" in food_detail
             and "<img" in food_detail
             and "loading=\"lazy\"" in food_detail
             and "object-cover" in food_detail
@@ -48,6 +50,7 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ImageSurfaceCheck, ..
         ImageSurfaceCheck(
             "molecule-detail-image",
             "molecule.structure_image_url" in molecule_detail
+            and "externalHttpUrl(molecule.structure_image_url)" in molecule_detail
             and "<img" in molecule_detail
             and "loading=\"lazy\"" in molecule_detail
             and "object-contain" in molecule_detail
@@ -59,9 +62,19 @@ def run_checks(project_root: Path = PROJECT_ROOT) -> tuple[ImageSurfaceCheck, ..
             "food.image_url" in home
             and "f.image_url" in search
             and "m.structure_image_url" in search
+            and "externalHttpUrl(food.image_url)" in home
+            and "externalHttpUrl(f.image_url)" in search
+            and "externalHttpUrl(m.structure_image_url)" in search
             and home.count("<img") >= 1
             and search.count("<img") >= 2,
             "home and search lists must surface food and molecule image thumbnails",
+        ),
+        ImageSurfaceCheck(
+            "http-only-image-urls",
+            "externalHttpUrl" in safe_url
+            and "http:" in safe_url
+            and "https:" in safe_url,
+            "web image rendering must share the HTTP(S)-only external URL sanitizer",
         ),
         ImageSurfaceCheck(
             "stable-image-layout",

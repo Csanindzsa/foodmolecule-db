@@ -180,6 +180,19 @@ describe("MoleculeDetail page", () => {
     expect(document.body.textContent).toContain("1,3,7-trimethylpurine-2,6-dione");
   });
 
+  test("does not render unsafe structure image URLs", () => {
+    mockUseMoleculeDetail.mockReturnValue({
+      data: { ...mockMolecule, structure_image_url: "javascript:alert(1)" },
+      isLoading: false,
+      error: null,
+    });
+
+    const { container } = renderWithRouter(<MoleculeDetail />);
+
+    expect(container.textContent).toContain("Caffeine");
+    expect(container.querySelector("img")).toBeNull();
+  });
+
   test("does not show IUPAC name when it's empty string", () => {
     mockUseMoleculeDetail.mockReturnValue({
       data: { ...mockMolecule, iupac_name: "" },

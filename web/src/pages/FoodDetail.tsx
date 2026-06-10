@@ -45,14 +45,15 @@ export default function FoodDetail() {
   }
 
   if (!food) return null;
+  const foodImageUrl = externalHttpUrl(food.image_url);
 
   return (
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4 min-w-0">
-          {food.image_url && (
+          {foodImageUrl && (
             <img
-              src={food.image_url}
+              src={foodImageUrl}
               alt={`Food photo: ${food.name}`}
               loading="lazy"
               className="h-24 w-24 shrink-0 rounded-lg border bg-gray-50 object-cover dark:border-gray-700 dark:bg-gray-800"

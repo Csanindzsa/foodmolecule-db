@@ -18,6 +18,7 @@ CI and the local release audit run this command before backend tests.
 - Food detail renders a lazy-loaded food image when `image_url` is present.
 - Molecule detail renders a lazy-loaded molecular structure image when `structure_image_url` is present.
 - Home and search result lists show stable image thumbnails.
+- Web image URLs pass through the shared HTTP(S)-only URL sanitizer before rendering.
 - Image containers use fixed dimensions to reduce layout shift.
 
 ## Live Launch Follow-Up

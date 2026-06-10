@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSearch } from "../hooks/useApi";
+import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 
 export default function Search() {
@@ -46,6 +47,7 @@ export default function Search() {
           <div className="grid gap-2">
             {data.foods.map((f) => {
               const healthIndex = normalizeScore(f.health_index);
+              const imageUrl = externalHttpUrl(f.image_url);
 
               return (
                 <Link
@@ -53,9 +55,9 @@ export default function Search() {
                   to={`/foods/${f.id}`}
                   className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow transition"
                 >
-                  {f.image_url && (
+                  {imageUrl && (
                     <img
-                      src={f.image_url}
+                      src={imageUrl}
                       alt={`Food photo: ${f.name}`}
                       loading="lazy"
                       className="h-12 w-12 shrink-0 rounded-md object-cover"
@@ -78,24 +80,28 @@ export default function Search() {
         <section>
           <h2 className="text-lg font-semibold mb-2">Molecules</h2>
           <div className="grid gap-2">
-            {data.molecules.map((m) => (
-              <div key={m.id} className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800">
-                {m.structure_image_url && (
-                  <img
-                    src={m.structure_image_url}
-                    alt={`Molecular structure: ${m.name}`}
-                    loading="lazy"
-                    className="h-12 w-12 shrink-0 rounded-md bg-white object-contain p-1 dark:bg-gray-900"
-                  />
-                )}
-                <div>
-                  <span className="font-medium">{m.name}</span>
-                  {m.molecular_formula && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{m.molecular_formula}</span>
+            {data.molecules.map((m) => {
+              const imageUrl = externalHttpUrl(m.structure_image_url);
+
+              return (
+                <div key={m.id} className="flex items-center gap-3 p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800">
+                  {imageUrl && (
+                    <img
+                      src={imageUrl}
+                      alt={`Molecular structure: ${m.name}`}
+                      loading="lazy"
+                      className="h-12 w-12 shrink-0 rounded-md bg-white object-contain p-1 dark:bg-gray-900"
+                    />
                   )}
+                  <div>
+                    <span className="font-medium">{m.name}</span>
+                    {m.molecular_formula && (
+                      <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{m.molecular_formula}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}

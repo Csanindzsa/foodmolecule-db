@@ -195,6 +195,19 @@ describe("FoodDetail page", () => {
     expect(document.body.textContent).toContain("Fruit");
   });
 
+  test("success state does not render unsafe food image URLs", () => {
+    mockUseFoodDetail.mockReturnValue({
+      data: { ...mockFood, image_url: "javascript:alert(1)" },
+      isLoading: false,
+      error: null,
+    });
+
+    const { container } = renderWithRouter(<FoodDetail />);
+
+    expect(container.textContent).toContain("apple");
+    expect(container.querySelector("img")).toBeNull();
+  });
+
   // ─── D) Health index ───
   test("health index shows health_index number and label", () => {
     mockUseFoodDetail.mockReturnValue({ data: mockFood, isLoading: false, error: null });
