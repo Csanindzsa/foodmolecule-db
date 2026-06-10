@@ -302,18 +302,18 @@ GET /api/v1/stats/
 |-----------|--------|-------|
 | Expo project setup | ✅ Complete | SDK 52, TypeScript, React Navigation |
 | App.tsx navigation | ✅ Complete | Stack navigator with 4 screens |
-| HomeScreen | ✅ Complete | Title, subtitle, navigation buttons |
-| SearchScreen | ✅ Complete | API-backed search results and navigation |
-| FoodDetailScreen | ✅ Complete | API-backed detail screen with molecules |
-| ScanScreen | ✅ Complete | Camera/gallery image scan posts to backend `/scan/` |
-| History store (`useHistoryStore.ts`) | ✅ Complete | Zustand + AsyncStorage |
+| HomeScreen | ✅ Complete | Entry actions plus recent scan history with food image and health context |
+| SearchScreen | ✅ Complete | API-backed food and molecule results with enriched image thumbnails |
+| FoodDetailScreen | ✅ Complete | API-backed detail screen with images, molecules, health breakdown, AI guide, and linked research |
+| ScanScreen | ✅ Complete | Camera/gallery image scan posts to backend `/scan/` and surfaces OCR confidence, matches, and images |
+| History store (`useHistoryStore.ts`) | ✅ Complete | Zustand + AsyncStorage with five-item scan history |
 | EAS build profiles | ✅ Complete | Development, preview, and production profiles in `mobile/eas.json` |
 | iOS build | ⬜ Not started | Requires Apple account and bundle identifier |
 | Android build | ⬜ Not started | Requires Google Play account and package identifier |
 | Components directory | ⬜ Empty | Directory exists, no files |
 | Hooks directory | ⬜ Not started | Missing |
 
-**Notes:** Mobile app has API-backed search/detail and OCR scan flows. Native build, physical-device permission testing, and real-label OCR validation remain open.
+**Notes:** API-backed mobile flows now cover food and molecule search, rich food detail, OCR scanning, and recent scan history. Food detail shares enriched image, molecule, health-index breakdown, AI guide, and PubMed research context with the backend. Native build, physical-device permission testing, and real-label OCR validation remain open.
 
 ---
 
