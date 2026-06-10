@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { normalizeHistory, normalizeHistoryItem, type StoredHistoryItem } from "../lib/history";
+import { HISTORY_LIMIT, normalizeHistory, normalizeHistoryItem, type StoredHistoryItem } from "../lib/history";
 
 type HistoryItem = StoredHistoryItem & {
   image_url?: string;
@@ -23,7 +23,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
     const normalized = normalizeHistoryItem(item);
     if (!normalized) return;
     const deduped = get().history.filter((existing) => existing.id !== normalized.id);
-    const next = [normalized, ...deduped].slice(0, 50);
+    const next = [normalized, ...deduped].slice(0, HISTORY_LIMIT);
     set({ history: next });
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => undefined);
   },

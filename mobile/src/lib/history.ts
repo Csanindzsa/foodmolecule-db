@@ -1,6 +1,8 @@
 import { normalizeScore } from "./scoreDisplay";
 import { validRouteId } from "./routeId";
 
+export const HISTORY_LIMIT = 5;
+
 export interface StoredHistoryItem {
   id: string;
   name: string;
@@ -50,7 +52,7 @@ export function normalizeHistory(raw: string | null): StoredHistoryItem[] {
     return parsed
       .map(normalizeHistoryItem)
       .filter((item): item is StoredHistoryItem => item !== null)
-      .slice(0, 50);
+      .slice(0, HISTORY_LIMIT);
   } catch {
     return [];
   }

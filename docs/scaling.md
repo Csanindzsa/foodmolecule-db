@@ -21,7 +21,7 @@
 
 - Django LocMemCache: In-memory cache for API responses (sufficient for MVP)
 - CDN: Static assets, food images (if added later)
-- Local: Mobile app caches last 50 searches in SQLite
+- Local: Mobile app stores the five most recent scan results in AsyncStorage
 
 ## Read Replica Strategy
 

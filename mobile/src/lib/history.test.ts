@@ -35,14 +35,14 @@ describe("history storage helpers", () => {
     ]);
   });
 
-  test("normalizeHistory caps restored history at 50 items", () => {
+  test("normalizeHistory caps restored history at 5 items", () => {
     const raw = JSON.stringify(Array.from({ length: 60 }, (_, index) => ({
       id: `food-${index}`,
       name: `Food ${index}`,
       scannedAt: "2026-06-10T10:00:00Z",
     })));
 
-    expect(normalizeHistory(raw)).toHaveLength(50);
+    expect(normalizeHistory(raw)).toHaveLength(5);
   });
 
   test("normalizeHistoryItem rejects malformed values and clamps health context", () => {
