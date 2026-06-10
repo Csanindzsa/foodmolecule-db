@@ -60,6 +60,7 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
     safe_url = (mobile_root / "src" / "lib" / "safeUrl.ts").read_text(encoding="utf-8")
     confidence_display = (mobile_root / "src" / "lib" / "confidenceDisplay.ts").read_text(encoding="utf-8")
     compare_display = (mobile_root / "src" / "lib" / "compareDisplay.ts").read_text(encoding="utf-8")
+    guide_display = (mobile_root / "src" / "lib" / "guideDisplay.ts").read_text(encoding="utf-8")
     molecule_display = (mobile_root / "src" / "lib" / "moleculeDisplay.ts").read_text(encoding="utf-8")
     scan_display = (mobile_root / "src" / "lib" / "scanDisplay.ts").read_text(encoding="utf-8")
     year_display = (mobile_root / "src" / "lib" / "yearDisplay.ts").read_text(encoding="utf-8")
@@ -307,11 +308,15 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             and "api.foodGuide(id)" in food_detail_screen
             and "api.foodHealthIndex(id)" in food_detail_screen
             and "Agent Guide" in food_detail_screen
-            and "guide.guide" in food_detail_screen
+            and "formatGuideText(guide?.guide)" in food_detail_screen
+            and "formatGuideMetadata(guide?.generated_by, guide?.version)" in food_detail_screen
+            and "formatGuideText" in guide_display
+            and "formatGuideMetadata" in guide_display
+            and "Number.isFinite(version)" in guide_display
             and "Health Breakdown" in food_detail_screen
             and "breakdown.benefit_score" in food_detail_screen
             and "breakdown.bioavailability_score" in food_detail_screen,
-            "mobile food detail must surface AI guide copy and health-index breakdowns",
+            "mobile food detail must surface sanitized AI guide copy/metadata and health-index breakdowns",
         ),
         MobileCheck(
             "mobile-ban-list-contract",
