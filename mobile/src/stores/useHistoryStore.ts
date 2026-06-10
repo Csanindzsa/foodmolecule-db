@@ -1,15 +1,13 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { normalizeHistory, type StoredHistoryItem } from "../lib/history";
 import { normalizeScore } from "../lib/scoreDisplay";
 
-interface HistoryItem {
-  id: string;
-  name: string;
-  scannedAt: string;
+type HistoryItem = StoredHistoryItem & {
   image_url?: string;
   health_index?: number | null;
-}
+};
 
 interface HistoryState {
   history: HistoryItem[];
@@ -19,30 +17,6 @@ interface HistoryState {
 }
 
 const STORAGE_KEY = "nutrii_history";
-
-function normalizeHistory(raw: string | null): HistoryItem[] {
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter((item): item is HistoryItem =>
-        typeof item?.id === "string" &&
-        typeof item?.name === "string" &&
-        typeof item?.scannedAt === "string",
-      )
-      .map((item) => ({
-        id: item.id,
-        name: item.name,
-        scannedAt: item.scannedAt,
-        image_url: typeof item.image_url === "string" ? item.image_url : undefined,
-        health_index: normalizeScore(item.health_index),
-      }))
-      .slice(0, 50);
-  } catch {
-    return [];
-  }
-}
 
 export const useHistoryStore = create<HistoryState>((set, get) => ({
   history: [],
