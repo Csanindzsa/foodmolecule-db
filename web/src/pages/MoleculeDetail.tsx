@@ -1,7 +1,14 @@
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useMoleculeDetail, useMoleculeFoods, useMoleculeNeutralizations } from "../hooks/useApi";
-import { formatHarmLevel, formatMolecularWeight, formatPubChemCid, harmLevelBadgeClass, harmLevelLabel } from "../lib/moleculeDisplay";
+import {
+  formatHarmLevel,
+  formatMolecularWeight,
+  formatPubChemCid,
+  formatReductionPercent,
+  harmLevelBadgeClass,
+  harmLevelLabel,
+} from "../lib/moleculeDisplay";
 import { externalHttpUrl } from "../lib/safeUrl";
 import { normalizeScore, scoreBadgeClass } from "../lib/scoreDisplay";
 import type { MoleculeNeutralization } from "../types";
@@ -19,13 +26,13 @@ function neutralizationDetails(neutralization: NeutralizationDisplay): string[] 
   if (!neutralization || typeof neutralization === "string") return [];
 
   const details: string[] = [];
-  const min = neutralization.reduction_percent_min;
-  const max = neutralization.reduction_percent_max;
-  if (min != null && max != null) {
+  const min = formatReductionPercent(neutralization.reduction_percent_min);
+  const max = formatReductionPercent(neutralization.reduction_percent_max);
+  if (min && max) {
     details.push(min === max ? `${min}% reduction` : `${min}-${max}% reduction`);
-  } else if (min != null) {
+  } else if (min) {
     details.push(`At least ${min}% reduction`);
-  } else if (max != null) {
+  } else if (max) {
     details.push(`Up to ${max}% reduction`);
   }
   if (neutralization.time_required) details.push(neutralization.time_required);

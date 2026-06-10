@@ -6,6 +6,7 @@ import {
   formatHarmLevel,
   formatMolecularWeight,
   formatPubChemCid,
+  formatReductionPercent,
   harmLevelBadgeClass,
   harmLevelLabel,
   normalizeHarmLevel,
@@ -44,6 +45,14 @@ describe("molecule display helpers", () => {
     expect(formatPubChemCid(12345.9)).toBe("12345");
     expect(formatPubChemCid(0)).toBeNull();
     expect(formatPubChemCid(Number.NaN)).toBeNull();
+  });
+
+  test("formatReductionPercent keeps bounded finite percentages only", () => {
+    expect(formatReductionPercent(30)).toBe("30");
+    expect(formatReductionPercent(30.5)).toBe("31");
+    expect(formatReductionPercent(-1)).toBeNull();
+    expect(formatReductionPercent(101)).toBeNull();
+    expect(formatReductionPercent(Number.NaN)).toBeNull();
   });
 
   test("badge classes follow normalized harm levels", () => {

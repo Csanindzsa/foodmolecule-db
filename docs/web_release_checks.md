@@ -20,7 +20,7 @@ CI and the local release audit run this command before backend tests.
 - `index.html` includes launch SEO, canonical URL, and Open Graph metadata.
 - `robots.txt` and `sitemap.xml` expose the crawlable launch routes.
 - The Compare page sanitizes molecule amount maps and aggregate count displays before rendering.
-- Food and molecule detail pages sanitize molecule harm levels, amount values, and numeric properties before rendering badge text or classes.
+- Food and molecule detail pages sanitize molecule harm levels, amount values, numeric properties, and neutralization reductions before rendering badge text or classes.
 - CI installs web dependencies with `bun install --frozen-lockfile`, runs tests, and builds the Vite app.
 
 ## Live Launch Follow-Up

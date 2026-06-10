@@ -110,6 +110,8 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "harmLevelBadgeClass(molecule.harm_level)" in molecule_detail
             and "formatMolecularWeight(molecule.molecular_weight)" in molecule_detail
             and "formatPubChemCid(molecule.pubchem_cid)" in molecule_detail
+            and "formatReductionPercent(neutralization.reduction_percent_min)" in molecule_detail
+            and "formatReductionPercent(neutralization.reduction_percent_max)" in molecule_detail
             and "foodMoleculeBadgeClass(fm.molecule.harm_level" in food_detail
             and "foodMoleculeBadgeLabel(fm.molecule.harm_level" in food_detail
             and "formatAmount(fm.amount_per_100g, fm.unit)" in food_detail
@@ -118,8 +120,9 @@ def run_checks(project_root: Path = PROJECT_ROOT, web_root: Path | None = None) 
             and "normalizeHarmLevel" in molecule_display
             and "formatMolecularWeight" in molecule_display
             and "formatPubChemCid" in molecule_display
+            and "formatReductionPercent" in molecule_display
             and "Number.isFinite(value)" in molecule_display,
-            "web molecule surfaces must sanitize harm levels, amounts, and numeric properties before rendering text or badge classes",
+            "web molecule surfaces must sanitize harm levels, amounts, numeric properties, and neutralization reductions before rendering text or badge classes",
         ),
         WebReleaseCheck(
             "ci-web-build",

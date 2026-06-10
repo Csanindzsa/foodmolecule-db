@@ -25,6 +25,12 @@ export function formatPubChemCid(value: unknown): string | null {
   return cid > 0 ? String(cid) : null;
 }
 
+export function formatReductionPercent(value: unknown): string | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  const percent = Math.round(value);
+  return percent >= 0 && percent <= 100 ? String(percent) : null;
+}
+
 export function harmLevelLabel(value: unknown): string {
   const normalized = normalizeHarmLevel(value);
   if (normalized === null) return "Unknown";

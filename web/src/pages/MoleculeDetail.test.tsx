@@ -379,6 +379,35 @@ describe("MoleculeDetail page", () => {
     expect(document.body.textContent).toContain("Fermenting");
   });
 
+  test("hides malformed neutralization reduction values", () => {
+    mockUseMoleculeDetail.mockReturnValue({ data: mockMolecule, isLoading: false, error: null });
+    mockUseMoleculeNeutralizations.mockReturnValue({
+      data: [
+        {
+          ...mockNeutralizations[0],
+          reduction_percent_min: Number.NaN,
+          reduction_percent_max: 95,
+        },
+        {
+          ...mockNeutralizations[1],
+          reduction_percent_min: Number.NaN,
+          reduction_percent_max: Number.POSITIVE_INFINITY,
+          time_required: "2 hours",
+        },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: mockRefetchNeutralizations,
+    });
+
+    renderWithRouter(<MoleculeDetail />);
+
+    expect(document.body.textContent).toContain("Up to 95% reduction");
+    expect(document.body.textContent).toContain("2 hours");
+    expect(document.body.textContent).not.toContain("NaN");
+    expect(document.body.textContent).not.toContain("Infinity");
+  });
+
   test("shows 'No neutralization methods known.' when array is empty", () => {
     mockUseMoleculeDetail.mockReturnValue({ data: mockMolecule, isLoading: false, error: null });
     mockUseMoleculeNeutralizations.mockReturnValue({ data: [], isLoading: false, error: null, refetch: mockRefetchNeutralizations });
