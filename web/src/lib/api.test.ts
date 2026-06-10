@@ -2,7 +2,7 @@ import { describe, test, expect, mock, beforeEach, afterEach } from "bun:test";
 import { api } from "./api";
 
 describe("api", () => {
-  const mockFetch = mock((input: RequestInfo | URL) =>
+  const mockFetch = mock(() =>
     Promise.resolve(
       new Response(JSON.stringify({}), {
         status: 200,

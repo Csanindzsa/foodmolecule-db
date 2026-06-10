@@ -40,6 +40,7 @@ def test_env_template_documents_production_logging_level():
 def test_ci_runs_web_tests_and_build():
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
 
+    assert "bun run lint" in workflow
     assert "bun run test" in workflow
     assert "bun run build" in workflow
 
