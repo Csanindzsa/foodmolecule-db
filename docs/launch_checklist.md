@@ -38,7 +38,7 @@
 - [ ] Verify static PubMed/AI research operations contract with `python scripts/check_research_ops.py` (`docs/research_ops_checks.md`), then verify the PubMed watcher cron job is running every 6 hours in production
 - [ ] Run one full safety adjustment cycle end-to-end after provider keys and production data are available
 - [ ] Verify image enrichment operations contract with `python scripts/check_image_ops.py` (`docs/image_ops_checks.md`), then run molecule and food image enrichment with production Brave/Supabase credentials
-- [ ] Confirm verified ban list entries are surfaced correctly in UI
+- [ ] Verify ban-list draft citation gate with `python scripts/check_ban_list_surface.py` (`docs/ban_list_surface_checks.md`), then confirm any verified production entries are surfaced correctly in the deployed UI
 
 ### Analytics (Phase 14)
 - [ ] Verify privacy-preserving backend analytics logs are captured by production logging (`docs/observability.md`)

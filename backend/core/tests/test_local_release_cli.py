@@ -19,6 +19,7 @@ def test_local_release_audit_default_commands_are_no_credential_checks():
         "mobile-release-contract",
         "research-ops-contract",
         "image-ops-contract",
+        "ban-list-surface-contract",
     ]
 
 

@@ -168,6 +168,20 @@ describe("BanList page", () => {
     expect(getByText("No ban list entries found.").textContent).toBe("No ban list entries found.");
   });
 
+  test("success state surfaces draft citation gate", () => {
+    mockUseBanList.mockReturnValue({
+      data: mockEntries,
+      isLoading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    const { container } = renderWithRouter(<BanList />);
+
+    expect(container.textContent).toContain("Draft safety signals");
+    expect(container.textContent).toContain("Citation verification required before launch");
+  });
+
   // ─── D) Success — table rendering ───
   test("success state renders correct number of table rows", () => {
     mockUseBanList.mockReturnValue({

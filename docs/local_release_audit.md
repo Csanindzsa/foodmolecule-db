@@ -28,6 +28,7 @@ CI runs the no-secret version.
 - Static Expo mobile release contract.
 - PubMed/AI research operations contract.
 - Image enrichment operations contract.
+- Ban-list surface citation-gate contract.
 - Optional launch environment preflight when `--env-file` is provided.
 
 ## Not Included

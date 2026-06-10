@@ -112,8 +112,11 @@ export default function BanList() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Ban List</h1>
       <p className="text-sm text-gray-500 dark:text-gray-400">
-        Substances and foods flagged for safety concerns.
+        Draft safety signals and conditional warnings. Entries require citation and regulatory verification before they are treated as verified production claims.
       </p>
+      <div className="border-l-4 border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400 dark:bg-amber-950/40 dark:text-amber-100">
+        Citation verification required before launch. Use these rows as safety review items until PubMed or regulatory sources are attached.
+      </div>
 
       {sortedEntries.length === 0 ? (
         <p className="text-gray-400 dark:text-gray-500">No ban list entries found.</p>
