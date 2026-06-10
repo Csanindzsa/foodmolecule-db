@@ -168,6 +168,23 @@ def run_checks(mobile_root: Path = MOBILE_ROOT, *, require_store_ids: bool = Fal
             "mobile food detail must surface linked research summaries and PubMed citation links",
         ),
         MobileCheck(
+            "mobile-ai-guide-contract",
+            "type FoodGuide" in api_client
+            and "type HealthBreakdown" in api_client
+            and "foodGuide" in api_client
+            and "foodHealthIndex" in api_client
+            and "/guide/" in api_client
+            and "/health-index/" in api_client
+            and "api.foodGuide(id)" in food_detail_screen
+            and "api.foodHealthIndex(id)" in food_detail_screen
+            and "Agent Guide" in food_detail_screen
+            and "guide.guide" in food_detail_screen
+            and "Health Breakdown" in food_detail_screen
+            and "breakdown.benefit_score" in food_detail_screen
+            and "breakdown.bioavailability_score" in food_detail_screen,
+            "mobile food detail must surface AI guide copy and health-index breakdowns",
+        ),
+        MobileCheck(
             "eas-build-profiles",
             eas["build"]["development"].get("developmentClient") is True
             and eas["build"]["preview"].get("distribution") == "internal"

@@ -47,6 +47,23 @@ export type Study = {
   ai_confidence?: "high" | "medium" | "low" | null;
 };
 
+export type FoodGuide = {
+  food_id: string;
+  guide: string | null;
+  version: number;
+  generated_by: string;
+  generated_at: string;
+};
+
+export type HealthBreakdown = {
+  food_id: string;
+  health_index: number;
+  benefit_score: number;
+  safety_score: number;
+  bioavailability_score: number;
+  label: string;
+};
+
 export type FoodDetail = FoodListItem & {
   aliases: string[];
   origin: string;
@@ -104,6 +121,8 @@ export const api = {
   ),
   food: (id: string) => request<FoodDetail>(`/foods/${pathId(id)}/`),
   foodStudies: (id: string) => request<{ results: Study[] }>(`/foods/${pathId(id)}/studies/`),
+  foodGuide: (id: string) => request<FoodGuide>(`/foods/${pathId(id)}/guide/`),
+  foodHealthIndex: (id: string) => request<HealthBreakdown>(`/foods/${pathId(id)}/health-index/`),
   scanImage: (uri: string) => {
     const body = new FormData();
     body.append("image", {
