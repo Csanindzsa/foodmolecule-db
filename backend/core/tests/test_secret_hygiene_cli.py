@@ -24,7 +24,8 @@ def test_secret_hygiene_rejects_tracked_env_file(tmp_path):
 
 def test_secret_hygiene_rejects_private_key_blocks(tmp_path):
     key_file = tmp_path / "deploy_key.txt"
-    key_file.write_text("-----BEGIN PRIVATE KEY-----\nredacted\n", encoding="utf-8")
+    marker = "-----BEGIN " + "PRIVATE KEY-----"
+    key_file.write_text(f"{marker}\nredacted\n", encoding="utf-8")
 
     findings = check_secret_hygiene.scan_tracked_files([key_file], tmp_path)
 
@@ -33,8 +34,9 @@ def test_secret_hygiene_rejects_private_key_blocks(tmp_path):
 
 def test_secret_hygiene_rejects_actual_looking_provider_keys(tmp_path):
     script = tmp_path / "script.py"
+    key = "sk-or-v1-" + "abcdefghijklmnopqrstuvwxyz123456"
     script.write_text(
-        'OPENROUTER_API_KEY = "sk-or-v1-abcdefghijklmnopqrstuvwxyz123456"\n',
+        f'OPENROUTER_API_KEY = "{key}"\n',
         encoding="utf-8",
     )
 
