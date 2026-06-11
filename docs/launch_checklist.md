@@ -3,6 +3,9 @@
 ## Domain
 - Production domain purchased: `nutrii.fit`
 
+## Launch Handoff
+- [ ] Start with the ordered production launch path in [docs/HANDOFF_NEXT_STEPS.md](HANDOFF_NEXT_STEPS.md) before assigning live deployment, provider, DNS, mobile store, and monitoring work.
+
 ## Pre-Launch (Before Public Release)
 
 ### Backend

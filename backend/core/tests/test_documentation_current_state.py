@@ -92,3 +92,32 @@ def test_current_state_docs_describe_mobile_release_scope():
 
     for claim in required_claims:
         assert claim in docs
+
+
+def test_production_handoff_guide_is_discoverable_and_actionable():
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    checklist = (PROJECT_ROOT / "docs" / "launch_checklist.md").read_text(
+        encoding="utf-8"
+    )
+    handoff = (PROJECT_ROOT / "docs" / "HANDOFF_NEXT_STEPS.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "docs/HANDOFF_NEXT_STEPS.md" in readme
+    assert "docs/HANDOFF_NEXT_STEPS.md" in checklist
+
+    required_launch_gates = [
+        "python scripts/check_local_release.py",
+        "python scripts/check_launch_env.py --env-file .env.production",
+        "python scripts/check_secret_hygiene.py",
+        "python scripts/smoke_api.py --base-url https://api.nutrii.fit/api/v1",
+        "python scripts/check_query_plans.py --threshold-ms 200",
+        "## 2. Phase 1: Freeze And Re-run Local Gates",
+        "## 7. Phase 6: Web Deployment And DNS",
+        "## 10. Phase 9: Mobile And OCR Physical-Device Validation",
+        "bun install --frozen-lockfile",
+        "npx expo prebuild",
+    ]
+
+    for gate in required_launch_gates:
+        assert gate in handoff
